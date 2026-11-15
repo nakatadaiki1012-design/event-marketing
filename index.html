@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
-/* Layout: 劇場の客席から見たステージ。上部に資金バー、左に「チケット半券＋客席図」、右に「プロモーターの机（行動）」。単一のダークな劇場テーマ。 */
+/* Layout: 1画面に収まる劇場テーマ。上部に資金バー、その下が1画面ぶんの作業エリア。各段階の「戻る／次へ」は見出しの右に置き、スクロールせずに押せる。 */
 :root{
   --velvet:#150c1b; --velvet-2:#21132a; --velvet-3:#2e1b3a; --line:#47304f;
   --curtain:#b02a4c; --curtain-deep:#6e1530;
@@ -21,177 +21,210 @@
   color-scheme:dark;
 }
 html,body{height:100%}
-body{background:var(--velvet);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.65;
-  background-image:radial-gradient(1200px 500px at 50% -120px,rgba(233,182,79,.13),transparent 70%),radial-gradient(900px 600px at 50% 120%,rgba(176,42,76,.16),transparent 70%);
-  background-attachment:fixed}
+body{background:var(--velvet);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5;overflow:hidden;
+  background-image:radial-gradient(1200px 500px at 50% -120px,rgba(233,182,79,.13),transparent 70%),radial-gradient(900px 600px at 50% 120%,rgba(176,42,76,.16),transparent 70%)}
 *{box-sizing:border-box}
 button{font-family:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--brass-soft);outline-offset:2px}
-.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 60px}
+#app{height:100%;display:flex;flex-direction:column}
+main.wrap{flex:1;min-height:0;overflow:auto;width:100%}
+.wrap .in2{max-width:1280px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 12px;min-height:100%;display:flex;flex-direction:column;gap:10px}
 .num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
 h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;letter-spacing:.02em}
-h2{font-size:clamp(22px,3.2vw,30px);line-height:1.3}
-h3{font-size:17px}
+h2{font-size:clamp(18px,2.1vw,22px);line-height:1.3}
+h3{font-size:15px}
 p{margin:0}
-.lead{color:var(--mute);max-width:65ch}
-.eyebrow{font-size:12px;letter-spacing:.18em;color:var(--brass);font-weight:700}
+.lead{color:var(--mute);font-size:13px}
+.eyebrow{font-size:11px;letter-spacing:.16em;color:var(--brass);font-weight:700;white-space:nowrap}
 
 /* top bar */
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--velvet)}
-.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:rgba(21,12,27,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--brass-dim)}
-.topbar .in{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
-.brand{font-family:var(--f-display);font-size:18px;color:var(--brass);letter-spacing:.06em;margin-right:auto}
-.stat{display:flex;flex-direction:column;line-height:1.2}
-.stat small{font-size:11px;color:var(--mute);letter-spacing:.08em}
-.stat b{font-family:var(--f-num);font-size:16px;font-weight:600}
-.repbar{width:70px;height:5px;background:var(--seat-off);border-radius:3px;overflow:hidden;margin-top:3px}
+.topbar{flex:none;background:rgba(21,12,27,.92);border-bottom:1px solid var(--brass-dim)}
+.topbar .in{max-width:1280px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:6px;display:flex;gap:14px;align-items:center}
+.brand{font-family:var(--f-display);font-size:16px;color:var(--brass);letter-spacing:.06em;margin-right:auto;white-space:nowrap}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat small{font-size:10px;color:var(--mute);letter-spacing:.08em}
+.stat b{font-family:var(--f-num);font-size:15px;font-weight:600;white-space:nowrap}
+.repbar{width:60px;height:4px;background:var(--seat-off);border-radius:3px;overflow:hidden;margin-top:2px}
 .repbar i{display:block;height:100%;background:var(--brass)}
-.btn{appearance:none;border:1px solid var(--line);background:var(--velvet-3);padding:9px 16px;border-radius:8px;cursor:pointer;font-weight:700;font-size:14px;transition:transform .12s,background .15s,border-color .15s}
+.btn{appearance:none;border:1px solid var(--line);background:var(--velvet-3);padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;transition:transform .12s,background .15s,border-color .15s;white-space:nowrap}
 .btn:hover:not(:disabled){border-color:var(--brass);background:#3a2348}
 .btn:active:not(:disabled){transform:translateY(1px)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .btn.primary{background:linear-gradient(180deg,var(--brass-soft),var(--brass));color:#2a1606;border-color:var(--brass)}
 .btn.primary:hover:not(:disabled){background:linear-gradient(180deg,#fff0bf,var(--brass-soft))}
-.btn.big{padding:14px 26px;font-size:17px;border-radius:10px}
-.btn.sm{padding:6px 11px;font-size:13px}
-.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.btn.big{padding:12px 22px;font-size:15px;border-radius:10px}
+.btn.sm{padding:5px 10px;font-size:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .spacer{flex:1}
 
+/* 見出し行 */
+.phead{display:flex;gap:10px 16px;align-items:center;flex-wrap:wrap}
+.phead .ttl{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 320px}
+.phead .ttl .top{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.phead .nav{display:flex;gap:8px;margin-left:auto}
+
 /* panels */
-.panel{background:var(--velvet-2);border:1px solid var(--line);border-radius:12px;padding:18px}
-.tip{border-left:3px solid var(--brass);background:rgba(233,182,79,.07);padding:12px 14px;border-radius:0 8px 8px 0;font-size:14px;color:var(--ink)}
+.panel{background:var(--velvet-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:0}
+.tip{border-left:3px solid var(--brass);background:rgba(233,182,79,.07);padding:8px 12px;border-radius:0 8px 8px 0;font-size:13px;color:var(--ink)}
 .tip b{color:var(--brass-soft)}
 .muted{color:var(--mute)}
 .good{color:var(--good)} .bad{color:var(--bad)}
-.chip{display:inline-block;font-size:12px;padding:2px 9px;border-radius:99px;border:1px solid var(--line);color:var(--mute);white-space:nowrap}
+.chip{display:inline-block;font-size:11px;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--mute);white-space:nowrap}
 .chip.gold{border-color:var(--brass-dim);color:var(--brass-soft)}
 .chip.ok{border-color:rgba(95,211,165,.5);color:var(--good)}
 .chip.ng{border-color:rgba(255,122,122,.5);color:var(--bad)}
 .term{border-bottom:1px dotted var(--brass);cursor:help;color:var(--brass-soft);background:none;border-top:0;border-left:0;border-right:0;padding:0;font:inherit}
 
 /* stepper */
-.stepper{display:flex;gap:6px;margin:6px 0 18px;flex-wrap:wrap}
-.stepper span{font-size:13px;padding:5px 12px;border-radius:99px;background:var(--velvet-2);border:1px solid var(--line);color:var(--faint)}
+.stepper{display:flex;gap:4px;flex-wrap:wrap}
+.stepper span{font-size:11px;padding:2px 9px;border-radius:99px;background:var(--velvet-2);border:1px solid var(--line);color:var(--faint);white-space:nowrap}
 .stepper span.on{color:#2a1606;background:var(--brass);border-color:var(--brass);font-weight:700}
 .stepper span.done{color:var(--brass-soft);border-color:var(--brass-dim)}
 
 /* artist cards */
-.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-top:16px}
+.grid-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:900px){.grid-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.grid-cards{grid-template-columns:1fr}}
 .acard{position:relative;text-align:left;background:var(--velvet-2);border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer;padding:0;display:flex;flex-direction:column;transition:border-color .15s,transform .15s}
 .acard:hover:not(.locked){border-color:var(--brass);transform:translateY(-2px)}
-.acard.sel{border-color:var(--brass);box-shadow:0 0 0 2px var(--brass) inset}
 .acard.locked{cursor:not-allowed}
-.poster{height:118px;padding:14px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden}
+.acard.locked>*{opacity:.42}
+.acard.locked .lock{opacity:1}
+.poster{height:62px;padding:8px 12px;display:flex;align-items:flex-end;justify-content:space-between;gap:8px;position:relative;overflow:hidden}
 .poster::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.06) 0 2px,transparent 2px 14px)}
-.poster .pn{font-family:var(--f-display);font-size:24px;line-height:1.1;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.5);position:relative;z-index:1}
-.poster .pk{font-size:11px;letter-spacing:.2em;color:rgba(255,255,255,.8);position:relative;z-index:1}
-.acard .body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:8px;flex:1}
-.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:13px}
+.poster>*{position:relative;z-index:1}
+.poster .pn{font-family:var(--f-display);font-size:19px;line-height:1.1;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.5)}
+.poster .pk{font-size:9px;letter-spacing:.18em;color:rgba(255,255,255,.8)}
+.poster .ptype{background:rgba(0,0,0,.35);border-color:rgba(255,255,255,.3);color:#fff}
+.acard .body{padding:8px 12px 10px;display:flex;flex-direction:column;gap:6px;flex:1}
+.desc{font-size:12px;color:var(--mute);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.kv4{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:2px 8px;font-size:12px;margin:0}
+.kv4 dt{color:var(--mute);white-space:nowrap} .kv4 dd{margin:0;text-align:right;font-family:var(--f-num);font-variant-numeric:tabular-nums;white-space:nowrap}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:1px 10px;font-size:12px;margin:0}
 .kv dt{color:var(--mute)} .kv dd{margin:0;text-align:right;font-family:var(--f-num);font-variant-numeric:tabular-nums}
-.lockveil{position:absolute;inset:0;background:rgba(21,12,27,.9);display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;font-weight:700;color:var(--mute);z-index:2}
-.stars{color:var(--brass);letter-spacing:2px}
+.lock{position:absolute;top:8px;right:8px;z-index:3;font-size:11px;font-weight:700;background:var(--velvet);border:1px solid var(--bad);color:var(--bad);border-radius:99px;padding:1px 9px}
+.stars{color:var(--brass);letter-spacing:1px}
 .stars i{color:var(--seat-off);font-style:normal}
 
 /* venues */
-.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:14px}
-.vcard{text-align:left;background:var(--velvet-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;position:relative}
+.vgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:900px){.vgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.vgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.vcard{text-align:left;background:var(--velvet-2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;display:flex;flex-direction:column;gap:3px;position:relative;min-width:0}
 .vcard:hover:not(.locked){border-color:var(--brass)}
 .vcard.sel{border-color:var(--brass);box-shadow:0 0 0 2px var(--brass) inset}
 .vcard.locked{opacity:.45;cursor:not-allowed}
 .vcard .chip{align-self:flex-start}
-.vcard .cap{font-family:var(--f-display);font-size:22px;color:var(--brass-soft)}
-.fitbar{height:8px;border-radius:4px;background:var(--seat-off);position:relative;overflow:hidden}
+.vcard .vn{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vcard .cap{font-family:var(--f-display);font-size:19px;color:var(--brass-soft);line-height:1.1}
+.vcard .vm{font-size:11px;color:var(--mute);font-family:var(--f-num)}
+.fitbar{height:6px;border-radius:4px;background:var(--seat-off);position:relative;overflow:hidden}
 .fitbar i{position:absolute;inset:0 auto 0 0;border-radius:4px}
-.cal-wrap{overflow-x:auto;margin-top:12px;border:1px solid var(--line);border-radius:10px}
-table.cal{border-collapse:collapse;width:100%;min-width:640px;font-size:12px}
-table.cal th,table.cal td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:6px 4px;text-align:center}
+.fitlab{font-size:11px;line-height:1.3}
+.cal-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table.cal{border-collapse:collapse;width:100%;min-width:600px;font-size:12px}
+table.cal th,table.cal td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:4px 3px;text-align:center}
+table.cal tr:last-child>*{border-bottom:0}
 table.cal th{color:var(--mute);font-weight:500;background:var(--velvet-2)}
 table.cal th.rowh{text-align:left;padding-left:10px;white-space:nowrap}
-.slot{width:100%;min-height:42px;border-radius:6px;border:1px dashed transparent;background:none;cursor:default;font-size:11px;color:var(--faint);line-height:1.25}
+.slot{width:100%;min-height:38px;border-radius:6px;border:1px dashed transparent;background:none;cursor:default;font-size:11px;color:var(--faint);line-height:1.2;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.slot small{font-family:var(--f-num);font-size:10px;font-weight:500;opacity:.85}
 .slot.ok{cursor:pointer;background:rgba(95,211,165,.1);border-color:rgba(95,211,165,.45);color:var(--good);font-weight:700}
 .slot.ok:hover{background:rgba(95,211,165,.22)}
 .slot.sel{background:var(--brass);color:#2a1606;border-color:var(--brass)}
 .slot.na{background:repeating-linear-gradient(135deg,transparent 0 5px,rgba(255,255,255,.035) 5px 10px)}
 
 /* option cards */
-.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px}
-.opt{text-align:left;background:var(--velvet-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;gap:4px}
+.opts{display:grid;gap:6px;margin-top:6px}
+.opt{text-align:left;background:var(--velvet-3);border:1px solid var(--line);border-radius:9px;padding:7px 10px;cursor:pointer;display:flex;flex-direction:column;gap:1px}
 .opt:hover{border-color:var(--brass)}
 .opt.sel{border-color:var(--brass);box-shadow:0 0 0 2px var(--brass) inset}
-.opt b{font-size:15px}
-.opt span{font-size:13px;color:var(--mute)}
-.two{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:18px;align-items:start}
-@media (max-width:860px){.two{grid-template-columns:1fr}}
-input[type=range]{width:100%;accent-color:var(--brass)}
-.bigval{font-family:var(--f-num);font-size:28px;font-weight:600;color:var(--brass-soft)}
-.frow{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.opt b{font-size:13px}
+.opt span{font-size:12px;color:var(--mute);line-height:1.4}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:start}
+.g2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:10px;align-items:start}
+@media (max-width:900px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}.g3>.panel:last-child{grid-column:1/-1}}
+@media (max-width:640px){.g3,.g2{grid-template-columns:1fr}}
+input[type=range]{width:100%;accent-color:var(--brass);margin:4px 0}
+.bigval{font-family:var(--f-num);font-size:22px;font-weight:600;color:var(--brass-soft)}
+.frow{display:flex;justify-content:space-between;gap:12px;padding:4px 0;border-bottom:1px dashed var(--line);font-size:13px}
 .frow:last-child{border-bottom:0}
-.frow .v{font-family:var(--f-num);font-variant-numeric:tabular-nums;text-align:right}
-.frow.total{border-top:1px solid var(--brass-dim);border-bottom:0;font-weight:700;padding-top:10px;margin-top:4px}
-.toggle{display:flex;gap:12px;align-items:flex-start;background:var(--velvet-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;text-align:left;width:100%}
-.toggle:hover{border-color:var(--brass)}
+.frow .v{font-family:var(--f-num);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.frow.total{border-top:1px solid var(--brass-dim);border-bottom:0;font-weight:700;padding-top:6px;margin-top:2px}
+.toggle{display:flex;gap:10px;align-items:flex-start;background:var(--velvet-2);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer;text-align:left;width:100%}
+.toggle:hover:not(:disabled){border-color:var(--brass)}
+.toggle:disabled{opacity:.45;cursor:not-allowed}
 .toggle.on{border-color:var(--brass);box-shadow:0 0 0 2px var(--brass) inset}
-.toggle .box{flex:none;width:20px;height:20px;border-radius:5px;border:2px solid var(--brass-dim);margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#2a1606}
+.toggle .box{flex:none;width:18px;height:18px;border-radius:5px;border:2px solid var(--brass-dim);margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#2a1606}
 .toggle.on .box{background:var(--brass);border-color:var(--brass)}
-.toggle .t{display:flex;flex-direction:column;gap:2px;min-width:0}
-.toggle .t span{font-size:13px;color:var(--mute)}
-.stack{display:flex;flex-direction:column;gap:10px}
+.toggle .t{display:flex;flex-direction:column;gap:1px;min-width:0;font-size:13px}
+.toggle .t span{font-size:12px;color:var(--mute);line-height:1.4}
+.gdesc{display:none}
+.stack{display:flex;flex-direction:column;gap:8px;min-width:0}
 
 /* campaign */
-.camp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
-@media (max-width:900px){.camp{grid-template-columns:1fr}}
-.stub{display:grid;grid-template-columns:110px 1fr;background:var(--velvet-2);border:1px solid var(--line);border-radius:12px;overflow:hidden;position:relative}
-.stub .side{background:linear-gradient(160deg,var(--c1),var(--c2));display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;font-family:var(--f-display);color:#fff;font-size:20px;letter-spacing:.1em;border-right:2px dashed rgba(255,255,255,.35);padding:10px}
-.stub .info{padding:12px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
-.stub .info .t1{font-family:var(--f-display);font-size:20px}
-.countdown{font-family:var(--f-display);color:var(--brass-soft);font-size:26px;line-height:1}
-.seatbox{background:#120a17;border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:14px;position:relative}
-.seatbox svg{width:100%;height:auto;display:block}
-.soldout{position:absolute;top:44%;left:50%;transform:translate(-50%,-50%) rotate(-10deg);font-family:var(--f-display);font-size:clamp(26px,5vw,42px);color:var(--curtain);border:4px solid var(--curtain);padding:4px 18px;border-radius:8px;background:rgba(18,10,23,.75);letter-spacing:.1em;pointer-events:none}
-.meter{height:12px;border-radius:6px;background:var(--seat-off);position:relative;overflow:hidden}
+.camp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr) minmax(0,.9fr);gap:10px;align-items:start;flex:1;min-height:0}
+@media (max-width:1060px){.camp{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.camp>.c3{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:10px}}
+@media (max-width:640px){.camp{grid-template-columns:1fr}.camp>.c3{grid-template-columns:1fr}}
+.stub{display:grid;grid-template-columns:44px 1fr;background:var(--velvet-2);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.stub .side{background:linear-gradient(160deg,var(--c1),var(--c2));display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;font-family:var(--f-display);color:#fff;font-size:13px;letter-spacing:.06em;border-right:2px dashed rgba(255,255,255,.35);padding:6px;overflow:hidden;white-space:nowrap}
+.stub .info{padding:8px 12px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.stub .info .t1{font-family:var(--f-display);font-size:15px}
+.countdown{font-family:var(--f-display);color:var(--brass-soft);font-size:20px;line-height:1;white-space:nowrap}
+.seatbox{background:#120a17;border:1px solid var(--line);border-radius:12px;padding:8px 10px;position:relative}
+.seatbox svg{width:100%;height:auto;display:block;max-height:calc(100dvh - 300px);margin:0 auto}
+.soldout{position:absolute;top:48%;left:50%;transform:translate(-50%,-50%) rotate(-10deg);font-family:var(--f-display);font-size:clamp(24px,3.4vw,36px);color:var(--curtain);border:4px solid var(--curtain);padding:2px 14px;border-radius:8px;background:rgba(18,10,23,.75);letter-spacing:.1em;pointer-events:none}
+.meter{height:10px;border-radius:6px;background:var(--seat-off);position:relative;overflow:hidden}
 .meter i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--curtain),var(--brass));border-radius:6px;transition:width .5s}
-.apdots{display:flex;gap:6px}
-.apdots i{width:14px;height:14px;border-radius:50%;background:var(--seat-off);border:1px solid var(--brass-dim)}
+.apdots{display:flex;gap:5px}
+.apdots i{width:12px;height:12px;border-radius:50%;background:var(--seat-off);border:1px solid var(--brass-dim)}
 .apdots i.on{background:var(--brass);box-shadow:0 0 8px var(--brass)}
-.promos{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-top:10px}
-.promo{text-align:left;background:var(--velvet-3);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;display:flex;flex-direction:column;gap:3px;font-size:13px}
+.promos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px}
+.promo{text-align:left;background:var(--velvet-3);border:1px solid var(--line);border-radius:9px;padding:6px 9px;cursor:pointer;display:flex;flex-direction:column;gap:0;font-size:12px;min-width:0}
 .promo:hover:not(:disabled){border-color:var(--brass)}
 .promo:disabled{opacity:.4;cursor:not-allowed}
-.promo b{font-size:14px}
-.promo .gain{font-family:var(--f-num);color:var(--good)}
-.promo .cost{font-family:var(--f-num);color:var(--brass-soft)}
+.promo .pr1{display:flex;justify-content:space-between;gap:6px;align-items:baseline}
+.promo b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.promo .gain{font-family:var(--f-num);color:var(--good);font-size:11px}
+.promo .cost{font-family:var(--f-num);color:var(--brass-soft);white-space:nowrap}
+.promo .pnote{color:var(--mute);font-size:11px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .promo.used{opacity:.55;border-style:dashed}
-.log{list-style:none;margin:0;padding:0;font-size:13px;max-height:220px;overflow:auto;display:flex;flex-direction:column;gap:6px}
-.log li{padding:6px 10px;border-radius:6px;background:var(--velvet-3)}
+.advance{position:sticky;bottom:0;z-index:2;width:100%;box-shadow:0 -8px 20px var(--velvet)}
+.log{list-style:none;margin:0;padding:0;font-size:12px;overflow:auto;display:flex;flex-direction:column;gap:4px;max-height:calc(100dvh - 400px);min-height:90px}
+.log li{padding:4px 8px;border-radius:6px;background:var(--velvet-3)}
 .log li.ev{border-left:3px solid var(--curtain)}
 .log li.gd{border-left:3px solid var(--good)}
 .chart svg{width:100%;height:auto;display:block}
 
 /* modal */
 .modal-bg{position:fixed;inset:0;background:rgba(8,4,10,.78);z-index:50;display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));animation:fade .2s}
-.modal{background:var(--velvet-2);border:1px solid var(--brass-dim);border-radius:14px;max-width:640px;width:100%;max-height:100%;overflow:auto;padding:22px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.modal{background:var(--velvet-2);border:1px solid var(--brass-dim);border-radius:14px;max-width:620px;width:100%;max-height:100%;overflow:auto;padding:18px 20px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
 .modal.wide{max-width:820px}
-.modal h3{font-size:22px;margin-bottom:8px}
-.choice{display:flex;flex-direction:column;gap:2px;text-align:left;width:100%;background:var(--velvet-3);border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer}
+.modal h3{font-size:19px;margin-bottom:6px}
+.choice{display:flex;flex-direction:column;gap:2px;text-align:left;width:100%;background:var(--velvet-3);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
 .choice:hover:not(:disabled){border-color:var(--brass)}
 .choice:disabled{opacity:.4;cursor:not-allowed}
-.choice span{font-size:13px;color:var(--mute)}
+.choice span{font-size:12px;color:var(--mute)}
 @keyframes fade{from{opacity:0}to{opacity:1}}
-.mitem{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:12px 0;border-bottom:1px dashed var(--line)}
-.mitem:last-child{border-bottom:0}
-.gl dt{font-weight:700;color:var(--brass-soft);margin-top:12px}
-.gl dd{margin:2px 0 0;color:var(--ink);font-size:14px}
+.mitem{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 64px;gap:4px 12px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line)}
+@media (max-width:560px){.mitem{grid-template-columns:1fr 64px}.mitem input{grid-column:1/-1;grid-row:2}}
+.mitem small{font-size:11px}
+.gl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 18px;margin:0}
+@media (max-width:640px){.gl{grid-template-columns:1fr}}
+.gl div{padding:6px 0;border-bottom:1px dashed var(--line)}
+.gl dt{font-weight:700;color:var(--brass-soft);font-size:13px}
+.gl dd{margin:1px 0 0;color:var(--ink);font-size:12px}
 
 /* title */
-.title-screen{min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding-block:40px}
+.title-screen{height:100%;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
 .curtain{position:absolute;top:0;bottom:0;width:16vw;max-width:200px;background:repeating-linear-gradient(90deg,var(--curtain-deep) 0 14px,var(--curtain) 14px 30px,var(--curtain-deep) 30px 40px);box-shadow:inset -20px 0 40px rgba(0,0,0,.5)}
 .curtain.l{left:0;border-radius:0 0 60% 0}
 .curtain.r{right:0;transform:scaleX(-1);border-radius:0 0 60% 0}
-.beam{position:absolute;top:-10%;width:34vw;height:130%;background:linear-gradient(180deg,rgba(255,242,210,.22),transparent 80%);clip-path:polygon(45% 0,55% 0,100% 100%,0 100%);transform-origin:50% 0;mix-blend-mode:screen;animation:sweep 7s ease-in-out infinite alternate}
+.beam{position:absolute;top:-10%;width:34vw;height:130%;background:linear-gradient(180deg,rgba(255,242,210,.22),transparent 80%);clip-path:polygon(45% 0,55% 0,100% 100%,0 100%);transform-origin:50% 0;mix-blend-mode:screen;animation:sweep 7s ease-in-out infinite alternate;pointer-events:none}
 .beam.b1{left:12%;animation-delay:-2s}
 .beam.b2{right:12%;animation-direction:alternate-reverse}
 @keyframes sweep{from{transform:rotate(-18deg)}to{transform:rotate(18deg)}}
-.title-card{position:relative;z-index:2;text-align:center;display:flex;flex-direction:column;gap:18px;align-items:center;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:720px}
+.title-card{position:relative;z-index:2;text-align:center;display:flex;flex-direction:column;gap:16px;align-items:center;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:720px}
 .logo{font-family:var(--f-display);font-size:clamp(54px,12vw,120px);line-height:1;background:linear-gradient(180deg,#fff6dc 10%,var(--brass) 60%,#a8741f);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 24px rgba(233,182,79,.35));letter-spacing:.04em}
 .logo-sub{font-family:var(--f-display);font-size:clamp(16px,3vw,22px);letter-spacing:.3em;color:var(--spot)}
 .marquee{display:flex;gap:10px;justify-content:center}
@@ -200,33 +233,55 @@ input[type=range]{width:100%;accent-color:var(--brass)}
 @keyframes blink{50%{opacity:.25}}
 
 /* show scene */
-.stage-scene{position:relative;border-radius:14px;overflow:hidden;background:radial-gradient(ellipse at 50% 0,#3b1f2c,#100812 70%);border:1px solid var(--brass-dim);padding:18px 18px 10px}
+.stage-scene{position:relative;border-radius:14px;overflow:hidden;background:radial-gradient(ellipse at 50% 0,#3b1f2c,#100812 70%);border:1px solid var(--brass-dim);padding:10px;flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
 .stage-scene .beam{width:40%;opacity:.8;animation-duration:3.2s}
-.stage-scene svg{position:relative;z-index:1;width:100%;max-width:720px;margin:0 auto;height:auto;display:block}
+.stage-scene svg{position:relative;z-index:1;width:100%;height:100%;max-height:calc(100dvh - 265px);display:block}
 .seat-live{animation:tw 1.6s ease-in-out infinite}
 @keyframes tw{50%{opacity:.35}}
-.counters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
-.counter{background:var(--velvet-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
-.counter small{color:var(--mute);font-size:12px;letter-spacing:.08em}
-.counter b{display:block;font-family:var(--f-num);font-size:24px;font-weight:600;color:var(--brass-soft)}
-.stamp{position:absolute;z-index:3;top:38%;left:50%;transform:translate(-50%,-50%) rotate(-8deg) scale(1);font-family:var(--f-display);font-size:clamp(34px,8vw,72px);color:#ffdfe7;border:6px double #ffdfe7;padding:6px 26px;border-radius:12px;background:rgba(176,42,76,.82);letter-spacing:.12em;animation:stampin .5s cubic-bezier(.2,1.6,.4,1) both;animation-delay:2.4s;white-space:nowrap}
+.counters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:640px){.counters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.counter{background:var(--velvet-2);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.counter small{color:var(--mute);font-size:11px}
+.counter b{display:block;font-family:var(--f-num);font-size:20px;font-weight:600;color:var(--brass-soft)}
+.stamp{position:absolute;z-index:3;top:45%;left:50%;transform:translate(-50%,-50%) rotate(-8deg) scale(1);font-family:var(--f-display);font-size:clamp(34px,7vw,64px);color:#ffdfe7;border:6px double #ffdfe7;padding:6px 26px;border-radius:12px;background:rgba(176,42,76,.82);letter-spacing:.12em;animation:stampin .5s cubic-bezier(.2,1.6,.4,1) both;animation-delay:2.4s;white-space:nowrap}
 @keyframes stampin{from{transform:translate(-50%,-50%) rotate(-8deg) scale(2.4);opacity:0}to{transform:translate(-50%,-50%) rotate(-8deg) scale(1);opacity:1}}
 
 /* result */
-.pl{width:100%;border-collapse:collapse;font-size:14px}
-.pl td{padding:6px 4px;border-bottom:1px dashed var(--line)}
+.pl{width:100%;border-collapse:collapse;font-size:13px}
+.pl td{padding:3px 4px;border-bottom:1px dashed var(--line)}
 .pl td.v{text-align:right;font-family:var(--f-num);font-variant-numeric:tabular-nums;white-space:nowrap}
-.pl tr.h td{color:var(--brass);font-weight:700;border-bottom:1px solid var(--brass-dim);padding-top:14px;letter-spacing:.08em;font-size:12px}
-.pl tr.sum td{font-weight:700;border-bottom:0;border-top:1px solid var(--brass-dim);font-size:16px}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
-.kpi{background:var(--velvet-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
-.kpi small{color:var(--mute);font-size:12px}
-.kpi b{display:block;font-family:var(--f-num);font-size:22px;font-weight:600}
-.lessons{display:flex;flex-direction:column;gap:10px}
-.hist{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
-.hist th,.hist td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left}
+.pl tr.h td{color:var(--brass);font-weight:700;border-bottom:1px solid var(--brass-dim);padding-top:8px;letter-spacing:.08em;font-size:11px}
+.pl tr.sum td{font-weight:700;border-bottom:0;border-top:1px solid var(--brass-dim);font-size:15px;padding-top:6px}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:900px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:var(--velvet-2);border:1px solid var(--line);border-radius:10px;padding:7px 12px}
+.kpi small{color:var(--mute);font-size:11px}
+.kpi b{display:block;font-family:var(--f-num);font-size:18px;font-weight:600;white-space:nowrap}
+.rgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;flex:1;min-height:0}
+.rgrid>.panel{overflow:auto;max-height:calc(100dvh - 200px)}
+@media (max-width:760px){.rgrid{grid-template-columns:1fr}.rgrid>.panel{max-height:none}}
+.lessons{display:flex;flex-direction:column;gap:6px}
+.lessons .tip{font-size:12px}
+.hist{width:100%;border-collapse:collapse;font-size:12px;min-width:520px}
+.hist th,.hist td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left}
 .hist td.v{text-align:right;font-family:var(--f-num)}
-.rank{font-family:var(--f-display);font-size:clamp(60px,14vw,120px);line-height:1;color:var(--brass)}
+.endg{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr);gap:14px;align-items:center;flex:1}
+@media (max-width:760px){.endg{grid-template-columns:1fr}}
+.rank{font-family:var(--f-display);font-size:clamp(60px,10vw,110px);line-height:1;color:var(--brass)}
+@media (max-width:560px){
+ .grid-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .poster{height:auto;min-height:52px;flex-direction:column;align-items:flex-start;justify-content:flex-end;padding:6px 8px}
+ .poster .pn{font-size:15px}.poster .pk,.poster .ptype{display:none}
+ .acard .desc{display:none}.acard .body{padding:6px 8px 8px}
+ .kv4{grid-template-columns:auto 1fr;font-size:11px}
+ .lock{top:4px;right:4px;font-size:10px;padding:0 6px}
+ .seatbox svg{max-height:210px}
+ .log{max-height:180px}
+ .phead .nav{width:100%}.phead .nav .btn{flex:1}
+ .gdesc{display:block!important}.grade-opts{grid-template-columns:repeat(3,minmax(0,1fr))}.grade-opts .opt span{display:none}
+}
+@media (max-width:520px){.brand{display:none}.topbar .in{gap:10px}.topbar .stat:nth-child(2){margin-right:auto}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head><body>
@@ -385,16 +440,20 @@ function breakEven(p){
 }
 
 /* ========== 描画 ========== */
+let lastKey='';
 function render(){
   const app=$('#app');
-  if(!S){app.innerHTML=titleHTML();return;}
+  if(!S){app.innerHTML=titleHTML();lastKey='';return;}
+  const key=S.phase+'|'+(S.plan?S.plan.step:'')+'|'+S.showNo;
+  const m0=document.querySelector('main.wrap');const st=(m0&&key===lastKey)?m0.scrollTop:0;
   let body='';
   if(S.phase==='plan') body=planHTML();
   else if(S.phase==='camp') body=campHTML();
   else if(S.phase==='show') body=showHTML();
   else if(S.phase==='result') body=resultHTML();
   else if(S.phase==='end') body=endHTML();
-  app.innerHTML=topbarHTML()+`<main class="wrap">${body}</main>`;
+  app.innerHTML=topbarHTML()+`<main class="wrap"><div class="in2">${body}</div></main>`;
+  document.querySelector('main.wrap').scrollTop=st;lastKey=key;
   if(S.phase==='plan'&&S.plan.step===3) updateForecast();
   if(S.phase==='plan'&&S.plan.step===4) updateFunding();
   if(S.phase==='show') animateShow();
@@ -405,7 +464,7 @@ function topbarHTML(){
    <div class="brand">満員御礼</div>
    <div class="stat"><small>資金</small><b class="${S.cash<0?'bad':''}">${fmtY(S.cash)}</b></div>
    <div class="stat"><small>信頼度</small><b>${Math.round(S.rep)}</b><div class="repbar"><i style="width:${clamp(S.rep,0,100)}%"></i></div></div>
-   <div class="stat"><small>公演</small><b>${Math.min(S.showNo,MAX_SHOWS)} / ${MAX_SHOWS}</b></div>
+   <div class="stat"><small>公演</small><b>${Math.min(S.showNo,MAX_SHOWS)}/${MAX_SHOWS}</b></div>
    <button class="btn sm" onclick="openGlossary()">用語手帳</button>
    <button class="btn sm" onclick="openMenu()">メニュー</button>
   </div></header>`;
@@ -437,129 +496,121 @@ function continueGame(){S=loadSave();if(!S){newGame();return;}render();}
 
 /* ----- 企画フェーズ ----- */
 function stepperHTML(step){
-  const names=['演者を選ぶ','会場と日程','契約とチケット','資金を集める'];
+  const names=['演者','会場と日程','契約とチケット','資金集め'];
   return `<div class="stepper">${names.map((n,i)=>`<span class="${i+1===step?'on':i+1<step?'done':''}">${i+1}. ${n}</span>`).join('')}</div>`;
 }
 function stars(x){const n=clamp(Math.round(x*3),1,5);return `<span class="stars">${'★'.repeat(n)}<i>${'★'.repeat(5-n)}</i></span>`;}
+function planHead(step,title,lead,nav){
+  return `<div class="phead"><div class="ttl"><div class="top"><span class="eyebrow">第${S.showNo}公演 ／ 企画会議</span>${stepperHTML(step)}</div><h2>${title}</h2><p class="lead">${lead}</p></div><div class="nav">${nav||''}</div></div>`;
+}
 function planHTML(){
   const p=S.plan;
-  const head=`<div class="eyebrow">第${S.showNo}公演 ／ 企画会議</div>`;
   if(p.step===1){
-    return head+stepperHTML(1)+`<h2>誰のライブを企画する？</h2>
-    <p class="lead" style="margin-top:6px">出発点は演者の<button class="term" onclick="term('動員・動員力')">動員力</button>と出演料のバランス。信頼度が足りないと、事務所は話を聞いてくれません。</p>
-    <div class="grid-cards">${ARTISTS.map(a=>{
+    return planHead(1,'誰のライブを企画する？',`演者の<button class="term" onclick="term('動員・動員力')">動員力</button>と出演料のバランスが出発点。最初は身の丈に合った演者で確実に黒字を出し、信頼度を積み上げるのが王道です。`)+
+    `<div class="grid-cards">${ARTISTS.map(a=>{
       const locked=S.rep<a.rep; const nslots=S.avail.a[a.id].length;
-      return `<button class="acard ${p.artist===a.id?'sel':''} ${locked?'locked':''}" ${locked?'disabled':''} onclick="pickArtist('${a.id}')">
-        <div class="poster" style="background:linear-gradient(135deg,${a.c[0]},${a.c[1]})"><div class="pk">${esc(a.kana)}</div><div class="pn">${esc(a.name)}</div></div>
+      return `<button class="acard ${locked?'locked':''}" ${locked?'disabled':''} onclick="pickArtist('${a.id}')" title="${esc(a.desc)}">
+        <div class="poster" style="background:linear-gradient(135deg,${a.c[0]},${a.c[1]})"><div><div class="pk">${esc(a.kana)}</div><div class="pn">${esc(a.name)}</div></div><span class="chip ptype">${a.type}</span></div>
         <div class="body">
-          <div class="row" style="gap:6px"><span class="chip gold">${a.type}</span>${boost(a.id)>1.01?'<span class="chip ok">人気上昇中</span>':''}</div>
-          <p class="muted" style="font-size:13px">${a.desc}</p>
-          <dl class="kv">
-            <dt>動員力（目安）</dt><dd>約${fmtN(baseOf(a))}人</dd>
-            <dt>出演料（固定）</dt><dd>${fmtY(a.fee)}</dd>
-            <dt>チケット相場</dt><dd>${fmtN(a.ref)}円</dd>
+          <p class="desc">${boost(a.id)>1.01?'<span class="good">人気上昇中！</span> ':''}${a.desc}</p>
+          <dl class="kv4">
+            <dt>動員力</dt><dd>約${fmtN(baseOf(a))}人</dd>
+            <dt>出演料</dt><dd>${fmtY(a.fee)}</dd>
+            <dt>相場</dt><dd>${fmtN(a.ref)}円</dd>
+            <dt>空き日</dt><dd>${nslots}日/18日</dd>
             <dt>物販人気</dt><dd>${stars(a.merch)}</dd>
-            <dt>空いている日</dt><dd>${nslots}日 / 18日</dd>
+            <dt>必要信頼度</dt><dd>${a.rep}</dd>
           </dl>
         </div>
-        ${locked?`<div class="lockveil">信頼度 ${a.rep} 以上で<br>交渉できます</div>`:''}
-      </button>`;}).join('')}</div>
-    <div class="tip" style="margin-top:18px"><b>プロの視点：</b>有名な演者ほど人を呼べますが、出演料も高く、スケジュールも埋まっています。最初は身の丈に合った演者で確実に黒字を出し、信頼度を積み上げるのが王道です。</div>`;
+        ${locked?`<span class="lock">信頼度${a.rep}で解禁</span>`:''}
+      </button>`;}).join('')}</div>`;
   }
   if(p.step===2){
     const a=A(p.artist); const b=baseOf(a);
     const venues=VENUES.map(v=>{
       const locked=S.rep<v.rep; const r=b/v.cap;
-      let lab,col,w;
-      if(r>1.3){lab='小さすぎ：すぐ完売して売り逃すかも';col='var(--cool)';}
+      let lab,col;
+      if(r>1.3){lab='小さすぎ：売り逃しの恐れ';col='var(--cool)';}
       else if(r>=0.8){lab='ちょうど良い';col='var(--good)';}
       else if(r>=0.5){lab='やや大きい：宣伝が必要';col='var(--brass)';}
       else {lab='大きすぎ：空席リスク大';col='var(--bad)';}
-      w=clamp(r/1.5*100,4,100);
+      const w=clamp(r/1.5*100,4,100);
       return `<button class="vcard ${p.venue===v.id?'sel':''} ${locked?'locked':''}" ${locked?'disabled':''} onclick="pickVenue('${v.id}')">
         <span class="chip">${v.type}</span>
-        <b>${v.name}</b>
-        <div class="cap num">${fmtN(v.cap)}<small style="font-size:13px;color:var(--mute)"> 席</small></div>
-        <dl class="kv"><dt>会場費 平日/土曜</dt><dd>${fmtY(v.rent[0])} / ${fmtY(v.rent[1])}</dd><dt>制作費（標準）</dt><dd>${fmtY(v.prod)}</dd></dl>
-        ${locked?`<span class="chip ng">信頼度 ${v.rep} 以上</span>`:`<div><div class="fitbar"><i style="width:${w}%;background:${col}"></i></div><small style="color:${col};font-size:12px">${lab}</small></div>`}
+        <span class="vn">${v.name}</span>
+        <span class="cap num">${fmtN(v.cap)}<small style="font-size:11px;color:var(--mute)"> 席</small></span>
+        <span class="vm">会場費 平日${fmtY(v.rent[0])}／土${fmtY(v.rent[1])}</span>
+        <span class="vm">制作費 ${fmtY(v.prod)}</span>
+        ${locked?`<span class="chip ng">信頼度 ${v.rep} 以上</span>`:`<div class="fitbar"><i style="width:${w}%;background:${col}"></i></div><span class="fitlab" style="color:${col}">${lab}</span>`}
       </button>`;}).join('');
     let cal='';
+    const weeks=[];for(let w=4;w<=12;w++)weeks.push(w);
     if(p.venue){
       const av=S.avail.a[a.id],vv=S.avail.v[p.venue];
-      const weeks=[];for(let w=4;w<=12;w++)weeks.push(w);
       const row=d=>weeks.map(w=>{
-        const k=w+'-'+d; const aok=av.includes(k),vok=vv.includes(k);
-        if(aok&&vok) return `<td><button class="slot ok ${p.slot===k?'sel':''}" onclick="pickSlot('${k}')">${p.slot===k?'決定':'押さえる'}</button></td>`;
-        return `<td><div class="slot na" style="display:flex;align-items:center;justify-content:center">${!aok&&!vok?'両方NG':!aok?'演者NG':'会場NG'}</div></td>`;
+        const k=w+'-'+d; const aok=av.includes(k),vok=vv.includes(k); const dt=fmtDate(slotDate(w,d));
+        if(aok&&vok) return `<td><button class="slot ok ${p.slot===k?'sel':''}" onclick="pickSlot('${k}')">${p.slot===k?'決定':'押さえる'}<small>${dt}</small></button></td>`;
+        return `<td><div class="slot na">${!aok&&!vok?'両方NG':!aok?'演者NG':'会場NG'}<small>${dt}</small></div></td>`;
       }).join('');
-      cal=`<h3 style="margin-top:22px">日程を押さえる</h3>
-      <p class="muted" style="font-size:13px;margin-top:4px">演者と会場の両方が空いている日だけ選べます。公演日が先なほど販売期間が長く、宣伝の回数も増やせます。土曜は人が集まりやすい分、会場費が高めです。</p>
-      <div class="cal-wrap"><table class="cal"><thead><tr><th class="rowh">公演日</th>${weeks.map(w=>`<th>${w}週後</th>`).join('')}</tr></thead>
-      <tbody><tr><th class="rowh">平日（水）</th>${row('wd')}</tr>
-      <tr><th class="rowh">週末（土）</th>${row('we')}</tr>
-      <tr><th class="rowh muted">日付</th>${weeks.map(w=>`<td class="muted num" style="font-size:11px">${fmtDate(slotDate(w,'wd'))}<br>${fmtDate(slotDate(w,'we'))}</td>`).join('')}</tr></tbody></table></div>`;
+      cal=`<div class="cal-wrap"><table class="cal"><thead><tr><th class="rowh">公演日</th>${weeks.map(w=>`<th>${w}週後</th>`).join('')}</tr></thead>
+      <tbody><tr><th class="rowh">平日（水）</th>${row('wd')}</tr><tr><th class="rowh">週末（土）</th>${row('we')}</tr></tbody></table></div>
+      <p class="lead">演者と会場の両方が空いている日だけ押さえられます。公演日が先なほど販売期間が長く、宣伝の回数も増やせます。土曜は人が集まりやすい分、会場費が高めです。</p>`;
+    } else {
+      cal=`<div class="tip"><b>次に：</b>会場を選ぶと、演者と会場の空き日程が表示されます。「満員の小さな会場」は「ガラガラの大きな会場」より評判が上がります。ただし小さすぎると売れたはずのチケットを逃します（機会損失）。</div>`;
     }
-    return head+stepperHTML(2)+`<h2>どの会場で、いつやる？</h2>
-     <p class="lead" style="margin-top:6px">${esc(a.name)} の動員力は <b class="num">約${fmtN(b)}人</b>。会場の<button class="term" onclick="term('キャパ（キャパシティ）')">キャパ</button>とのバランスを見て選びましょう。</p>
-     <div class="vgrid">${venues}</div>${cal}
-     <div class="tip" style="margin-top:18px"><b>プロの視点：</b>「満員の小さな会場」は「ガラガラの大きな会場」より評判が上がります。ただし小さすぎると、本当は売れたはずのチケットを逃します（機会損失）。</div>
-     <div class="row" style="margin-top:18px"><button class="btn" onclick="planStep(1)">戻る</button><span class="spacer"></span><button class="btn primary" ${p.venue&&p.slot?'':'disabled'} onclick="planStep(3)">条件を決める</button></div>`;
+    return planHead(2,'どの会場で、いつやる？',`${esc(a.name)} の動員力は <b class="num" style="color:var(--ink)">約${fmtN(b)}人</b>。会場の<button class="term" onclick="term('キャパ（キャパシティ）')">キャパ</button>とのバランスを見て選びましょう。`,
+      `<button class="btn" onclick="planStep(1)">戻る</button><button class="btn primary" ${p.venue&&p.slot?'':'disabled'} onclick="planStep(3)">条件を決める</button>`)+
+      `<div class="vgrid">${venues}</div>${cal}`;
   }
   if(p.step===3){
     const a=A(p.artist);
     if(!p.price)p.price=a.ref;
     const minP=Math.round(a.ref*0.5/100)*100,maxP=Math.round(a.ref*2/100)*100;
-    return head+stepperHTML(3)+`<h2>契約条件とチケット価格</h2>
-    <div class="two" style="margin-top:14px">
-     <div class="stack">
+    return planHead(3,'契約条件とチケット価格','右の事前シミュレーションを見ながら決めましょう。注目は損益分岐点です。',
+      `<button class="btn" onclick="planStep(2)">戻る</button><button class="btn primary" onclick="planStep(4)">資金計画へ</button>`)+
+    `<div class="g3">
       <div class="panel">
        <h3>出演契約</h3>
        <div class="opts">
-        <button class="opt ${p.deal==='fixed'?'sel':''}" onclick="setPlan('deal','fixed')"><b>固定ギャラ</b><span>出演料 ${fmtY(a.fee)} を前払い。売れても売れなくても同額。大ヒットすれば利益は全部こちらに。</span></button>
+        <button class="opt ${p.deal==='fixed'?'sel':''}" onclick="setPlan('deal','fixed')"><b>固定ギャラ　${fmtY(a.fee)}</b><span>前払い。売れても売れなくても同額。大ヒットすれば利益は全部こちらに。</span></button>
         <button class="opt ${p.deal==='share'?'sel':''}" onclick="setPlan('deal','share')"><b>歩合制（売上の45%）</b><span>最低保証 ${fmtY(a.fee*0.3)} を前払い。売れなければ安く済むが、売れるほど払う額が増える。</span></button>
        </div>
-      </div>
-      <div class="panel">
-       <h3>チケット価格</h3>
-       <div class="row" style="justify-content:space-between;margin-top:6px"><span class="bigval" id="pval">${fmtN(p.price)}円</span><span class="chip">相場 ${fmtN(a.ref)}円</span></div>
+       <h3 style="margin-top:12px">チケット価格</h3>
+       <div class="row" style="justify-content:space-between"><span class="bigval" id="pval">${fmtN(p.price)}円</span><span class="chip">相場 ${fmtN(a.ref)}円</span></div>
        <input id="price" type="range" min="${minP}" max="${maxP}" step="100" value="${p.price}" oninput="onPrice(this.value)" aria-label="チケット価格">
-       <p class="muted" style="font-size:13px;margin-top:6px">${a.el>=1?'このジャンルのファンは<b>値段に敏感</b>。高くすると客足が大きく鈍ります。':a.el<=0.6?'熱心なファンが多く、<b>値上げしても客足は落ちにくい</b>ジャンルです。':'値段への反応はふつう。相場から大きく外れなければ影響は小さめ。'}</p>
+       <p class="muted" style="font-size:12px">${a.el>=1?'このジャンルのファンは<b>値段に敏感</b>。高くすると客足が大きく鈍ります。':a.el<=0.6?'熱心なファンが多く、<b>値上げしても客足は落ちにくい</b>ジャンルです。':'値段への反応はふつう。相場から大きく外れなければ影響は小さめ。'}</p>
       </div>
       <div class="panel">
-       <h3>演出グレード</h3>
-       <div class="opts">${Object.entries(GRADES).map(([k,g])=>`<button class="opt ${p.grade===k?'sel':''}" onclick="setPlan('grade','${k}')"><b>${g.name}</b><span>${g.desc}</span></button>`).join('')}</div>
+       <h3>演出グレード</h3><p class="muted gdesc" style="font-size:12px">${GRADES[p.grade].desc}</p>
+       <div class="opts grade-opts">${Object.entries(GRADES).map(([k,g])=>`<button class="opt ${p.grade===k?'sel':''}" onclick="setPlan('grade','${k}')"><b>${g.name}</b><span>${g.desc}</span></button>`).join('')}</div>
       </div>
-     </div>
-     <div class="panel" id="forecast" style="position:sticky;top:80px"></div>
-    </div>
-    <div class="row" style="margin-top:18px"><button class="btn" onclick="planStep(2)">戻る</button><span class="spacer"></span><button class="btn primary" onclick="planStep(4)">資金計画へ</button></div>`;
+      <div class="panel" id="forecast"></div>
+    </div>`;
   }
   if(p.step===4){
-    const a=A(p.artist),v=Vn(p.venue),u=upfront(p),lim=loanLimit();
+    const a=A(p.artist),lim=loanLimit();
     const step=lim>20000000?1000000:100000;
-    return head+stepperHTML(4)+`<h2>お金を集める</h2>
-    <p class="lead" style="margin-top:6px">会場費・制作費・出演料は<b>公演前に払う</b>のが一般的。チケット代が入るのは公演の後です。足りない分はここで調達しましょう。宣伝費やグッズ代も後から必要になります。</p>
-    <div class="two" style="margin-top:14px">
+    return planHead(4,'お金を集める','会場費・制作費・出演料は公演前に払い、チケット代が入るのは公演の後。足りない分を調達し、宣伝費とグッズ代も残しておきましょう。',
+      `<button class="btn" onclick="planStep(3)">戻る</button>`)+
+    `<div class="g2">
      <div class="stack">
       <div class="panel">
-       <h3>銀行から借りる</h3>
-       <div class="row" style="justify-content:space-between;margin-top:6px"><span class="bigval" id="loanv">${fmtY(p.loan)}</span><span class="chip">上限 ${fmtY(lim)}（信頼度で増加）</span></div>
+       <div class="row" style="justify-content:space-between"><h3>銀行から借りる</h3><span class="chip">上限 ${fmtY(lim)}（信頼度で増加）</span></div>
+       <div class="row" style="justify-content:space-between"><span class="bigval" id="loanv">${fmtY(p.loan)}</span><span class="muted" style="font-size:12px">公演後に利息5%をつけて返済</span></div>
        <input id="loan" type="range" min="0" max="${lim}" step="${step}" value="${p.loan}" oninput="onLoan(this.value)" aria-label="借入額">
-       <p class="muted" style="font-size:13px">公演後に利息5%をつけて返済します。</p>
       </div>
-      <button class="toggle ${p.sponsor?'on':''}" onclick="togglePlan('sponsor')" ${S.rep<5?'disabled':''}><span class="box">${p.sponsor?'✓':''}</span><span class="t"><b>協賛スポンサーを付ける　+${fmtY(sponsorAmt(p))}</b><span>会場にロゴを掲出。稼働率70%未満だと半額を返金する条件付き。</span></span></button>
-      <button class="toggle ${p.investor?'on':''}" onclick="togglePlan('investor')"><span class="box">${p.investor?'✓':''}</span><span class="t"><b>共同主催の出資を受ける　+${fmtY(investAmt(p))}</b><span>前払い費用の4割を出資してもらう代わりに、利益（または損失）の40%を分け合う。</span></span></button>
-      <button class="toggle ${p.crowd?'on':''}" onclick="togglePlan('crowd')"><span class="box">${p.crowd?'✓':''}</span><span class="t"><b>クラウドファンディング</b><span>いくら集まるかは始めるまで不明（目安 ${fmtY(baseOf(a)*250*(0.8+S.rep/100))}〜${fmtY(baseOf(a)*400*(0.8+S.rep/100))}）。お礼の費用に35%かかるが、話題度も上がる。支払いの計算には入れられません。</span></span></button>
+      <button class="toggle ${p.sponsor?'on':''}" onclick="togglePlan('sponsor')" ${S.rep<5?'disabled':''}><span class="box">${p.sponsor?'✓':''}</span><span class="t"><b>協賛スポンサーを付ける　+${fmtY(sponsorAmt(p))}</b><span>会場にロゴを掲出。稼働率70%未満だと半額を返金する条件付き。${S.rep<5?'（信頼度5以上で利用可）':''}</span></span></button>
+      <button class="toggle ${p.investor?'on':''}" onclick="togglePlan('investor')"><span class="box">${p.investor?'✓':''}</span><span class="t"><b>共同主催の出資を受ける　+${fmtY(investAmt(p))}</b><span>前払い費用の4割を出してもらう代わりに、利益（または損失）の40%を分け合う。</span></span></button>
+      <button class="toggle ${p.crowd?'on':''}" onclick="togglePlan('crowd')"><span class="box">${p.crowd?'✓':''}</span><span class="t"><b>クラウドファンディング</b><span>目安 ${fmtY(baseOf(a)*250*(0.8+S.rep/100))}〜${fmtY(baseOf(a)*400*(0.8+S.rep/100))}。金額は始めるまで不明なので支払いの計算には入れられない。お礼の費用に35%かかるが、話題度も上がる。</span></span></button>
      </div>
-     <div class="panel" id="funding" style="position:sticky;top:80px"></div>
-    </div>
-    <div class="row" style="margin-top:18px"><button class="btn" onclick="planStep(3)">戻る</button></div>`;
+     <div class="panel" id="funding"></div>
+    </div>`;
   }
 }
-function pickArtist(id){S.plan.artist=id;S.plan.venue=null;S.plan.slot=null;S.plan.price=null;S.plan.step=2;render();scrollTo(0,0);}
+function pickArtist(id){S.plan.artist=id;S.plan.venue=null;S.plan.slot=null;S.plan.price=null;S.plan.step=2;render();}
 function pickVenue(id){S.plan.venue=id;S.plan.slot=null;render();}
 function pickSlot(k){S.plan.slot=k;render();}
-function planStep(n){S.plan.step=n;render();scrollTo(0,0);}
+function planStep(n){S.plan.step=n;render();}
 function setPlan(k,v){S.plan[k]=v;render();}
 function togglePlan(k){S.plan[k]=!S.plan[k];render();}
 function onPrice(v){S.plan.price=+v;$('#pval').textContent=fmtN(v)+'円';updateForecast();}
@@ -574,9 +625,9 @@ function updateForecast(){
   const est=rev*(0.92)-expSold*400-v.cap*150-u.rent-u.prod-artPay;
   const sl=parseSlot(p.slot);
   $('#forecast').innerHTML=`<div class="eyebrow">事前シミュレーション</div>
-   <h3 style="margin:4px 0 10px">${esc(a.name)} ＠ ${esc(v.name)}</h3>
-   <p class="muted" style="font-size:13px">${fmtDateLong(slotDate(sl.w,sl.d))} ／ 販売期間 ${sl.w}週間</p>
-   <div style="margin-top:10px">
+   <h3 style="margin:2px 0 2px">${esc(a.name)} ＠ ${esc(v.name)}</h3>
+   <p class="muted" style="font-size:12px">${fmtDateLong(slotDate(sl.w,sl.d))} ／ 販売期間 ${sl.w}週間</p>
+   <div style="margin-top:6px">
    <div class="frow"><span>予想需要（宣伝なし）</span><span class="v">${fmtN(lo*0.85)}〜${fmtN(lo*1.15)}枚</span></div>
    <div class="frow"><span>予想需要（しっかり宣伝）</span><span class="v">${fmtN(hi*0.85)}〜${fmtN(hi*1.15)}枚</span></div>
    <div class="frow"><span>キャパ</span><span class="v">${fmtN(v.cap)}席</span></div>
@@ -584,8 +635,8 @@ function updateForecast(){
    <div class="frow"><span>前払いが必要な額</span><span class="v">${fmtY(u.total)}</span></div>
    <div class="frow total"><span>しっかり宣伝した場合の利益目安<br><small class="muted" style="font-weight:400">宣伝費・物販を除く</small></span><span class="v ${est<0?'bad':'good'}">${fmtY(est)}</span></div>
    </div>
-   ${be>v.cap?'<div class="tip" style="margin-top:12px"><b>注意：</b>満席にしても赤字になる条件です。価格を上げるか、費用を見直しましょう。</div>':''}
-   ${hi*0.85>v.cap*1.2?'<div class="tip" style="margin-top:12px"><b>ヒント：</b>需要がキャパを大きく上回りそう。値上げしても売り切れる可能性があります。</div>':''}`;
+   ${be>v.cap?'<div class="tip" style="margin-top:8px"><b>注意：</b>満席にしても赤字になる条件です。価格を上げるか、費用を見直しましょう。</div>':''}
+   ${hi*0.85>v.cap*1.2?'<div class="tip" style="margin-top:8px"><b>ヒント：</b>需要がキャパを大きく上回りそう。値上げしても売り切れる可能性があります。</div>':''}`;
 }
 function fundingTotals(){
   const p=S.plan,u=upfront(p);
@@ -595,17 +646,17 @@ function fundingTotals(){
 function updateFunding(){
   const p=S.plan,t=fundingTotals(),ok=t.after>=0;
   $('#funding').innerHTML=`<div class="eyebrow">資金計画</div>
-   <h3 style="margin:4px 0 10px">前払いの内訳</h3>
+   <h3 style="margin:2px 0 4px">前払いの内訳</h3>
    <div class="frow"><span>会場費（全額前払い）</span><span class="v">${fmtY(t.u.rent)}</span></div>
    <div class="frow"><span>制作・演出費</span><span class="v">${fmtY(t.u.prod)}</span></div>
    <div class="frow"><span>出演料${p.deal==='share'?'（最低保証）':''}</span><span class="v">${fmtY(t.u.art)}</span></div>
    <div class="frow total"><span>必要額</span><span class="v">${fmtY(t.u.total)}</span></div>
-   <div style="height:10px"></div>
+   <div style="height:6px"></div>
    <div class="frow"><span>手持ち資金</span><span class="v">${fmtY(S.cash)}</span></div>
    <div class="frow"><span>調達額</span><span class="v">+${fmtY(t.inflow)}</span></div>
    <div class="frow total"><span>契約後に残る資金</span><span class="v ${ok?'good':'bad'}">${fmtY(t.after)}</span></div>
    <p class="muted" style="font-size:13px;margin-top:8px">${ok?(t.after<t.u.total*0.15?'残りが少なめです。宣伝費やグッズ代が足りなくなるかもしれません。':'宣伝費とグッズ代はこの残りから払います。'):'資金が足りません。借入やスポンサーで補いましょう。'}</p>
-   <button class="btn primary big" style="width:100%;margin-top:12px" ${ok?'':'disabled'} onclick="confirmPlan()">契約してチケット発売へ</button>`;
+   <button class="btn primary big" style="width:100%;margin-top:8px" ${ok?'':'disabled'} onclick="confirmPlan()">契約してチケット発売へ</button>`;
 }
 function confirmPlan(){
   const p=S.plan,a=A(p.artist),t=fundingTotals();
@@ -625,7 +676,7 @@ function confirmPlan(){
     C.log.unshift({t:`クラウドファンディング終了：${fmtY(raised)} 集まった（話題度アップ）`,c:'gd'});
   }
   S.phase='camp';
-  render();scrollTo(0,0);
+  render();
 }
 
 /* ----- 宣伝・販売フェーズ ----- */
@@ -640,45 +691,43 @@ function campHTML(){
   const promos=PROMOS.map(pr=>{
     const used=C.used[pr.id]; const g=promoGain(pr);
     const dis=used||C.ap<=0||S.cash<pr.cost;
-    return `<button class="promo ${used?'used':''}" ${dis?'disabled':''} onclick="doPromo('${pr.id}')">
-      <b>${pr.name}</b>
-      <span class="cost">${pr.cost?fmtY(pr.cost):'無料'}</span>
+    return `<button class="promo ${used?'used':''}" ${dis?'disabled':''} onclick="doPromo('${pr.id}')" title="${esc(pr.note)}">
+      <span class="pr1"><b>${pr.name}</b><span class="cost">${pr.cost?fmtY(pr.cost):'無料'}</span></span>
       <span class="gain">話題度 +${(g*100).toFixed(1)}%${pr.vary?'（ブレ大）':''}${pr.chance?`（成功率${Math.round(mediaChance()*100)}%）`:''}</span>
-      <span class="muted">${used?'今週は実施済み':pr.note}</span></button>`;
+      <span class="pnote">${used?'今週は実施済み':pr.note}</span></button>`;
   }).join('');
-  return `<div class="eyebrow">第${S.showNo}公演 ／ チケット販売中</div>
-  <div class="camp" style="margin-top:10px">
-   <div>
+  return `<div class="camp">
+   <div class="stack">
     <div class="stub" style="--c1:${a.c[0]};--c2:${a.c[1]}">
       <div class="side">${esc(a.name)}</div>
       <div class="info">
-        <span class="muted" style="font-size:12px">${esc(v.name)}（${fmtN(v.cap)}席）</span>
+        <div class="row" style="justify-content:space-between;gap:6px"><span class="eyebrow">第${S.showNo}公演 ／ 販売中</span><span class="countdown">あと${remain}週</span></div>
         <span class="t1">${fmtDateLong(slotDate(sl.w,sl.d))}</span>
-        <div class="row" style="gap:8px"><span class="chip gold num">${fmtN(p.price)}円</span><span class="chip">${p.deal==='fixed'?'固定ギャラ':'歩合制'}</span><span class="chip">${GRADES[p.grade].name}</span></div>
-        <div class="row" style="justify-content:space-between;margin-top:4px"><span class="muted" style="font-size:13px">公演まで</span><span class="countdown">あと${remain}週</span></div>
+        <div class="row" style="gap:5px"><span class="chip">${esc(v.name)}</span><span class="chip gold num">${fmtN(p.price)}円</span><span class="chip">${p.deal==='fixed'?'固定ギャラ':'歩合制'}</span><span class="chip">${GRADES[p.grade].name}</span></div>
       </div>
     </div>
     <div class="seatbox">
-      <div class="row" style="justify-content:space-between"><b>販売状況</b><span class="num"><b style="color:var(--brass-soft);font-size:18px">${fmtN(C.sold)}</b> / ${fmtN(v.cap)}枚（${Math.round(C.sold/v.cap*100)}%）</span></div>
+      <div class="row" style="justify-content:space-between"><b>販売状況</b><span class="num"><b style="color:var(--brass-soft);font-size:16px">${fmtN(C.sold)}</b> / ${fmtN(v.cap)}枚（${Math.round(C.sold/v.cap*100)}%）</span></div>
       ${seatSVG(v.cap,C.sold,false)}
       ${soldOut?'<div class="soldout">SOLD OUT</div>':''}
     </div>
-    <div class="panel chart" style="margin-top:14px"><b>週ごとの販売枚数</b>${chartSVG()}</div>
    </div>
    <div class="stack">
     <div class="panel">
-      <div class="row" style="justify-content:space-between"><b>話題度</b><span class="num">${Math.round(C.aw*100)}%</span></div>
-      <div class="meter" style="margin-top:6px"><i style="width:${clamp(C.aw/1.6*100,0,100)}%"></i></div>
-      <p class="muted" style="font-size:13px;margin-top:8px">今の話題度だと最終的な需要は <b class="num" style="color:var(--ink)">約${fmtN(est*0.9)}〜${fmtN(est*1.1)}枚</b>。何もしないと毎週少しずつ下がります。</p>
+      <div class="row" style="justify-content:space-between"><b>話題度 <span class="num">${Math.round(C.aw*100)}%</span></b><span class="muted" style="font-size:12px">最終需要の見込み <b class="num" style="color:var(--ink)">約${fmtN(est*0.9)}〜${fmtN(est*1.1)}枚</b></span></div>
+      <div class="meter" style="margin-top:5px"><i style="width:${clamp(C.aw/1.6*100,0,100)}%"></i></div>
     </div>
     <div class="panel">
-      <div class="row" style="justify-content:space-between"><b>今週の宣伝</b><span class="row" style="gap:8px"><span class="muted" style="font-size:13px">行動力</span><span class="apdots">${[0,1,2].map(i=>`<i class="${i<C.ap?'on':''}"></i>`).join('')}</span></span></div>
-      ${soldOut?'<p class="good" style="font-size:13px;margin-top:6px">完売しました。これ以上の宣伝はチケット売上を増やしません。</p>':''}
+      <div class="row" style="justify-content:space-between"><b>今週の宣伝</b><span class="row" style="gap:6px"><span class="muted" style="font-size:12px">行動力</span><span class="apdots">${[0,1,2].map(i=>`<i class="${i<C.ap?'on':''}"></i>`).join('')}</span></span></div>
+      ${soldOut?'<p class="good" style="font-size:12px;margin-top:4px">完売しました。これ以上の宣伝はチケット売上を増やしません。</p>':''}
       <div class="promos">${promos}</div>
-      <p class="muted" style="font-size:12px;margin-top:8px">同じ宣伝は週1回まで。話題度が高いほど1回の効果は小さくなります（<button class="term" onclick="term('収穫逓減')">収穫逓減</button>）。宣伝費の累計：<span class="num">${fmtY(C.promoSpent)}</span></p>
+      <p class="muted" style="font-size:11px;margin-top:6px">同じ宣伝は週1回まで。話題度が高いほど効果は小さくなる（<button class="term" onclick="term('収穫逓減')">収穫逓減</button>）。何もしないと話題度は毎週下がる。宣伝費累計 <span class="num">${fmtY(C.promoSpent)}</span></p>
     </div>
-    <button class="btn primary big" onclick="advanceWeek()">${C.week===0?'チケット発売！（1週進める）':remain===1?'公演当日へ':'1週進める'}</button>
-    <div class="panel"><b>ニュース</b><ul class="log" style="margin-top:8px">${C.log.map(l=>`<li class="${l.c||''}">${l.t}</li>`).join('')}</ul></div>
+    <button class="btn primary big advance" onclick="advanceWeek()">${C.week===0?'チケット発売！（1週進める）':remain===1?'公演当日へ':'1週進める'}</button>
+   </div>
+   <div class="stack c3">
+    <div class="panel chart"><b>週ごとの販売枚数</b>${chartSVG()}</div>
+    <div class="panel"><b>ニュース</b><ul class="log" style="margin-top:6px">${C.log.map(l=>`<li class="${l.c||''}">${l.t}</li>`).join('')}</ul></div>
    </div>
   </div>`;
 }
@@ -707,7 +756,7 @@ function advanceWeek(){
   C.used={};C.ap=3-C.apPenalty;C.apPenalty=0;
   if(C.week>=C.K){
     if(!C.merchDone){C.merchDone=true;C.merch={};}
-    S.phase='show';computeShow();render();scrollTo(0,0);return;
+    S.phase='show';computeShow();render();return;
   }
   if(Math.random()<0.42)queueEvent();
   if(C.K-C.week<=3&&!C.merchDone)modalQ.push(merchModal);
@@ -781,17 +830,17 @@ function merchModal(){
     const r=merchRate(m,a); const sug=Math.round(est*r/lot)*lot; const max=Math.max(lot*10,Math.ceil(est*r*2.5/lot)*lot);
     merchOrder[m.id]=0;
     return `<div class="mitem">
-      <div><b>${m.name}</b><br><small class="muted">原価 ${fmtN(m.cost)}円 → 販売 ${fmtN(m.price)}円 ／ 購入率の目安 約${(r*100).toFixed(0)}%（目安 ${fmtN(sug)}個）</small></div>
-      <div class="num" style="text-align:right"><b id="mq-${m.id}" style="font-size:18px;color:var(--brass-soft)">0</b>個</div>
-      <input type="range" id="mr-${m.id}" min="0" max="${max}" step="${lot}" value="0" style="grid-column:1/-1" oninput="onMerch('${m.id}',this.value)" aria-label="${m.name}の発注数">
+      <div><b>${m.name}</b><br><small class="muted">原価${fmtN(m.cost)}円→${fmtN(m.price)}円／購入率 約${(r*100).toFixed(0)}%（目安${fmtN(sug)}個）</small></div>
+      <input type="range" id="mr-${m.id}" min="0" max="${max}" step="${lot}" value="0" oninput="onMerch('${m.id}',this.value)" aria-label="${m.name}の発注数">
+      <div class="num" style="text-align:right"><b id="mq-${m.id}" style="font-size:16px;color:var(--brass-soft)">0</b>個</div>
     </div>`;
   }).join('');
   showModal(`<div class="eyebrow">公演3週前 ／ 発注の締め切り</div><h3>グッズを何個つくる？</h3>
-   <p class="lead">工場の製造に3週間かかるため、今が発注の締め切りです。現在 <b class="num">${fmtN(C.sold)}枚</b> 売れていて、最終的な来場は <b class="num">約${fmtN(est)}人</b> の見込み。満足度が高いほどよく売れます。</p>
-   <div style="margin-top:10px">${rows}</div>
+   <p class="lead">製造に3週間かかるため今が締め切り。現在 <b class="num">${fmtN(C.sold)}枚</b> 販売、最終来場は <b class="num">約${fmtN(est)}人</b> の見込み。満足度が高いほどよく売れます。</p>
+   <div>${rows}</div>
    <div class="frow total"><span>発注総額（今すぐ支払い）</span><span class="v" id="mtotal">0円</span></div>
-   <p class="muted" style="font-size:13px">売れ残りは後日の通販で原価の40%しか回収できません（<button class="term" onclick="term('在庫リスクと機会損失')">在庫リスク</button>）。少なすぎると売り切れて儲けを逃します。</p>
-   <div class="row" style="margin-top:14px"><button class="btn primary" id="mok" onclick="confirmMerch()">この数で発注する</button><span class="muted" id="mwarn" style="font-size:13px"></span></div>`,true);
+   <p class="muted" style="font-size:12px">売れ残りは後日の通販で原価の40%しか回収できません（<button class="term" onclick="term('在庫リスクと機会損失')">在庫リスク</button>）。少なすぎると売り切れて儲けを逃します。</p>
+   <div class="row" style="margin-top:10px"><button class="btn primary" id="mok" onclick="confirmMerch()">この数で発注する</button><span class="muted" id="mwarn" style="font-size:13px"></span></div>`,true);
 }
 function onMerch(id,v){merchOrder[id]=+v;$('#mq-'+id).textContent=fmtN(v);const t=MERCH.reduce((s,m)=>s+merchOrder[m.id]*m.cost,0);$('#mtotal').textContent=fmtY(t);const over=t>S.cash;$('#mok').disabled=over;$('#mwarn').textContent=over?'資金が足りません':'';}
 function confirmMerch(){
@@ -849,8 +898,7 @@ function computeShow(){
 function showHTML(){
   const p=S.plan,a=A(p.artist),v=Vn(p.venue),R=S.result;
   const full=R.fill>=0.999;
-  return `<div class="eyebrow">第${S.showNo}公演 ／ 公演当日</div>
-  <h2 style="margin:6px 0 12px">${esc(a.name)} LIVE ＠ ${esc(v.name)}</h2>
+  return `<div class="phead"><div class="ttl"><span class="eyebrow">第${S.showNo}公演 ／ 公演当日</span><h2>${esc(a.name)} LIVE ＠ ${esc(v.name)}</h2><p class="lead">${sceneLine(R)}</p></div><div class="nav"><button class="btn primary big" onclick="goResult()">収支報告を見る</button></div></div>
   <div class="stage-scene">
     <div class="beam b1"></div><div class="beam b2"></div>
     ${seatSVG(v.cap,R.sold,true,a)}
@@ -861,8 +909,7 @@ function showHTML(){
     <div class="counter"><small>稼働率</small><b data-count="${Math.round(R.fill*100)}" data-suffix="%">0</b></div>
     <div class="counter"><small>お客さんの満足度</small><b data-count="${R.sat}" data-suffix=" / 100">0</b></div>
     <div class="counter"><small>物販売上</small><b data-count="${R.merchRev}" data-yen="1">0</b></div>
-  </div>
-  <div class="row" style="margin-top:18px"><span class="muted">${sceneLine(R)}</span><span class="spacer"></span><button class="btn primary big" onclick="goResult()">収支報告を見る</button></div>`;
+  </div>`;
 }
 function sceneLine(R){
   if(R.fill>=0.999)return'開演前から会場は熱気でいっぱい。最高の夜になった。';
@@ -877,7 +924,7 @@ function animateShow(){
     requestAnimationFrame(step);
   });
 }
-function goResult(){S.phase='result';render();scrollTo(0,0);}
+function goResult(){S.phase='result';render();}
 function lessons(R){
   const p=S.plan,a=A(p.artist),v=Vn(p.venue),L=[];
   if(R.soldOutWeek&&R.K-R.soldOutWeek>=3){const extra=Math.round(R.est-R.cap);L.push(`<b>機会損失：</b>公演の${R.K-R.soldOutWeek}週も前に完売しました。需要はキャパを約${fmtN(Math.max(0,extra))}枚上回っていた計算です。もう少し高い価格か、大きい会場でもよかったかもしれません。`);}
@@ -902,16 +949,17 @@ function resultHTML(){
   const inc=[['チケット売上（前売 '+fmtN(R.presold)+'枚＋当日 '+fmtN(R.walk)+'枚）',R.ticketRev],['グッズ売上',R.merchRev],['売れ残りグッズの後日回収',R.salvage],['協賛金',R.sponsor-R.refund],['クラウドファンディング',R.crowd],['臨時収入（イベント）',R.eventIncome]].filter(x=>x[1]);
   const exp=[['出演料'+(p.deal==='share'?'（歩合45%）':''),R.artistPay],['会場費',R.rent],['制作・演出費',R.prod],['宣伝費',R.promo],['グッズ原価',R.merchCost],['運営・警備人件費',R.staff],['プレイガイド手数料（前売の8%）',R.playguide],['クラファンのお礼費用',R.gift],['臨時の出費（イベント）',R.eventCost],['借入の利息（5%）',R.interest]].filter(x=>x[1]);
   const last=S.showNo>=MAX_SHOWS,broke=S.cash<0;
-  return `<div class="eyebrow">第${S.showNo}公演 ／ 収支報告</div>
-  <h2 style="margin:6px 0 14px">${esc(a.name)} ＠ ${esc(v.name)}</h2>
+  return `<div class="phead"><div class="ttl"><span class="eyebrow">第${S.showNo}公演 ／ 収支報告</span><h2>${esc(a.name)} ＠ ${esc(v.name)}</h2></div>
+    <div class="nav"><button class="btn primary big" onclick="${broke||last?'goEnd()':'nextShow()'}">${broke?'結果を見る':last?'最終結果へ':'次の公演を企画する'}</button></div></div>
   <div class="kpis">
     <div class="kpi"><small>最終損益</small><b class="${R.net>=0?'good':'bad'}">${R.net>=0?'+':''}${fmtY(R.net)}</b></div>
-    <div class="kpi"><small>動員 ／ 稼働率</small><b>${fmtN(R.sold)}人 ／ ${Math.round(R.fill*100)}%</b></div>
+    <div class="kpi"><small>動員 ／ 稼働率</small><b>${fmtN(R.sold)}人／${Math.round(R.fill*100)}%</b></div>
     <div class="kpi"><small>満足度</small><b>${R.sat}</b></div>
     <div class="kpi"><small>損益分岐点（宣伝費別）</small><b>${R.be===Infinity?'—':fmtN(R.be)+'枚'}</b></div>
-    <div class="kpi"><small>信頼度</small><b>${Math.round(R.repBefore)} → ${Math.round(S.rep)} <span class="${R.dRep>=0?'good':'bad'}" style="font-size:15px">(${R.dRep>=0?'+':''}${R.dRep})</span></b></div>
+    <div class="kpi"><small>信頼度</small><b>${Math.round(R.repBefore)} → ${Math.round(S.rep)} <span class="${R.dRep>=0?'good':'bad'}" style="font-size:13px">(${R.dRep>=0?'+':''}${R.dRep})</span></b></div>
   </div>
-  <div class="two" style="margin-top:18px">
+  ${broke?`<div class="tip" style="border-color:var(--bad)"><b class="bad">資金がマイナスになりました。</b>支払いができず、会社は倒産してしまいました…。</div>`:''}
+  <div class="rgrid">
     <div class="panel"><h3>損益計算書</h3>
       <table class="pl">
         <tr class="h"><td colspan="2">収入</td></tr>${inc.map(x=>tr(x[0],fmtY(x[1]))).join('')}
@@ -919,19 +967,16 @@ function resultHTML(){
         ${R.invPayout?`<tr class="h"><td colspan="2">共同主催</td></tr>${tr('出資者への分配（利益の40%）',(R.invShare>=0?'−':'+')+fmtY(Math.abs(R.invShare)))}`:''}
         ${tr('この公演の最終損益',`<span class="${R.net>=0?'good':'bad'}">${R.net>=0?'+':''}${fmtY(R.net)}</span>`,'sum')}
       </table>
-      ${R.merch.some(m=>m.q)?`<h3 style="margin-top:18px">グッズの結果</h3><table class="pl">${R.merch.filter(m=>m.q||m.dem).map(m=>tr(m.name,`${fmtN(m.sold)} / ${fmtN(m.q)}個 ${m.lost?'<span class="bad">品切れ</span>':m.unsold?'<span class="muted">残'+fmtN(m.unsold)+'</span>':'<span class="good">完売</span>'}`)).join('')}</table>`:''}
     </div>
-    <div class="stack">
-      <div class="panel"><h3>プロデューサーの振り返り</h3><div class="lessons" style="margin-top:10px">${lessons(R).map(l=>`<div class="tip">${l}</div>`).join('')}</div></div>
-      ${broke?`<div class="panel" style="border-color:var(--bad)"><h3 class="bad">資金がマイナスになりました</h3><p class="lead" style="margin-top:6px">支払いができず、会社は倒産してしまいました…。</p></div>`:''}
-      <button class="btn primary big" onclick="${broke||last?'goEnd()':'nextShow()'}">${broke?'結果を見る':last?'最終結果へ':'次の公演を企画する'}</button>
+    <div class="panel"><h3>プロデューサーの振り返り</h3><div class="lessons" style="margin-top:6px">${lessons(R).map(l=>`<div class="tip">${l}</div>`).join('')}</div>
+      ${R.merch.some(m=>m.q)?`<h3 style="margin-top:10px">グッズの結果</h3><table class="pl">${R.merch.filter(m=>m.q||m.dem).map(m=>tr(m.name,`${fmtN(m.sold)} / ${fmtN(m.q)}個 ${m.lost?'<span class="bad">品切れ</span>':m.unsold?'<span class="muted">残'+fmtN(m.unsold)+'</span>':'<span class="good">完売</span>'}`)).join('')}</table>`:''}
     </div>
   </div>`;
 }
 function nextShow(){
-  S.absWeek+=S.camp.K+2;S.showNo++;startPlanning();scrollTo(0,0);
+  S.absWeek+=S.camp.K+2;S.showNo++;startPlanning();
 }
-function goEnd(){S.phase='end';render();scrollTo(0,0);}
+function goEnd(){S.phase='end';render();}
 function endHTML(){
   const broke=S.cash<0;
   const tot=S.history.reduce((s,h)=>s+h.net,0);
@@ -942,18 +987,21 @@ function endHTML(){
   else if(S.cash>=20000000){rank='B';title='敏腕プロモーター';}
   else if(S.cash>=6000000){rank='C';title='一人前のイベンター';}
   else {rank='D';title='修行中のイベンター';}
-  return `<section style="text-align:center;padding-block:20px" class="stack">
+  return `<div class="endg">
+   <section class="stack" style="text-align:center;align-items:center">
     <div class="eyebrow">FINAL RESULT</div>
     <div class="rank">${rank}</div>
     <h2>${title}</h2>
-    <p class="lead" style="margin:0 auto">最終資金 <b class="num">${fmtY(S.cash)}</b>（スタート時 300万円）／ 通算損益 <b class="num ${tot>=0?'good':'bad'}">${tot>=0?'+':''}${fmtY(tot)}</b> ／ 信頼度 <b class="num">${Math.round(S.rep)}</b></p>
-  </section>
-  <div class="panel" style="margin-top:10px"><h3>公演の記録</h3>
-   <div style="overflow-x:auto;margin-top:8px"><table class="hist"><thead><tr><th>#</th><th>演者</th><th>会場</th><th>価格</th><th>動員</th><th>稼働率</th><th>満足度</th><th>損益</th></tr></thead>
-   <tbody>${S.history.map(h=>`<tr><td>${h.no}</td><td>${esc(h.artist)}</td><td>${esc(h.venue)}</td><td class="v">${fmtN(h.price)}円</td><td class="v">${fmtN(h.sold)}/${fmtN(h.cap)}</td><td class="v">${Math.round(h.fill*100)}%</td><td class="v">${h.sat}</td><td class="v ${h.net>=0?'good':'bad'}">${h.net>=0?'+':''}${fmtY(h.net)}</td></tr>`).join('')}</tbody></table></div>
-  </div>
-  <div class="tip" style="margin-top:14px"><b>ランクの目安：</b>最終資金 600万円でC、2,000万円でB、8,000万円でA、2億円でS。ドーム公演を成功させるには、借入・出資・スポンサーを組み合わせた資金調達が欠かせません。</div>
-  <div class="row" style="margin-top:16px;justify-content:center"><button class="btn primary big" onclick="clearSave();newGame()">もう一度プレイ</button></div>`;
+    <p class="lead">最終資金 <b class="num" style="color:var(--ink)">${fmtY(S.cash)}</b>（スタート 300万円）<br>通算損益 <b class="num ${tot>=0?'good':'bad'}">${tot>=0?'+':''}${fmtY(tot)}</b> ／ 信頼度 <b class="num" style="color:var(--ink)">${Math.round(S.rep)}</b></p>
+    <p class="muted" style="font-size:12px">ランク：600万円でC、2,000万円でB、8,000万円でA、2億円でS</p>
+    <button class="btn primary big" onclick="clearSave();newGame()">もう一度プレイ</button>
+   </section>
+   <div class="panel"><h3>公演の記録</h3>
+    <div style="overflow-x:auto;margin-top:6px"><table class="hist"><thead><tr><th>#</th><th>演者</th><th>会場</th><th>価格</th><th>動員</th><th>稼働率</th><th>満足度</th><th>損益</th></tr></thead>
+    <tbody>${S.history.map(h=>`<tr><td>${h.no}</td><td>${esc(h.artist)}</td><td>${esc(h.venue)}</td><td class="v">${fmtN(h.price)}円</td><td class="v">${fmtN(h.sold)}/${fmtN(h.cap)}</td><td class="v">${Math.round(h.fill*100)}%</td><td class="v">${h.sat}</td><td class="v ${h.net>=0?'good':'bad'}">${h.net>=0?'+':''}${fmtY(h.net)}</td></tr>`).join('')}</tbody></table></div>
+    <div class="tip" style="margin-top:10px"><b>ヒント：</b>ドーム公演を成功させるには、借入・出資・スポンサーを組み合わせた資金調達が欠かせません。</div>
+   </div>
+  </div>`;
 }
 
 /* ========== 図：客席と販売グラフ ========== */
@@ -1019,7 +1067,7 @@ function term(name){
   showModal(`<div class="eyebrow">用語手帳</div><h3>${g[0]}</h3><p class="lead">${g[1]}</p><div class="row" style="margin-top:16px"><button class="btn primary" onclick="closeInfo()">閉じる</button></div>`);
 }
 function openGlossary(){
-  showModal(`<div class="eyebrow">プロモーターの用語手帳</div><h3>知っておきたい業界用語</h3><dl class="gl">${GLOSSARY.map(g=>`<dt>${g[0]}</dt><dd>${g[1]}</dd>`).join('')}</dl><div class="row" style="margin-top:16px"><button class="btn primary" onclick="closeInfo()">閉じる</button></div>`,true);
+  showModal(`<div class="eyebrow">プロモーターの用語手帳</div><h3>知っておきたい業界用語</h3><dl class="gl">${GLOSSARY.map(g=>`<div><dt>${g[0]}</dt><dd>${g[1]}</dd></div>`).join('')}</dl><div class="row" style="margin-top:16px"><button class="btn primary" onclick="closeInfo()">閉じる</button></div>`,true);
 }
 function openHowTo(){
   showModal(`<div class="eyebrow">遊び方</div><h3>プロモーターの仕事の流れ</h3>
