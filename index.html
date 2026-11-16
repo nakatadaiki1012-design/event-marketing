@@ -94,7 +94,7 @@ p{margin:0}
 .pcard{position:relative;text-align:left;border:1px solid var(--line);background:var(--velvet-2);border-radius:12px;padding:0;cursor:pointer;overflow:visible;display:flex;flex-direction:column;transition:border-color .15s,transform .15s}
 .pcard:hover{border-color:var(--brass)}
 .pcard.sel{border-color:var(--brass);box-shadow:0 0 0 2px var(--brass) inset,0 0 24px rgba(233,182,79,.18)}
-.pc-top{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 10px;background:linear-gradient(110deg,var(--c1),var(--c2));border-radius:11px 11px 0 0}
+.pc-top{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 10px 5px 6px;background:linear-gradient(110deg,var(--c1),var(--c2));border-radius:11px 11px 0 0}
 .pc-name{font-family:var(--f-display);font-size:15px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pc-cd{font-family:var(--f-display);font-size:13px;color:#fff;background:rgba(0,0,0,.4);border-radius:99px;padding:1px 9px;white-space:nowrap}
 .pc-body{display:flex;gap:10px;align-items:center;padding:7px 10px 8px}
@@ -118,7 +118,7 @@ p{margin:0}
 .news li.ev{border-left-color:var(--curtain)} .news li.gd{border-left-color:var(--good)} .news li.rv{border-left-color:var(--cool)}
 
 .detail{display:flex;flex-direction:column;gap:8px;min-height:0}
-.dhead{border-radius:12px;padding:8px 12px;background:linear-gradient(110deg,var(--c1),var(--c2));display:flex;gap:6px 12px;align-items:center;flex-wrap:wrap;position:relative;overflow:hidden}
+.dhead{border-radius:12px;padding:6px 12px 6px 8px;min-height:58px;background:linear-gradient(110deg,var(--c1),var(--c2));display:flex;gap:6px 12px;align-items:center;flex-wrap:wrap;position:relative;overflow:hidden}
 .dhead::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.06) 0 2px,transparent 2px 14px);pointer-events:none}
 .dhead>*{position:relative;z-index:1}
 .dhead .an{font-family:var(--f-display);font-size:20px;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.5)}
@@ -178,9 +178,9 @@ p{margin:0}
 .acard.locked{cursor:not-allowed}
 .acard.locked>*{opacity:.42}
 .acard.locked .lock{opacity:1}
-.poster{height:62px;padding:8px 12px;display:flex;align-items:flex-end;justify-content:space-between;gap:8px;position:relative;overflow:hidden}
-.poster::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.06) 0 2px,transparent 2px 14px)}
-.poster>*{position:relative;z-index:1}
+.poster{height:96px;padding:8px 12px;display:flex;align-items:flex-end;justify-content:space-between;gap:8px;position:relative;overflow:hidden}
+.poster::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(90deg,rgba(0,0,0,.55),transparent 55%)}
+.poster>*:not(.art){position:relative;z-index:1}
 .poster .pn{font-family:var(--f-display);font-size:19px;line-height:1.1;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.5)}
 .poster .pk{font-size:9px;letter-spacing:.18em;color:rgba(255,255,255,.8)}
 .poster .ptype{background:rgba(0,0,0,.35);border-color:rgba(255,255,255,.3);color:#fff}
@@ -363,6 +363,23 @@ details.more summary{cursor:pointer;color:var(--brass-soft);font-size:12px;margi
  .mg{grid-template-columns:1fr}.mg .go{grid-column:1;grid-row:auto}
  .pod{grid-template-columns:24px 100px 1fr}
 }
+/* イラスト */
+.ava{display:inline-block;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,.7);flex:none;background:linear-gradient(135deg,var(--c1),var(--c2));box-shadow:0 2px 10px rgba(0,0,0,.4)}
+.ava svg{width:100%;height:100%;display:block}
+.poster .art{position:absolute;inset:0;z-index:0}
+.poster .ptype{position:absolute!important;top:8px;left:12px}
+.poster .art svg{width:100%;height:100%;display:block}
+.dhead .dart{position:absolute;right:0;top:0;bottom:0;width:46%;z-index:0;opacity:.9;-webkit-mask-image:linear-gradient(90deg,transparent,#000 40%);mask-image:linear-gradient(90deg,transparent,#000 40%)}
+.dhead .dart svg{width:100%;height:100%;display:block}
+.lineup{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.lineup span{width:84px;height:52px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.25);box-shadow:0 6px 18px rgba(0,0,0,.5)}
+.lineup svg{width:100%;height:100%;display:block}
+.mrow{display:flex;gap:10px;align-items:center;min-width:0}
+.mi{display:inline-flex;vertical-align:middle;margin-right:6px}
+.evhead{display:flex;align-items:flex-end;margin-bottom:8px}
+.evhead .evicon{width:34px;height:34px;border-radius:10px;margin:0 0 0 -16px;position:relative}
+.evhead .evicon .ic{width:20px;height:20px}
+.mstrip{display:flex;gap:2px;align-items:center}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head><body>
@@ -411,6 +428,78 @@ const ICONS={
  bolt:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
 };
 function ic(n,cls=''){return `<svg class="ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;}
+/* ========== イラスト（アーティスト・グッズ）をSVGで描く ========== */
+let artSeq=0;
+const SKIN=['#f2c9a5','#e8b48f','#d9a07a','#f5d5b8'];
+function fig(o){
+  const s=o.s||1,sk=o.skin||SKIN[0],hc=o.hc||'#222';
+  let back='';
+  if(o.hair==='long')back=`<path d="M35 38 Q34 22 50 22 Q66 22 65 38 L70 90 Q50 96 30 90 Z" fill="${hc}"/>`;
+  if(o.hair==='twin')back=`<ellipse cx="31" cy="54" rx="6.5" ry="17" fill="${hc}"/><ellipse cx="69" cy="54" rx="6.5" ry="17" fill="${hc}"/><circle cx="34" cy="34" r="3" fill="${o.out2||'#fff'}"/><circle cx="66" cy="34" r="3" fill="${o.out2||'#fff'}"/>`;
+  const body=`<path d="M29 121 L33 74 Q50 62 67 74 L71 121 Z" fill="${o.out}"/>`+(o.out2?`<path d="M44 66 L50 82 L56 66 Z" fill="${o.out2}"/>`:'');
+  const neck=`<rect x="45" y="52" width="10" height="14" rx="4" fill="${sk}"/>`;
+  const head=`<ellipse cx="50" cy="42" rx="12.5" ry="14.5" fill="${sk}"/>`;
+  const HAIR={
+    short:`<path d="M37 41 Q35 25 50 25 Q65 25 63 41 Q59 32 50 33 Q41 32 37 41Z"/>`,
+    bob:`<path d="M35 54 Q31 25 50 24 Q69 25 65 54 L61 54 Q63 37 50 34 Q39 36 39 54Z"/>`,
+    long:`<path d="M36 46 Q33 24 50 24 Q67 24 64 46 Q59 33 50 33 Q41 33 36 46Z"/>`,
+    spiky:`<path d="M36 41 L33 23 L41 30 L43 16 L50 27 L57 15 L59 30 L68 22 L64 41 Q57 32 50 33 Q43 32 36 41Z"/>`,
+    twin:`<path d="M36 46 Q33 24 50 24 Q67 24 64 46 Q61 36 57 38 L50 33 L43 38 Q39 36 36 46Z"/>`,
+    slick:`<path d="M37 39 Q37 24 52 24 Q65 26 63 39 Q56 30 46 31 Q40 33 37 39Z"/>`,
+  };
+  const hair=`<g fill="${hc}">${HAIR[o.hair]||HAIR.short}</g>`;
+  const face=o.glasses?`<rect x="39.5" y="40" width="9.5" height="5.5" rx="2.5" fill="#0d0d12"/><rect x="51" y="40" width="9.5" height="5.5" rx="2.5" fill="#0d0d12"/><path d="M49 42h2" stroke="#0d0d12" stroke-width="1.2"/><path d="M47 50.5 Q50 52.5 53 50.5" stroke="#7a3b3b" stroke-width="1.1" fill="none"/>`
+    :`<ellipse cx="45.5" cy="44" rx="1.5" ry="2" fill="#2a1a20"/><ellipse cx="54.5" cy="44" rx="1.5" ry="2" fill="#2a1a20"/><path d="M47 50 Q50 52.5 53 50" stroke="#8a4a4a" stroke-width="1.1" fill="none"/><ellipse cx="42" cy="48" rx="2.4" ry="1.3" fill="#ff8a8a" opacity=".35"/><ellipse cx="58" cy="48" rx="2.4" ry="1.3" fill="#ff8a8a" opacity=".35"/>`;
+  const arm=(d)=>`<path d="${d}" stroke="${o.out}" stroke-width="7" fill="none" stroke-linecap="round"/>`;
+  const hand=(x,y)=>`<circle cx="${x}" cy="${y}" r="3.3" fill="${sk}"/>`;
+  let hold='';
+  if(o.hold==='mic')hold=arm('M64 78 Q71 64 61 55')+`<rect x="56.5" y="47" width="4" height="10" rx="2" fill="#222"/><circle cx="58.5" cy="46.5" r="3.4" fill="#777"/>`+hand(60,55);
+  if(o.hold==='guitar')hold=`<g transform="rotate(-28 50 94)"><rect x="47.5" y="54" width="5" height="38" rx="1" fill="#5a3a1a"/><ellipse cx="50" cy="100" rx="13.5" ry="11" fill="#c98a3c"/><ellipse cx="50" cy="91" rx="10.5" ry="8.5" fill="#d79a4c"/><circle cx="50" cy="96" r="3.6" fill="#3a2410"/></g>`+arm('M34 80 Q40 98 54 96')+hand(55,96);
+  if(o.hold==='egtr')hold=`<g transform="rotate(-30 50 94)"><rect x="48" y="52" width="4" height="38" fill="#1c1c1c"/><path d="M37 90 Q38 80 47 86 L53 86 Q62 80 63 91 Q65 106 50 108 Q35 106 37 90Z" fill="${o.gc||'#d22'}"/><rect x="45" y="94" width="10" height="2.5" fill="#eee"/></g>`+arm('M34 80 Q40 98 54 97')+hand(55,97);
+  if(o.hold==='baton')hold=arm('M65 78 Q75 62 78 48')+hand(78,47)+`<path d="M78 47 L94 28" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>`;
+  if(o.hold==='violin')hold=`<g transform="rotate(38 38 64)"><ellipse cx="33" cy="72" rx="7.5" ry="10.5" fill="#8a3b12"/><ellipse cx="33" cy="66" rx="5.5" ry="6" fill="#9c4818"/><rect x="31.8" y="48" width="2.6" height="16" fill="#3a1a08"/></g><path d="M18 58 L62 80" stroke="#e8dcc8" stroke-width="1.3"/>`+arm('M66 78 Q66 84 61 80')+hand(61,80);
+  if(o.hold==='penlight')hold=arm('M65 78 Q73 63 71 47')+`<rect x="69.4" y="24" width="3.4" height="21" rx="1.7" fill="${o.lc}"/><circle cx="71" cy="26" r="6.5" fill="${o.lc}" opacity=".4"/>`+hand(71,47);
+  return `<g transform="translate(${(o.x-50*s).toFixed(1)} ${(o.y-121*s).toFixed(1)}) scale(${s})">${back}${body}${neck}${head}${hair}${face}${hold}</g>`;
+}
+function artistFigs(a){
+  switch(a.id){
+    case 'mizuiro':return fig({x:76,y:121,s:.95,hair:'short',hc:'#3a2a20',skin:SKIN[0],out:'#f4f1e6',hold:'guitar'})+fig({x:126,y:121,s:.95,hair:'bob',hc:'#5a3a2a',skin:SKIN[3],out:'#2c6e8f',out2:'#cfeaf5',hold:'mic'});
+    case 'blaze':return fig({x:58,y:121,s:.82,hair:'slick',hc:'#111',skin:SKIN[1],out:'#26222a',hold:'egtr',gc:'#e8541c'})+fig({x:142,y:121,s:.82,hair:'short',hc:'#7a1010',skin:SKIN[2],out:'#3a3340',hold:'egtr',gc:'#e6e6e6'})+fig({x:100,y:121,s:1,hair:'spiky',hc:'#f2c230',skin:SKIN[0],out:'#141014',out2:'#d22',hold:'mic'});
+    case 'chamber':return fig({x:54,y:121,s:.74,hair:'bob',hc:'#2a2028',skin:SKIN[3],out:'#151217',out2:'#f2efe8',hold:'violin'})+fig({x:146,y:121,s:.74,hair:'short',hc:'#3a3030',skin:SKIN[1],out:'#151217',out2:'#f2efe8',hold:'violin'})+fig({x:100,y:121,s:.96,hair:'slick',hc:'#c9c4c0',skin:SKIN[0],out:'#0e0b10',out2:'#ffffff',hold:'baton'});
+    case 'hoshino':return fig({x:100,y:121,s:1.06,hair:'long',hc:'#2a1830',skin:SKIN[3],out:'#f7f0ff',out2:'#ff8fab',hold:'mic'});
+    case 'neon':return fig({x:60,y:121,s:.8,hair:'twin',hc:'#ff5fa2',skin:SKIN[3],out:'#ff006e',out2:'#fff',hold:'penlight',lc:'#7cf'})+fig({x:140,y:121,s:.8,hair:'twin',hc:'#ffd23f',skin:SKIN[0],out:'#8d4dff',out2:'#fff',hold:'penlight',lc:'#ff6fa3'})+fig({x:100,y:121,s:.9,hair:'bob',hc:'#1e1a24',skin:SKIN[0],out:'#3a6bff',out2:'#fff',hold:'mic'});
+    case 'kaito':return fig({x:100,y:121,s:1.12,hair:'slick',hc:'#0e0e12',skin:SKIN[1],out:'#121014',out2:'#ffc300',hold:'mic',glasses:true});
+  }
+  return '';
+}
+function artistDecor(a,id){
+  const W='rgba(255,255,255,';
+  switch(a.id){
+    case 'mizuiro':return `<g fill="${W}.55)" font-size="16" font-family="serif"><text x="28" y="40">♪</text><text x="160" y="30">♫</text><text x="170" y="70">♪</text></g><path d="M0 104 Q50 94 100 104 T200 104 V120 H0Z" fill="${W}.12)"/>`;
+    case 'blaze':return `<path d="M0 120 L0 98 Q10 84 16 98 Q22 72 32 96 Q40 80 46 100 Q56 70 66 98 Q76 84 84 102 Q96 66 108 100 Q118 80 126 100 Q138 72 148 98 Q156 84 164 100 Q176 70 186 98 Q194 86 200 96 L200 120Z" fill="#ff6a2b" opacity=".75"/><path d="M0 120 L0 108 Q14 96 24 108 Q36 92 48 110 Q62 94 76 110 Q92 92 106 110 Q120 96 134 110 Q150 94 164 110 Q180 96 200 108 L200 120Z" fill="#ffd23f" opacity=".7"/>`;
+    case 'chamber':return `<g stroke="rgba(233,182,79,.35)" stroke-width="1" fill="none">${[0,1,2,3,4].map(i=>`<path d="M-5 ${30+i*6} Q100 ${10+i*6} 205 ${30+i*6}"/>`).join('')}</g>`;
+    case 'hoshino':return `<g fill="#fff">${[[30,26,1],[168,20,1.3],[150,60,.8],[44,70,.9],[180,90,.7]].map(([x,y,k])=>`<path transform="translate(${x} ${y}) scale(${k})" d="M0 -7 L1.8 -1.8 L7 0 L1.8 1.8 L0 7 L-1.8 1.8 L-7 0 L-1.8 -1.8Z" opacity=".8"/>`).join('')}</g>`;
+    case 'neon':return `<g fill="none" stroke-width="2.2">${[[28,30,'#ff6fa3'],[172,26,'#7cf'],[22,84,'#ffd23f'],[180,78,'#b98cff']].map(([x,y,c])=>`<path transform="translate(${x} ${y})" d="M0 5 C-9 -2 -5 -10 0 -5 C5 -10 9 -2 0 5Z" stroke="${c}"/>`).join('')}</g>`;
+    case 'kaito':return `<g opacity=".35">${Array.from({length:14},(_,i)=>{const t=-Math.PI+i*Math.PI/13;return `<path d="M100 60 L${(100+Math.cos(t)*160).toFixed(0)} ${(60+Math.sin(t)*160).toFixed(0)} L${(100+Math.cos(t+.08)*160).toFixed(0)} ${(60+Math.sin(t+.08)*160).toFixed(0)}Z" fill="#ffc300"/>`;}).join('')}</g><path d="M88 12 L92 20 L100 10 L108 20 L112 12 L110 26 H90Z" fill="#ffc300"/>`;
+  }
+  return '';
+}
+// opts.bg: 背景を描くか / opts.fit: preserveAspectRatio
+function artistArt(a,opts={}){
+  const id='ag'+(++artSeq),bg=opts.bg!==false;
+  const back=bg?`<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a.c[0]}"/><stop offset="1" stop-color="${a.c[1]}"/></linearGradient></defs><rect x="-60" y="-10" width="320" height="140" fill="url(#${id})"/>`:'';
+  const spot=`<defs><radialGradient id="${id}s" cx=".5" cy="0" r=".9"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><path d="M100 -10 L36 122 L164 122Z" fill="url(#${id}s)"/>`;
+  return `<svg viewBox="${opts.vb||'0 0 200 120'}" preserveAspectRatio="${opts.fit||'xMidYMid slice'}" aria-hidden="true">${back}${spot}${artistDecor(a)}${artistFigs(a)}</svg>`;
+}
+function avatar(a,size){return `<span class="ava" style="width:${size}px;height:${size}px;--c1:${a.c[0]};--c2:${a.c[1]}">${artistArt(a)}</span>`;}
+function merchArt(mid,a,size=44){
+  const c1=a.c[0],c2=a.c[1],n=a.logo,id='mg'+(++artSeq);let g='';
+  if(mid==='tee')g=`<path d="M21 9 L8 16 L13 27 L19 24 L19 57 L45 57 L45 24 L51 27 L56 16 L43 9 Q38 15 32 15 Q26 15 21 9Z" fill="${c1}" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="32" y="38" text-anchor="middle" font-size="${n.length>5?6:7.5}" font-weight="700" fill="${c2}" font-family="sans-serif">${n}</text><path d="M24 43 h16" stroke="${c2}" stroke-width="1.4"/>`;
+  if(mid==='towel')g=`<g transform="rotate(-14 32 32)"><rect x="5" y="23" width="54" height="18" rx="2" fill="${c2}"/><rect x="5" y="23" width="54" height="3.2" fill="${c1}"/><rect x="5" y="37.8" width="54" height="3.2" fill="${c1}"/><text x="32" y="35.2" text-anchor="middle" font-size="${n.length>5?6:7}" font-weight="700" fill="${c1}" font-family="sans-serif">${n}</text><path d="M5 24 l-3 1 M5 28 l-3 0 M5 32 l-3 0 M5 36 l-3 0 M5 40 l-3 -1 M59 24 l3 1 M59 28 l3 0 M59 32 l3 0 M59 36 l3 0 M59 40 l3 -1" stroke="${c2}" stroke-width="1.2"/></g>`;
+  if(mid==='pamph')g=`<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient></defs><rect x="16" y="5" width="34" height="52" rx="2" fill="#0006" transform="translate(3 3)"/><rect x="16" y="5" width="34" height="52" rx="2" fill="url(#${id})"/><rect x="16" y="5" width="4" height="52" fill="#0003"/><text x="34" y="20" text-anchor="middle" font-size="${n.length>5?5.5:6.5}" font-weight="700" fill="#fff" font-family="sans-serif">${n}</text><text x="34" y="27" text-anchor="middle" font-size="4" fill="#fff" opacity=".85" font-family="sans-serif">TOUR 2027</text><circle cx="34" cy="42" r="8" fill="#fff" opacity=".25"/>`;
+  if(mid==='light')g=`<circle cx="32" cy="17" r="15" fill="${c2}" opacity=".25"/><rect x="28" y="6" width="8" height="24" rx="4" fill="${c2}"/><rect x="29.5" y="8" width="2" height="18" rx="1" fill="#fff" opacity=".6"/><rect x="27.5" y="29" width="9" height="28" rx="3" fill="#ddd"/><rect x="27.5" y="36" width="9" height="3" fill="${c1}"/><circle cx="32" cy="46" r="1.8" fill="#888"/>`;
+  return `<svg viewBox="0 0 64 64" width="${size}" height="${size}" aria-hidden="true" style="flex:none">${g}</svg>`;
+}
 
 /* ========== サウンド（効果音は合成） ========== */
 const SND={ctx:null,on:true,
@@ -456,6 +545,7 @@ const ARTISTS=[
  {id:'kaito',name:'KAITO',kana:'カイト',type:'国民的スター',genre:'pop',base:32000,fee:150000000,ref:9800,el:0.5,merch:1.1,rep:58,avail:0.3,aw0:0.75,pop:4,c:['#0b1026','#ffc300'],desc:'誰もが知るスーパースター。日程も資金も、押さえるのは至難の業。'},
 ];
 // 歩合率：動員力どおりに売れたとき、固定ギャラの約1.15倍になる水準（リスクを演者に移す分の上乗せ）
+const LOGOS={mizuiro:'MIZUIRO',blaze:'BLAZE',chamber:'TOTO',hoshino:'LUKA',neon:'NEON',kaito:'KAITO'};ARTISTS.forEach(a=>a.logo=LOGOS[a.id]);
 ARTISTS.forEach(a=>a.share=Math.round(a.fee/(a.base*a.ref)*1.15*100)/100);
 const VENUES=[
  {id:'box',name:'ネオンボックス',type:'ライブハウス',cap:300,rent:[100000,150000],prod:80000,rep:0,avail:0.7,tier:0,fit:{acoustic:6,rock:6,classical:-15,pop:0,idol:0}},
@@ -605,6 +695,7 @@ function titleHTML(){
      <div class="logo">満員御礼</div>
      <div class="logo-sub">コンサートプロモーター物語</div>
      <p class="lead" style="text-align:center;font-size:14px">資金300万円・業界最下位からのスタート。<br>1年で、ライバル3社を抜いて業界No.1へ。</p>
+     <div class="lineup">${ARTISTS.map(a=>`<span title="${esc(a.name)}">${artistArt(a)}</span>`).join('')}</div>
      <div class="rivalrow">${RIVALS0.map(r=>`<span style="border-color:${r.c}">${r.name}</span>`).join('')}</div>
      <div class="row" style="justify-content:center">
        <button class="btn fire big" onclick="SND.init();confirmNew()">はじめから</button>
@@ -635,13 +726,13 @@ function ringSVG(f,col){const r=24,c=2*Math.PI*r;return `<svg viewBox="0 0 58 58
 function pcardHTML(p){
   const a=A(p.artist),v=Vn(p.venue),f=p.sold/v.cap,rem=p.wk-S.week;
   return `<button class="pcard ${S.sel===p.id?'sel':''}" data-pid="${p.id}" style="--c1:${a.c[0]};--c2:${a.c[1]}" onclick="selProj(${p.id})">
-    <div class="pc-top"><span class="pc-name">${esc(a.name)}</span><span class="pc-cd">${rem<=0?'今週本番':'あと'+rem+'週'}</span></div>
+    <div class="pc-top"><span class="row" style="gap:7px;flex-wrap:nowrap;min-width:0">${avatar(a,32)}<span class="pc-name">${esc(a.name)}</span></span><span class="pc-cd">${rem<=0?'今週本番':'あと'+rem+'週'}</span></div>
     <div class="pc-body">
       <div class="ring">${ringSVG(f,f>=1?'var(--fire-hot)':'var(--brass)')}<b>${Math.round(f*100)}%</b></div>
       <div class="pc-info">
         <span class="sold"><b class="cnt">${fmtN(p.sold)}</b> / ${fmtN(v.cap)}枚</span>
         <div class="heat" title="熱量"><i style="width:${clamp(p.aw/1.6*100,0,100)}%"></i></div>
-        <div class="pc-icons"><span class="chip">${esc(v.name)}</span>${p.merchDone?`<span class="chip ok">${ic('shirt')}発注済</span>`:''}${p.insured?`<span class="chip ok">${ic('shield')}</span>`:''}</div>
+        <div class="pc-icons"><span class="chip">${esc(v.name)}</span>${p.merchDone?`<span class="chip ok">${merchArt('tee',a,14)}発注済</span>`:''}${p.insured?`<span class="chip ok">${ic('shield')}</span>`:''}</div>
       </div>
     </div>
     ${f>=1?'<span class="stampmini">完売</span>':''}
@@ -683,7 +774,7 @@ function detailHTML(p){
       <span class="ti">${ic(pr.icon)}</span><b>${pr.name}</b><span class="tc">${pr.cost?fmtY(pr.cost):'無料'}</span>
       <span class="pips" aria-label="効果${lvl}">${[1,2,3].map(i=>ic('flame','fill '+(i<=lvl?'':'off'))).join('')}</span><span class="fit">${used?'実施済み':pr.chance?'成功率'+Math.round(mediaChance()*100)+'%':'相性'+fitMark(pr.fit[a.genre])}</span>
     </button>`;}).join('');
-  return `<div class="dhead" style="--c1:${a.c[0]};--c2:${a.c[1]}"><span class="an">${esc(a.name)}</span>
+  return `<div class="dhead" style="--c1:${a.c[0]};--c2:${a.c[1]}"><div class="dart">${artistArt(a,{bg:false,fit:'xMaxYMid slice'})}</div>${avatar(a,46)}<span class="an">${esc(a.name)}</span>
      <span class="chip">${esc(v.name)} ${fmtN(v.cap)}席</span><span class="chip">${fmtDate(slotDate(p.wk,p.d))}</span><span class="chip">${fmtN(p.price)}円</span><span class="chip">${p.deal==='fixed'?'固定ギャラ':'歩合'}</span><span class="chip">${GRADES[p.grade].name}</span>
      <span class="cd">${rem<=0?'今週本番！':'あと'+rem+'週'}</span></div>
    <div class="dgrid">
@@ -726,7 +817,7 @@ function planHTML(){
     `<div class="grid-cards">${ARTISTS.map(a=>{
       const locked=S.rep<a.rep,n=freeCount(a);
       return `<button class="acard ${locked?'locked':''}" ${locked?'disabled':''} onclick="pickArtist('${a.id}')" title="${esc(a.desc)}">
-        <div class="poster" style="background:linear-gradient(135deg,${a.c[0]},${a.c[1]})"><div><div class="pk">${esc(a.kana)}</div><div class="pn">${esc(a.name)}</div></div><span class="chip ptype">${a.type}</span></div>
+        <div class="poster" style="background:linear-gradient(135deg,${a.c[0]},${a.c[1]})"><div class="art">${artistArt(a,{bg:false,fit:'xMaxYMax meet',vb:'26 18 148 102'})}</div><div><div class="pk">${esc(a.kana)}</div><div class="pn">${esc(a.name)}</div></div><span class="chip ptype">${a.type}</span></div>
         <div class="body"><p class="desc">${boost(a.id)>1.01?'<span class="good">人気上昇中！</span> ':boost(a.id)<0.99?'<span class="bad">人気低下中…</span> ':''}${a.desc}</p>
           <dl class="kv4"><dt>動員力</dt><dd>約${fmtN(baseOf(a))}人</dd><dt>出演料</dt><dd>${fmtY(a.fee)}</dd><dt>相場</dt><dd>${fmtN(a.ref)}円</dd><dt>空き日</dt><dd class="${n<=3?'bad':''}">${n}日</dd><dt>物販人気</dt><dd>${stars(a.merch)}</dd><dt>必要信頼度</dt><dd>${a.rep}</dd></dl></div>
         ${locked?`<span class="lock">信頼度${a.rep}で解禁</span>`:''}
@@ -969,7 +1060,7 @@ let curChoices=null,curEvent=null,curPid=null;
 function eventModal(pid,eid){
   const p=proj(pid),ev=EVENTS.find(e=>e.id===eid);if(!p){runQueue();return;}
   curEvent=ev;curPid=pid;const a=A(p.artist);
-  const head=`<div class="evicon" style="color:${a.c[1]}">${ic(ev.icon,ev.icon==='flame'?'fill':'')}</div><div class="eyebrow">${esc(a.name)} 公演</div><h3>${ev.title}</h3><p class="lead">${ev.text}</p>`;
+  const head=`<div class="evhead">${avatar(a,60)}<div class="evicon" style="color:var(--fire-hot)">${ic(ev.icon,ev.icon==='flame'?'fill':'')}</div></div><div class="eyebrow">${esc(a.name)} 公演</div><h3>${ev.title}</h3><p class="lead">${ev.text}</p>`;
   if(ev.apply){const r=ev.apply(p);S.news.unshift({t:`${esc(a.name)}：${ev.title}（${r}）`,c:'ev'});
     if(/熱量 \+/.test(r)){SND.tone(523,.12,'triangle',.06);SND.tone(784,.2,'triangle',.06,.1);}
     showModal(head+`<p style="margin-top:8px;font-family:var(--f-display);font-size:18px;color:${/−/.test(r)?'var(--bad)':'var(--good)'}">${r}</p><div class="row" style="margin-top:12px"><button class="btn primary" onclick="closeModal();render();runQueue()">OK</button></div>`);}
@@ -992,10 +1083,10 @@ function merchModal(pid){
   const est=Math.round(Math.min(v.cap,demand(p,p.aw,p.demandMod)));
   merchOrder={};const lot=v.cap>=8000?100:v.cap>=1200?20:10;
   const rows=MERCH.map(m=>{const r=merchRate(m,a),sug=Math.round(est*r/lot)*lot,max=Math.max(lot*10,Math.ceil(est*r*2.5/lot)*lot);merchOrder[m.id]=0;
-    return `<div class="mitem"><div><b>${m.name}</b><br><small class="muted">原価${fmtN(m.cost)}→${fmtN(m.price)}円／購入率 約${(r*100).toFixed(0)}%（平均${fmtN(sug)}個）</small></div>
+    return `<div class="mitem"><div class="mrow">${merchArt(m.id,a,46)}<div><b>${m.name}</b><br><small class="muted">原価${fmtN(m.cost)}→${fmtN(m.price)}円／購入率 約${(r*100).toFixed(0)}%（平均${fmtN(sug)}個）</small></div></div>
       <input type="range" id="mr-${m.id}" min="0" max="${max}" step="${lot}" value="0" oninput="onMerch('${m.id}',this.value)" aria-label="${m.name}の発注数">
       <div class="num" style="text-align:right"><b id="mq-${m.id}" style="font-size:16px;color:var(--brass-soft)">0</b>個</div></div>`;}).join('');
-  showModal(`<div class="evicon">${ic('shirt')}</div><div class="eyebrow">${esc(a.name)} ／ 本番3週前・発注締め切り</div><h3>グッズを何個つくる？</h3>
+  showModal(`<div class="mstrip" style="margin-bottom:6px">${MERCH.map(m=>merchArt(m.id,a,40)).join('')}</div><div class="eyebrow">${esc(a.name)} ／ 本番3週前・発注締め切り</div><h3>グッズを何個つくる？</h3>
    <p class="lead">現在 <b class="num">${fmtN(p.sold)}枚</b> 販売、来場は <b class="num">約${fmtN(est)}人</b> の見込み。本番の盛り上がりで売れ行きが変わる。</p>
    <div>${rows}</div>
    <div class="frow total"><span>発注総額（今すぐ支払い）</span><span class="v" id="mtotal">0円</span></div>
@@ -1058,7 +1149,7 @@ function computeShow(p,bonus){
   sat=clamp(Math.round(sat),5,100);
   const sf=Math.pow(sat/70,1.5);
   const merch=MERCH.map(m=>{const q=(p.merch&&p.merch[m.id])||0;const dem=Math.round(attend*merchRate(m,a)*sf*p.merchMod*rnd(0.75,1.25));const s=Math.min(q,dem);
-    return{name:m.name,q,dem,sold:s,rev:s*m.price,unsold:q-s,salv:Math.round((q-s)*m.cost*0.4),lost:Math.max(0,dem-q)*(m.price-m.cost)};});
+    return{id:m.id,name:m.name,q,dem,sold:s,rev:s*m.price,unsold:q-s,salv:Math.round((q-s)*m.cost*0.4),lost:Math.max(0,dem-q)*(m.price-m.cost)};});
   const merchRev=merch.reduce((s,x)=>s+x.rev,0),salvage=merch.reduce((s,x)=>s+x.salv,0);
   const ticketRev=sold*p.price,playguide=Math.round(presold*p.price*0.08),staff=v.cap*150+sold*400;
   const sharePay=Math.max(Math.round(a.fee*0.3),Math.round(ticketRev*a.share));
@@ -1171,7 +1262,7 @@ function resultHTML(){
        ${[['チケット売上（前売'+fmtN(R.presold)+'＋当日'+fmtN(R.walk)+'枚）',R.ticketRev],['グッズ売上',R.merchRev],['売れ残りの後日回収',R.salvage],['協賛金',R.sponsor-R.refund],['クラファン',R.crowd],['臨時収入',R.eventIncome],['出演料',-R.artistPay],['会場費',-R.rent],['制作・演出費',-R.prod],['宣伝費',-R.promo],['グッズ原価',-R.merchCost],['運営・警備人件費',-R.staff],['プレイガイド手数料',-R.playguide],['クラファンお礼',-R.gift],['臨時の出費',-R.eventCost],['借入利息',-R.interest],['保険料',-R.insCost],['出資者への分配',-(R.invPayout-R.investAmt)]].filter(x=>Math.round(x[1])).map(x=>`<tr><td>${x[0]}</td><td class="v">${x[1]<0?'−':''}${fmtY(Math.abs(x[1]))}</td></tr>`).join('')}
       </table></details></div>
     <div class="panel"><h3>振り返り</h3><div class="lessons" style="margin-top:6px">${lessons(R).map(l=>`<div class="tip">${l}</div>`).join('')}</div>
-      ${R.merch.some(m=>m.q)?`<h3 style="margin-top:10px">グッズ</h3><table class="pl">${R.merch.filter(m=>m.q).map(m=>`<tr><td>${m.name}</td><td class="v">${fmtN(m.sold)}/${fmtN(m.q)}個 ${m.lost?'<span class="bad">品切れ</span>':m.unsold?'<span class="muted">残'+fmtN(m.unsold)+'</span>':'<span class="good">完売</span>'}</td></tr>`).join('')}</table>`:''}
+      ${R.merch.some(m=>m.q)?`<h3 style="margin-top:10px">グッズ</h3><table class="pl">${R.merch.filter(m=>m.q).map(m=>`<tr><td><span class="mi">${merchArt(m.id,a,26)}</span>${m.name}</td><td class="v">${fmtN(m.sold)}/${fmtN(m.q)}個 ${m.lost?'<span class="bad">品切れ</span>':m.unsold?'<span class="muted">残'+fmtN(m.unsold)+'</span>':'<span class="good">完売</span>'}</td></tr>`).join('')}</table>`:''}
     </div></div>`;
 }
 function afterResult(){
@@ -1218,11 +1309,11 @@ function seatSVG(cap,sold,live,a){
   const n=Math.min(cap,420),L=seatLayout(n),on=Math.round(L.pts.length*sold/cap);
   const cols=['#e9b64f','#ff6fa3','#7cc7ff','#b98cff','#fff2d2'];
   const dots=L.pts.map((p,i)=>i<on?`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${L.rad.toFixed(2)}" fill="${live?cols[i%5]:'var(--seat-on)'}" ${live?`class="seat-live" style="animation-delay:${(i%17)*0.09}s"`:''}/>`:`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${L.rad.toFixed(2)}" fill="var(--seat-off)"/>`).join('');
-  return `<svg viewBox="0 0 420 288" role="img" aria-label="客席図：${fmtN(sold)} / ${fmtN(cap)}席">
+  return `<svg viewBox="${live&&a?'0 -92 420 380':'0 0 420 288'}" role="img" aria-label="客席図：${fmtN(sold)} / ${fmtN(cap)}席">
    <defs><linearGradient id="stg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6d68c"/><stop offset="1" stop-color="#8a6727"/></linearGradient></defs>
    <path d="M150 2 H270 L262 34 H158 Z" fill="url(#stg)"/>
    <text x="210" y="24" text-anchor="middle" font-size="11" fill="#2a1606" font-weight="700" letter-spacing="4">STAGE</text>
-   ${live&&a?`<text x="210" y="50" text-anchor="middle" font-size="12" fill="var(--spot)" font-weight="700">${esc(a.name)}</text>`:''}
+   ${live&&a?`<ellipse cx="210" cy="14" rx="70" ry="10" fill="rgba(255,242,210,.25)"/><g transform="translate(130 -84) scale(.8)">${artistFigs(a)}</g><text x="210" y="50" text-anchor="middle" font-size="12" fill="var(--spot)" font-weight="700">${esc(a.name)}</text>`:''}
    ${dots}${cap>n?`<text x="410" y="282" text-anchor="end" font-size="10" fill="var(--faint)">● 1つ ≈ ${fmtN(cap/n)}席</text>`:''}</svg>`;
 }
 function chartSVG(p){
