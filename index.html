@@ -449,6 +449,24 @@ details.more summary{cursor:pointer;color:var(--brass-soft);font-size:12px;margi
  #coach.left{bottom:calc(70px + env(safe-area-inset-bottom,0px))}
  .artgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+.in2.fit{height:100%}
+.in2.fit .hub{min-height:0}
+.in2.fit .plist,.in2.fit .detail{overflow:auto;min-height:0;scrollbar-width:thin}
+.in2.fit .newsp{min-height:90px!important}
+@media (max-width:860px){.in2.fit{height:auto}.in2.fit .plist,.in2.fit .detail{overflow:visible}}
+.compp .staffrow{display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.missions{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:12px}
+.missions li{display:flex;flex-direction:column;gap:0;padding:4px 8px;border-radius:6px;background:var(--velvet-3);border-left:3px solid var(--brass)}
+.missions li.muted{border-left-color:var(--line)}
+.missions .mr{font-size:11px;color:var(--mute)}
+.stafflist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+@media (max-width:640px){.stafflist{grid-template-columns:1fr}}
+.staff{display:grid;grid-template-columns:48px 1fr;gap:4px 10px;align-items:center;background:var(--velvet-3);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.staff.on{border-color:var(--brass)}
+.staff .sinfo{display:flex;flex-direction:column;gap:1px;min-width:0;font-size:12px}
+.staff .sinfo span{color:var(--ink)} .staff .sinfo small{color:var(--mute);font-size:11px}
+.staff>.btn,.staff>.chip{grid-column:2;justify-self:start}
+.subrow{justify-content:space-between;margin-top:6px;font-size:12px;gap:6px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head><body>
@@ -625,6 +643,7 @@ function toast(html,kind=''){const box=$('#toasts');if(!box)return;const t=docum
 
 /* ========== ゲームデータ ========== */
 const SEASON=52;
+const GENRES={acoustic:'アコースティック',rock:'ロック',classical:'クラシック',pop:'ポップス',idol:'アイドル'};
 const ARTISTS=[
  {id:'mizuiro',name:'ミズイロ',kana:'MIZUIRO',type:'アコースティック・デュオ',genre:'acoustic',base:320,fee:150000,ref:3800,el:1.1,merch:0.55,rep:0,avail:0.7,aw0:0.45,pop:0,c:['#1d5f8a','#7cc3d6'],desc:'カフェライブ出身の2人組。ファンは熱心だが、まだ規模は小さい。'},
  {id:'blaze',name:'BLAZE RUNNERS',kana:'ブレイズ・ランナーズ',type:'ロックバンド',genre:'rock',base:1000,fee:1400000,ref:4500,el:1.0,merch:0.85,rep:8,avail:0.55,aw0:0.5,pop:1,c:['#8d0a12','#f2851a'],desc:'ライブハウスで叩き上げた4人組。Tシャツがよく売れる。'},
@@ -688,6 +707,10 @@ const BADGES=[
  ['insured','保険の価値','中止になった公演を、興行中止保険が守った。'],
  ['comps','招待券の効果','無料招待は口コミを生むが、その席の売上はゼロ。'],
  ['rel','信頼関係','同じ演者と組み続けて、関係を深めた。'],
+ ['staff','チームづくり','スタッフを雇った。人件費は売上に関係なくかかる固定費。'],
+ ['mission','依頼達成','業界からの依頼をやり遂げ、報酬と評判を得た。'],
+ ['combo','メディアミックス','複数の媒体を組み合わせると、宣伝の効果が高まる。'],
+ ['dynamic','強気の値上げ','売れ行きを見て値上げし、それでも満員にした（ダイナミックプライシング）。'],
 ];
 let CUSTOM={};try{CUSTOM=JSON.parse(localStorage.getItem('manin-art')||'{}')||{};}catch(e){CUSTOM={};}
 function saveCustom(){try{localStorage.setItem('manin-art',JSON.stringify(CUSTOM));}catch(e){toast('画像が大きすぎて保存できませんでした','bad');}}
@@ -696,7 +719,7 @@ function coachAva(size){return `<span class="ava" style="width:${size}px;height:
 const relOf=id=>(S&&S.rel&&S.rel[id])||0;
 const feeOf=a=>Math.round(a.fee*(1-0.05*relOf(a.id)));
 function hearts(n){return `<span class="hearts">${'♥'.repeat(n)}<i>${'♥'.repeat(5-n)}</i></span>`;}
-function liquid(){return S.cash+recvSum()-Math.round((S.bridge||0)*1.01);}
+function liquid(){return S.cash+recvSum()-Math.round((S.bridge||0)*bridgeFee());}
 function takeBridge(){if(S.cash<0&&recvSum()>0){const b=Math.min(-S.cash,recvSum());S.cash+=b;S.bridge=(S.bridge||0)+b;return b;}return 0;}
 function recvSum(){return S&&S.recv?S.recv.reduce((s,r)=>s+r.amt,0):0;}
 function presaleCost(p){return Math.round(Vn(p.venue).cap*60/1000)*1000+30000;}
@@ -704,7 +727,7 @@ let awardN=0;
 function award(id){if(!S||!S.badges||S.badges[id])return;S.badges[id]=S.week;const b=BADGES.find(x=>x[0]===id);if(!b)return;const d=1300+(awardN++)*2200;setTimeout(()=>{awardN=Math.max(0,awardN-1);toast(`<span class="badge on">${ic('spark')}</span><span><b>バッジ獲得：${b[1]}</b><small>${b[2]}</small></span>`,'fire');SND.coin();},d);}
 function badgeGrid(){return `<div class="badges">${BADGES.map(b=>{const on=S&&S.badges&&S.badges[b[0]];return `<div class="bdg ${on?'on':''}" title="${esc(b[2])}"><span class="badge">${ic(on?'spark':'crown')}</span><b>${on?b[1]:'？？？'}</b>${on?`<small>${b[2]}</small>`:'<small>まだ見つけていない</small>'}</div>`;}).join('')}</div>`;}
 function migrate(){
-  S.rel=S.rel||{};S.badges=S.badges||{};S.recv=S.recv||[];S.seasonDone=S.seasonDone||{};S.tut=S.tut||{on:false,done:{}};S.startCash=S.startCash||3000000;S.mtab=S.mtab||'cards';
+  S.rel=S.rel||{};S.staff=S.staff||{};S.missions=S.missions||[];S.badges=S.badges||{};S.recv=S.recv||[];S.seasonDone=S.seasonDone||{};S.tut=S.tut||{on:false,done:{}};S.startCash=S.startCash||3000000;S.mtab=S.mtab||'cards';
   S.rivals.forEach((r,i)=>{const r0=RIVALS0[i];if(r0){r.boss=r.boss||r0.boss;r.f=r.f||r0.f;r.say=r.say||r0.say;r.start=r.start||r0.cash;}});
   if(S.mg&&!S.mg.type){S.mg.type='timing';S.mg.n=3;}
 }
@@ -731,6 +754,10 @@ const GLOSSARY=[
  ['先行抽選','一般発売の前に、ファンクラブ会員などに抽選でチケットを売る仕組み。早い段階で売れ行きが読めて、熱心なファンの満足度も上がる。'],
  ['招待券（コンプ）','関係者やメディア、ファンに無料で配るチケット。口コミで話題になるが、その席の売上はゼロになる。'],
  ['入金サイクル','前売チケットの代金は、プレイガイドから少し後（このゲームでは2週後）に入金される。黒字でも手元のお金が足りなくなることがある。'],
+ ['固定費（人件費）','スタッフの給料のように、売上に関係なく毎週かかる費用。増やすほど、損益分岐点が上がる。'],
+ ['ダイナミックプライシング','売れ行きに合わせてチケットの価格を変えること。売れすぎなら値上げ、売れなければ値下げ。ただし前に買った人の不満に注意。'],
+ ['メディアミックス','テレビ・SNS・ラジオなど複数の媒体を組み合わせて宣伝すること。単独よりも効果が高まりやすい。'],
+ ['広告の飽き','同じ広告を何度も見せると、効果がだんだん落ちていく。媒体を変えると新鮮さが戻る。'],
  ['つなぎ融資','入金までの間の資金不足を埋める短期の借入。黒字の会社でも、入金のタイミングがずれると必要になる。'],
  ['冠スポンサー','公演名に企業名を付ける大口の協賛。金額は大きいが、条件も厳しい。'],
  ['法人税','会社の利益にかかる税金。このゲームでは年末に利益の30%が引かれる（ライバルも同じ）。'],
@@ -750,7 +777,7 @@ const slotsMax=()=>S.rep>=40?3:2;
 
 function newGame(diff='normal',tut=true){
   const D=DIFFS[diff]||DIFFS.normal;
-  S={phase:'hub',diff,week:1,cash:D.cash,startCash:D.cash,rep:10,ap:3,apPen:0,boost:{},rel:{},badges:{},recv:[],history:[],projects:[],seq:1,sel:null,plan:null,result:null,showQueue:[],
+  S={phase:'hub',diff,week:1,staff:{},missions:[],mDone:0,payroll:0,cash:D.cash,startCash:D.cash,rep:10,ap:3,apPen:0,boost:{},rel:{},badges:{},recv:[],history:[],projects:[],seq:1,sel:null,plan:null,result:null,showQueue:[],
      rivals:RIVALS0.map(r=>({...r,g:r.g*D.rg,start:r.cash})),news:[],sched:null,mg:null,sound:SND.on,bgm:BGM.on,mtab:'cards',seasonDone:{},tut:{on:tut,done:{}}};
   genSched();
   S.news.unshift({t:'1年間で業界No.1を目指せ！ まずは最初の公演を企画しよう。',c:'gd'});
@@ -780,7 +807,7 @@ function curve(k,K){return k>=K?0.85:0.28+0.57*Math.pow(k/K,1.6);}
 function loanLimit(){return Math.round((1000000+S.rep*S.rep*8000)/100000)*100000;}
 function loanUsed(){return S.projects.reduce((s,p)=>s+p.loan,0);}
 function upfront(p){const a=A(p.artist),v=Vn(p.venue),g=GRADES[p.grade];const rent=v.rent[p.d==='we'?1:0];const prod=Math.round(v.prod*g.mult);const fee=feeOf(a),art=p.deal==='fixed'?fee:Math.round(fee*0.3);return{rent,prod,art,total:rent+prod+art};}
-function insCost(p){return Math.round(upfront(p).total*0.03/1000)*1000;}
+function insCost(p){return Math.round(upfront(p).total*(has('account')?0.02:0.03)/1000)*1000;}
 function sponsorAmt(p){const a=A(p.artist),v=Vn(p.venue);return Math.round(Math.min(v.cap,baseOf(a))*350/10000)*10000;}
 function investAmt(p){return Math.round(upfront(p).total*0.4/10000)*10000;}
 function breakEven(p){const a=A(p.artist),v=Vn(p.venue),u=upfront(p);const fixed=u.rent+u.prod+(p.deal==='fixed'?feeOf(a):0)+v.cap*150;const per=p.price*0.92-400-(p.deal==='share'?p.price*a.share:0);return per>0?Math.ceil(fixed/per):Infinity;}
@@ -802,7 +829,7 @@ function render(){
   else if(S.phase==='show') body=showHTML();
   else if(S.phase==='result') body=resultHTML();
   else if(S.phase==='end') body=endHTML();
-  app.innerHTML=topbarHTML()+`<main class="wrap"><div class="in2">${body}</div></main>`+foot;
+  app.innerHTML=topbarHTML()+`<main class="wrap"><div class="in2 ${S.phase==='hub'?'fit':''}">${body}</div></main>`+foot;
   document.querySelector('main.wrap').scrollTop=st;lastKey=key;
   if(S.phase==='plan'&&S.plan.step===3) updateForecast();
   if(S.phase==='plan'&&S.plan.step===4) updateFunding();
@@ -841,6 +868,7 @@ function titleHTML(){
      <div class="logo-sub">コンサートプロモーター物語</div>
      <p class="lead" style="text-align:center;font-size:14px">業界最下位の小さな会社からスタート。<br>1年で、ライバル3社を抜いて業界No.1へ。</p>
      <div class="lineup">${ARTISTS.map(a=>`<span title="${esc(a.name)}">${artistArt(a)}</span>`).join('')}</div>
+     ${bestLine()}
      <div class="rivalrow">${RIVALS0.map(r=>`<span style="border-color:${r.c}">${rivalAva(r,24)}${r.name}</span>`).join('')}</div>
      <div class="row" style="justify-content:center">
        <button class="btn fire big" onclick="SND.init();confirmNew()">はじめから</button>
@@ -891,12 +919,11 @@ function hubHTML(){
   const n=S.projects.length,max=slotsMax();
   let cards=S.projects.map(pcardHTML).join('');
   if(n<max) cards+=`<button class="pcard empty" onclick="openPlan()" ${S.ap<1||S.week>SEASON-4?'disabled':''}>${ic('spark')} 新しい公演を企画する<small>${S.week>SEASON-4?'今季はもう新規公演を組めません':S.ap<1?'行動力が足りません（来週）':'ブッキング交渉に 行動力1'}</small></button>`;
-  if(max<3) cards+=`<div class="pcard locked">信頼度40で 3本目の企画枠が解放</div>`;
   const p=S.sel?proj(S.sel):null,tab=S.mtab||'cards';
   const due=S.projects.filter(q=>!q.merchDone&&q.K-q.k<=3).length;
   return timelineHTML()+`<div class="mtabs" role="tablist">${[['cards','公演'],['detail','宣伝'],['news','ニュース']].map(([k,l])=>`<button role="tab" class="${tab===k?'on':''}" onclick="setTab('${k}')">${l}${k==='cards'&&due?` <span class="dotn">${due}</span>`:''}</button>`).join('')}</div>
   <div class="hub" data-tab="${tab}">
-    <aside class="plist"><div class="cards">${cards}</div>
+    <aside class="plist"><div class="cards">${cards}</div>${companyHTML()}
       <div class="panel newsp" style="flex:1;display:flex;flex-direction:column;min-height:120px"><b style="font-size:13px">業界ニュース</b><ul class="news" style="margin-top:6px">${S.news.slice(0,30).map(l=>`<li class="${l.c||''}">${l.t}</li>`).join('')}</ul></div>
     </aside>
     <section class="detail">${p?detailHTML(p):welcomeHTML()}</section>
@@ -923,7 +950,7 @@ function detailHTML(p){
     const dis=used||S.ap<=0||S.cash<pr.cost||soldOut;
     return `<button class="tile ${used?'done':''}" ${dis?'disabled':''} onclick="doPromo(${p.id},'${pr.id}')" title="${esc(pr.note)}">
       <span class="ti">${ic(pr.icon)}</span><b>${pr.name}</b><span class="tc">${pr.cost?fmtY(pr.cost):'無料'}</span>
-      <span class="pips" aria-label="効果${lvl}">${[1,2,3].map(i=>ic('flame','fill '+(i<=lvl?'':'off'))).join('')}</span><span class="fit">${used?'実施済み':pr.chance?'成功率'+Math.round(mediaChance()*100)+'%':pr.comps?'席を3%使う':'相性'+fitMark(pr.fit[a.genre])}</span>
+      <span class="pips" aria-label="効果${lvl}">${[1,2,3].map(i=>ic('flame','fill '+(i<=lvl?'':'off'))).join('')}</span><span class="fit">${used?'実施済み':pr.chance?'成功率'+Math.round(mediaChance()*100)+'%':pr.comps?'席を3%使う':'相性'+fitMark(pr.fit[a.genre])+((p.useCount&&p.useCount[pr.id])?'・飽き'+p.useCount[pr.id]:'')}</span>
     </button>`;}).join('');
   const due=!p.merchDone&&p.K-p.k<=3;
   return `<div class="dhead" style="--c1:${a.c[0]};--c2:${a.c[1]}"><div class="dart">${artistArt(a,{bg:false,fit:'xMaxYMid slice'})}</div>${avatar(a,46)}<span class="an">${esc(a.name)}</span>
@@ -938,7 +965,8 @@ function detailHTML(p){
     <div class="stack">
      <div class="panel"><div class="flamebox"><div class="flameic" style="transform:scale(${(0.7+p.aw/2.5).toFixed(2)})">${ic('flame','fill')}</div><div style="flex:1;min-width:0">
        <div class="row" style="justify-content:space-between"><b>熱量 <span class="num">${Math.round(p.aw*100)}%</span> <span style="color:var(--fire-hot);font-size:12px">${heatLabel(p.aw)}</span></b><span class="muted" style="font-size:12px">需要見込み <b class="num" style="color:var(--ink)">${fmtN(est*0.85)}〜${fmtN(est*1.15)}</b></span></div>
-       <div class="heatbig" style="margin-top:5px"><i style="width:${clamp(p.aw/1.6*100,0,100)}%"></i></div></div></div></div>
+       <div class="heatbig" style="margin-top:5px"><i style="width:${clamp(p.aw/1.6*100,0,100)}%"></i></div></div></div>
+       <div class="row subrow"><span>${p.streak?`<span class="chip gold" title="毎週宣伝を続けると熱量が冷めにくい">勢い ${'▲'.repeat(p.streak)}</span> `:''}<span class="muted">今週の宣伝 ${Object.keys(p.used).length}/3種類${Object.keys(p.used).length>=3?' <b class="good">メディアミックス達成</b>':'（3種類でボーナス）'}</span></span><span class="row" style="gap:4px">価格 <b class="num">${fmtN(p.price)}円</b>${p.priceChanged?'<span class="chip">変更済み</span>':`<button class="btn sm" ${S.ap<1||soldOut?'disabled':''} onclick="changePrice(${p.id},-1)" title="行動力1：10%値下げ（1回だけ）">−10%</button><button class="btn sm" ${S.ap<1||soldOut?'disabled':''} onclick="changePrice(${p.id},1)" title="行動力1：10%値上げ（1回だけ）">+10%</button>`}</span></div></div>
      <div class="panel"><div class="row" style="justify-content:space-between;margin-bottom:6px"><b>宣伝する</b><span class="muted" style="font-size:11px">炎の数＝効果の大きさ（熱量が高いほど伸びにくい）</span></div>
        ${soldOut?'<p class="good" style="font-size:12px;margin-bottom:6px">完売！ これ以上の宣伝は不要です。</p>':''}
        <div class="tiles">${tiles}</div></div>
@@ -950,7 +978,7 @@ function footHTML(){
   const end=S.week>=SEASON;
   const hint=S.projects.length===0?'まずは公演を企画しよう（行動力1）':S.ap>0?`行動力が残っています。宣伝に使うか、新しい公演を企画しよう`:shows?'来週は本番！':'準備ができたら次の週へ';
   return `<footer class="actionbar"><div class="in">
-    <span class="muted" style="font-size:12px">行動力</span><span class="apdots">${[0,1,2].map(i=>`<i class="${i<S.ap?'on':''}"></i>`).join('')}</span>
+    <span class="muted" style="font-size:12px">行動力</span><span class="apdots">${Array.from({length:apMax()},(_,i)=>i).map(i=>`<i class="${i<S.ap?'on':''}"></i>`).join('')}</span>
     <span class="hint">${hint}</span><span class="spacer"></span>
     <button class="btn ${end?'fire':'primary'} big" onclick="${end?'goEnd()':'advanceWeek()'}">${end?'シーズン終了！':shows?'本番の週へ ▶':'1週進める ▶'}</button>
   </div></footer>`;
@@ -1090,7 +1118,7 @@ function choiceBtns(){return curChoices.map((c,i)=>`<button class="choice" ${c.c
 function confirmPlan(force){
   const p=S.plan,a=A(p.artist),t=fundingTotals();if(t.after<0||S.ap<1)return;
   if(!force&&!p.bidChecked){p.bidChecked=true;
-    if(a.pop>=1&&Math.random()<0.08+0.05*a.pop){
+    if(a.pop>=1&&Math.random()<(0.08+0.05*a.pop)*(has('booker')?0.4:1)){
       const r=S.rivals[Math.floor(Math.random()*S.rivals.length)],prem=Math.round(feeOf(a)*0.12/10000)*10000;
       curTitle=`${a.name}：日程の取り合い`;
       curChoices=[{label:'上乗せして確保する',sub:`出演料に ${fmtY(prem)} 上乗せ（契約後の残り資金から払う）`,fn(){if(fundingTotals().after<prem){S.sched.a[p.artist][p.wk+'-'+p.d]='r';S.ap--;S.plan=null;S.phase='hub';return'上乗せ分の資金が足りず、日程を取られた…';}S.plan.premium=prem;confirmPlan(true);return`${fmtY(prem)} 上乗せで確保！`;}},
@@ -1120,8 +1148,8 @@ function confirmPlan(force){
 }
 /* ----- 宣伝・週送り ----- */
 function scaleAdj(p){return clamp(Math.pow(1000/baseOf(A(p.artist)),0.4),0.3,1.6);}
-function promoGain(p,pr){return pr.eff*pr.fit[A(p.artist).genre]*scaleAdj(p)*Math.max(0,1.6-p.aw)/1.1;}
-function mediaChance(){return clamp(0.3+S.rep/150,0.3,0.85);}
+function promoGain(p,pr){return pr.eff*pr.fit[A(p.artist).genre]*scaleAdj(p)*Math.max(0,1.6-p.aw)/1.1*Math.pow(0.85,(p.useCount&&p.useCount[pr.id])||0);}
+function mediaChance(){return clamp(0.3+S.rep/150+(has('pr')?0.2:0),0.3,0.95);}
 function doPromo(pid,id){
   const p=proj(pid),pr=PROMOS.find(x=>x.id===id);if(!p||p.used[id]||S.ap<=0||S.cash<pr.cost)return;
   const v=Vn(p.venue);if(p.sold>=v.cap)return;
@@ -1130,17 +1158,20 @@ function doPromo(pid,id){
   if(pr.chance){if(Math.random()<mediaChance())msg='売り込み成功！';else{g=0;msg='今回は不採用…';}}
   if(pr.comps){const n=Math.min(v.cap-p.sold,Math.max(1,Math.round(v.cap*0.03)));p.sold+=n;p.comps=(p.comps||0)+n;msg=`${fmtN(n)}席を招待`;award('comps');}
   S.cash-=pr.cost;p.promoSpent+=pr.cost;p.sunk+=pr.cost;S.ap--;p.used[id]=true;p.aw=Math.min(1.6,p.aw+g);
+  p.useCount=p.useCount||{};p.useCount[id]=(p.useCount[id]||0)+1;
+  let combo=0;if(Object.keys(p.used).length===3&&p.comboWk!==S.week){p.comboWk=S.week;combo=0.02+0.08*Math.max(0,1.6-p.aw)/1.1;p.aw=Math.min(1.6,p.aw+combo);award('combo');}
   render();
   const el=document.querySelector(`.tile[onclick*="'${id}'"]`);const r=el?el.getBoundingClientRect():{left:innerWidth/2,top:innerHeight/2,width:0};
   if(g>0){FX.fire(r.left+r.width/2,r.top+10,g>0.1?60:30);SND.tone(440,.12,'sawtooth',.04,0,880);}else SND.miss();
   toast(`${ic(pr.icon)} ${pr.name}：熱量 +${Math.round(g*100)}% ${msg}`,g>0.1?'fire':'');
+  if(combo)setTimeout(()=>{toast(`${ic('bolt')}<span><b>メディアミックス！</b><small>3種類の宣伝が噛み合った（熱量 +${Math.round(combo*100)}%）</small></span>`,'fire');SND.fanfare();const r2=document.querySelector('.heatbig');if(r2){const b=r2.getBoundingClientRect();FX.fire(b.left+b.width*0.6,b.top,80);}},450);
 }
 function advanceWeek(){
   if(S.phase!=='hub'||modalQ.length||$('#modal-root').innerHTML||(S.showQueue&&S.showQueue.length))return;
   SND.click();
   S.week++;
   const dueR=(S.recv||[]).filter(r=>r.wk<=S.week);
-  if(dueR.length){S.recv=S.recv.filter(r=>r.wk>S.week);const amt=dueR.reduce((s,r)=>s+r.amt,0);let pay=0;if(S.bridge){const owe=Math.round(S.bridge*1.01);pay=Math.min(amt,owe);S.bridge=pay>=owe?0:S.bridge-pay/1.01;S.news.unshift({t:`つなぎ融資を返済（${fmtY(pay)}）`,c:'gd'});}S.cash+=amt-pay;S.news.unshift({t:`プレイガイドから前売代金が入金（+${fmtY(amt)}）`,c:'gd'});setTimeout(()=>{toast(`${ic('coin')} プレイガイドから入金 +${fmtY(amt)}`,'fire');SND.coin();},300);}
+  if(dueR.length){S.recv=S.recv.filter(r=>r.wk>S.week);const amt=dueR.reduce((s,r)=>s+r.amt,0);let pay=0;if(S.bridge){const owe=Math.round(S.bridge*bridgeFee());pay=Math.min(amt,owe);S.bridge=pay>=owe?0:S.bridge-pay/bridgeFee();S.news.unshift({t:`つなぎ融資を返済（${fmtY(pay)}）`,c:'gd'});}S.cash+=amt-pay;S.news.unshift({t:`プレイガイドから前売代金が入金（+${fmtY(amt)}）`,c:'gd'});setTimeout(()=>{toast(`${ic('coin')} プレイガイドから入金 +${fmtY(amt)}`,'fire');SND.coin();},300);}
   const shows=[];let evCount=0;
   for(const p of S.projects){
     p.prevSold=p.sold;p.k++;
@@ -1149,9 +1180,11 @@ function advanceWeek(){
     let cf=curve(p.k,p.K);if(p.presale&&p.k<p.K)cf=Math.min(0.95,cf+0.12*(1-p.k/p.K));
     const target=Math.min(v.cap,D*cf+(p.comps||0));
     let add=Math.max(0,Math.round(target-p.sold));add=Math.min(add,v.cap-p.sold);
+    if(p.preRev==null)p.preRev=Math.max(0,p.prevSold-(p.comps||0))*p.price;p.preRev+=add*p.price;
     p.sold+=add;p.weekly.push(add);
     if(p.sold>=v.cap&&!p.soldOutWeek){p.soldOutWeek=p.k;p.justSold=true;S.news.unshift({t:`${esc(A(p.artist).name)} 完売！（本番${p.K-p.k}週前）`,c:'gd'});}
-    p.aw=Math.max(0.3,p.aw-0.03);p.used={};
+    const promoted=Object.keys(p.used).length>0;p.streak=promoted?Math.min(3,(p.streak||0)+1):0;
+    p.aw=Math.max(0.3,p.aw-0.03*(1-0.25*p.streak));p.used={};
     if(!p.cancel&&Math.random()<0.003)p.cancel='artist';
     if(!p.cancel&&Math.random()<0.0015)p.cancel='disaster';
     if(p.cancel){shows.push(p.id);continue;}
@@ -1164,9 +1197,12 @@ function advanceWeek(){
   const before=ranking();
   S.rivals.forEach(r=>{r.cash*=1+r.g+rnd(-0.012,0.012);if(Math.random()<0.03){const big=rnd(0.04,0.09)*(Math.random()<0.7?1:-1);r.cash*=1+big;S.news.unshift({t:`${r.name}の${big>0?'大型公演が大成功':'公演が赤字に'}`,c:'rv'});}});
   rivalBooking();
+  missionTick();
+  const sal=salary();if(sal){S.cash-=sal;S.payroll=(S.payroll||0)+sal;if(S.cash<0){takeBridge();}}
   const se=SEASONAL[S.week];if(se&&!S.seasonDone[S.week]){S.seasonDone[S.week]=true;if(!se.cond||se.cond()){const w=S.week;modalQ.push(()=>seasonModal(w));}}
-  S.ap=3-S.apPen;S.apPen=0;
+  S.ap=apMax()-S.apPen;S.apPen=0;
   S.showQueue=shows;
+  if(liquid()<0){S.news.unshift({t:'人件費が払えず、資金が尽きた…',c:'ev'});S.showQueue=[];modalQ=[];goEnd();return;}
   render();
   animateWeek();
   const after=ranking(),bi=before.findIndex(x=>x.me),ai=after.findIndex(x=>x.me);
@@ -1176,7 +1212,7 @@ function advanceWeek(){
 }
 function rivalBooking(){
   let note=null;
-  ARTISTS.forEach(a=>{const sc=S.sched.a[a.id];let pr=0.012+0.011*a.pop;if(relOf(a.id)>=3)pr*=0.5;
+  ARTISTS.forEach(a=>{const sc=S.sched.a[a.id];let pr=0.012+0.011*a.pop;if(relOf(a.id)>=3)pr*=0.5;if(has('booker'))pr*=0.6;
     for(let w=S.week+3;w<=Math.min(S.week+16,SEASON);w++)for(const d of['wd','we']){const k=w+'-'+d;if(sc[k]==='f'&&Math.random()<pr){sc[k]='r';if(S.rep>=a.rep&&!note)note={a,w,d};}}});
   VENUES.forEach(v=>{const sc=S.sched.v[v.id];for(let w=S.week+3;w<=Math.min(S.week+16,SEASON);w++)for(const d of['wd','we']){const k=w+'-'+d;if(sc[k]==='f'&&Math.random()<0.012)sc[k]='r';}});
   if(note&&Math.random()<0.5){const r=S.rivals[Math.floor(Math.random()*S.rivals.length)];S.news.unshift({t:`${r.name}が ${esc(note.a.name)} の${fmtDate(slotDate(note.w,note.d))}を押さえた`,c:'rv'});
@@ -1199,7 +1235,7 @@ function animateWeek(){
 
 /* ----- ランダムイベント ----- */
 function spend(p,n){S.cash-=n;p.eventCost+=n;p.sunk+=n;}
-function addAw(p,x){p.aw=clamp(p.aw+x,0.2,1.6);}
+function addAw(p,x){if(x<0&&has('pr'))x*=0.5;p.aw=clamp(p.aw+x,0.2,1.6);}
 const EVENTS=[
  {id:'buzz',w:2.5,icon:'flame',title:'新曲がSNSでバズった！',text:'ショート動画が一気に拡散中。',apply(p){addAw(p,0.15);return'熱量 +15%';}},
  {id:'tvshow',w:2,icon:'tv',cond:p=>A(p.artist).genre!=='classical',title:'音楽番組への出演決定',text:'番組内で公演も告知してもらえる。',apply(p){addAw(p,0.1);return'熱量 +10%';}},
@@ -1282,7 +1318,7 @@ function merchModal(pid,forced){
   const est=Math.round(Math.min(v.cap,demand(p,p.aw,p.demandMod)));
   merchOrder={};const lot=v.cap>=8000?100:v.cap>=1200?20:10;
   const rows=MERCH.map(m=>{const r=merchRate(m,a),sug=Math.round(est*r/lot)*lot,max=Math.max(lot*10,Math.ceil(est*r*2.5/lot)*lot);merchOrder[m.id]=0;
-    return `<div class="mitem"><div class="mrow">${merchArt(m.id,a,46)}<div><b>${m.name}</b><br><small class="muted">原価${fmtN(m.cost)}→${fmtN(m.price)}円／購入率 約${(r*100).toFixed(0)}%（平均${fmtN(sug)}個）</small></div></div>
+    return `<div class="mitem"><div class="mrow">${merchArt(m.id,a,46)}<div><b>${m.name}</b><br><small class="muted">原価${fmtN(m.cost)}→${fmtN(m.price)}円／購入率 約${(r*100).toFixed(0)}%（平均${fmtN(sug)}個）${has('merch')?`<br><b class="good">プロ予測 約${fmtN(Math.round(est*r*1.15/lot)*lot)}個</b>`:''}</small></div></div>
       <input type="range" id="mr-${m.id}" min="0" max="${max}" step="${lot}" value="0" oninput="onMerch('${m.id}',this.value)" aria-label="${m.name}の発注数">
       <div class="num" style="text-align:right"><b id="mq-${m.id}" style="font-size:16px;color:var(--brass-soft)">0</b>個</div></div>`;}).join('');
   showModal(`<div class="mstrip" style="margin-bottom:6px">${MERCH.map(m=>merchArt(m.id,a,40)).join('')}</div><div class="eyebrow">${esc(a.name)} ／ ${forced?'<span class="bad">発注の最終締め切り！</span>':'グッズの発注（本番まであと'+(p.K-p.k)+'週）'}</div><h3>グッズを何個つくる？</h3>
@@ -1324,14 +1360,14 @@ function setupCue(){
   if(MG&&MG.raf)cancelAnimationFrame(MG.raf);
   const t=S.mg.type,g=p.grade;
   MG={type:t,locked:false,t0:performance.now(),raf:0};
-  if(t==='timing'){const w=GRADES[g].zone;Object.assign(MG,{w,center:rnd(0.15+w/2,0.85-w/2),speed:1.5+S.mg.cue*0.45,pos:0});
+  if(t==='timing'){const w=GRADES[g].zone*(has('director')?1.3:1);Object.assign(MG,{w,center:rnd(0.15+w/2,0.85-w/2),speed:1.5+S.mg.cue*0.45,pos:0});
     const z=$('#zone');if(z){z.style.left=((MG.center-w/2)*100)+'%';z.style.width=(w*100)+'%';}
     const loop=tm=>{if(!MG||MG.locked)return;MG.pos=(1-Math.cos((tm-MG.t0)/1000*MG.speed*Math.PI))/2;const mk=$('#mk');if(mk)mk.style.left=(MG.pos*100)+'%';MG.raf=requestAnimationFrame(loop);};MG.raf=requestAnimationFrame(loop);}
-  if(t==='color'){MG.limit={simple:1600,std:2000,lux:2500}[g]*(1-S.mg.cue*0.08);MG.target=Math.floor(Math.random()*4);
+  if(t==='color'){MG.limit={simple:1600,std:2000,lux:2500}[g]*(1-S.mg.cue*0.08)*(has('director')?1.3:1);MG.target=Math.floor(Math.random()*4);
     const tg=$('#ctarget');if(tg){tg.textContent=PCOL[MG.target].n;tg.style.background=PCOL[MG.target].c;}
     const loop=tm=>{if(!MG||MG.locked)return;const k=(tm-MG.t0)/MG.limit;const b=$('#tbar');if(b)b.style.width=Math.max(0,100-k*100)+'%';if(k>=1){mgJudge('M','時間切れ…');return;}MG.raf=requestAnimationFrame(loop);};MG.raf=requestAnimationFrame(loop);}
-  if(t==='mash')Object.assign(MG,{count:0,started:false,dur:3000,need:{simple:20,std:18,lux:15}[g],good:{simple:11,std:10,lux:8}[g]});
-  if(t==='wait'){Object.assign(MG,{delay:rnd(1300,3300),on:false,win:{simple:300,std:380,lux:480}[g]});
+  if(t==='mash')Object.assign(MG,{count:0,started:false,dur:3000,need:{simple:20,std:18,lux:15}[g]-(has('director')?3:0),good:{simple:11,std:10,lux:8}[g]-(has('director')?2:0)});
+  if(t==='wait'){Object.assign(MG,{delay:rnd(1300,3300),on:false,win:{simple:300,std:380,lux:480}[g]+(has('director')?120:0)});
     const loop=tm=>{if(!MG||MG.locked)return;const el=tm-MG.t0;
       if(!MG.on&&el>=MG.delay){MG.on=true;MG.tOn=tm;const b=$('#waitbtn');if(b){b.classList.add('now');b.textContent='今だ！';}const sc=$('.stage-scene');if(sc)sc.classList.add('glow');SND.tone(880,.08,'triangle',.05);}
       if(MG.on&&tm-MG.tOn>1500){mgJudge('M','遅すぎた…');return;}MG.raf=requestAnimationFrame(loop);};MG.raf=requestAnimationFrame(loop);}
@@ -1382,21 +1418,21 @@ function computeShow(p,bonus){
   const D=demand(p,p.aw,p.demandMod*p.noise*(p.presale?1.05:1));
   let walk=Math.max(0,Math.round((D+(p.comps||0)-p.sold)*p.walkinMod));walk=Math.min(walk,v.cap-p.sold);
   const comps=p.comps||0,presold=p.sold,sold=p.sold+walk,fill=sold/v.cap,attend=Math.round(sold*(1-p.noShow));
-  let sat=62+g.sat+v.fit[a.genre]+p.satMod+bonus-pricePenalty(a,p.price)+rnd(-5,5);
+  let sat=62+g.sat+v.fit[a.genre]+p.satMod+bonus-pricePenalty(a,p.price)+rnd(-5,5)+(has('director')?3:0);
   if(fill>=0.95)sat+=10;else if(fill>=0.8)sat+=5;else if(fill<0.3)sat-=18;else if(fill<0.5)sat-=10;
   sat=clamp(Math.round(sat),5,100);
   const sf=Math.pow(sat/70,1.5);
-  const merch=MERCH.map(m=>{const q=(p.merch&&p.merch[m.id])||0;const dem=Math.round(attend*merchRate(m,a)*sf*p.merchMod*rnd(0.75,1.25));const s=Math.min(q,dem);
+  const merch=MERCH.map(m=>{const q=(p.merch&&p.merch[m.id])||0;const dem=Math.round(attend*merchRate(m,a)*sf*p.merchMod*rnd(0.75,1.25)*(has('merch')?1.15:1));const s=Math.min(q,dem);
     return{id:m.id,name:m.name,q,dem,sold:s,rev:s*m.price,unsold:q-s,salv:Math.round((q-s)*m.cost*0.4),lost:Math.max(0,dem-q)*(m.price-m.cost)};});
   const merchRev=merch.reduce((s,x)=>s+x.rev,0),salvage=merch.reduce((s,x)=>s+x.salv,0);
-  const presoldRev=(presold-comps)*p.price,walkRev=walk*p.price,ticketRev=presoldRev+walkRev;
+  const presoldRev=p.preRev!=null?p.preRev:(presold-comps)*p.price,walkRev=walk*p.price,ticketRev=presoldRev+walkRev;
   const playguide=Math.round(presoldRev*0.08),staff=v.cap*150+sold*400;
   const fee=p.fee||feeOf(a);
   const sharePay=Math.max(Math.round(fee*0.3),Math.round(ticketRev*a.share));
   const artistPay=p.deal==='fixed'?fee:sharePay,altPay=p.deal==='fixed'?sharePay:fee;
   const refund=p.sponsorAmt&&fill<0.7?Math.round(p.sponsorAmt*0.5):0;
   const crown=p.crown||0,crownRefund=crown&&fill<0.8?crown:0;
-  const gift=Math.round(p.crowd*0.35),interest=Math.round(p.loan*0.05);
+  const gift=Math.round(p.crowd*0.35),interest=Math.round(p.loan*loanRate());
   const P0=ticketRev+merchRev+salvage+p.sponsorAmt-refund+crown-crownRefund+p.crowd-gift+p.eventIncome-playguide-staff-artistPay-p.rentPaid-p.prodPaid-p.promoSpent-p.eventCost-p.merchCost-interest-p.insCost;
   const invShare=p.investAmt?Math.round(P0*0.4):0,invPayout=p.investAmt?Math.max(0,p.investAmt+invShare):0;
   const deferred=presoldRev-playguide;
@@ -1414,14 +1450,14 @@ function computeShow(p,bonus){
   S.result={pid:p.id,artist:a.id,venue:v.id,deal:p.deal,grade:p.grade,price:p.price,investAmt:p.investAmt,
     presold,walk,sold,fill,sat,bonus,mg:S.mg?S.mg.res.slice():[],merch,merchRev,salvage,merchCost:p.merchCost,ticketRev,playguide,staff,artistPay,altPay,refund,gift,interest,P0,invShare,invPayout,net,dRep,repBefore,
     be:breakEven(p),rent:p.rentPaid,prod:p.prodPaid,promo:p.promoSpent,eventCost:p.eventCost,eventIncome:p.eventIncome,sponsor:p.sponsorAmt,crowd:p.crowd,insCost:p.insCost,soldOutWeek:p.soldOutWeek,K:p.K,cap:v.cap,est:D,pen:pricePenalty(a,p.price),
-    comps,deferred,crown,crownRefund,bridge,dRel:S.rel[a.id]-relBefore,rel:S.rel[a.id]};
+    comps,deferred,crown,crownRefund,bridge,loan:p.loan,priceChanged:p.priceChanged||0,dRel:S.rel[a.id]-relBefore,rel:S.rel[a.id]};
   S.history.push({wk:p.wk,artist:a.name,venue:v.name,cap:v.cap,sold,fill,sat,net,price:p.price});
   S.projects=S.projects.filter(q=>q.id!==p.id);if(S.sel===p.id)S.sel=S.projects[0]?S.projects[0].id:null;
   const lostM=merch.reduce((s,x)=>s+x.lost,0),ord=merch.reduce((s,x)=>s+x.q,0),uns=merch.reduce((s,x)=>s+x.unsold,0);
   award('first');if(net>0)award('profit');if(net<0)award('loss');if(fill>=0.999)award('soldout');
   if((p.soldOutWeek&&p.K-p.soldOutWeek>=3)||lostM>30000)award('oppo');if(ord>0&&uns/ord>0.35)award('stock');
   if(p.deal==='share'&&altPay>artistPay)award('share');if(v.tier>=3&&fill>=0.75)award('big');
-  if(S.mg&&S.mg.res.length&&S.mg.res.every(x=>x==='P'))award('perfect');if(S.rel[a.id]>=3)award('rel');
+  if(S.mg&&S.mg.res.length&&S.mg.res.every(x=>x==='P'))award('perfect');if(S.rel[a.id]>=3)award('rel');if(p.priceChanged>0&&fill>=0.999)award('dynamic');checkMissions(S.result);
 }
 function computeCancel(p){
   const a=A(p.artist),v=Vn(p.venue);
@@ -1429,7 +1465,7 @@ function computeCancel(p){
   const sunkCosts=p.rentPaid+p.prodPaid+p.promoSpent+p.merchCost+p.eventCost+(p.artistPaid-artistRefund);
   const insPay=p.insured?sunkCosts:0;
   const salvage=Math.round(p.merchCost*0.4);
-  const gift=Math.round(p.crowd*0.35),interest=Math.round(p.loan*0.05);
+  const gift=Math.round(p.crowd*0.35),interest=Math.round(p.loan*loanRate());
   const P0=-sunkCosts+insPay+salvage-p.insCost+p.crowd-gift+p.eventIncome-interest;
   const invShare=p.investAmt?Math.round(P0*0.4):0,invPayout=p.investAmt?Math.max(0,p.investAmt+invShare):0;
   S.cash+=artistRefund+insPay+salvage-p.sponsorAmt-(p.crown||0)-gift-(p.loan+interest)-invPayout;
@@ -1460,6 +1496,8 @@ function animateCounters(){document.querySelectorAll('[data-count]').forEach(el=
 function goResult(){S.phase='result';render();if(S.result.net>0)SND.coin();}
 function lessons(R){
   const a=A(R.artist),L=[];
+  if(R.missions)L.push(`<b>依頼達成！</b>${R.missions.map(esc).join('／')}　報酬 +${fmtY(R.missionCash)}`);
+  if(R.priceChanged)L.push(`<b>価格変更：</b>販売の途中で${R.priceChanged>0?'値上げ':'値下げ'}した。売れ行きに合わせて価格を動かすのがダイナミックプライシング。`);
   if(R.dRel>0)L.push(`<b>演者との関係が深まった ${hearts(R.rel)}</b> 次回から出演料が${R.rel*5}%安くなる${R.rel>=3?'。日程も優先して押さえてもらえる':''}${R.rel>=4?'。ファンクラブも協力してくれる':''}。`);
   else if(R.dRel<0)L.push(`<b>演者が不満そう…</b> 空席や低い満足度で関係が下がった（${hearts(R.rel)}）。`);
   if(R.crownRefund)L.push(`<b>冠スポンサーの条件未達：</b>稼働率80%に届かず、${fmtY(R.crownRefund)}を返金。信頼度も下がった。`);
@@ -1534,9 +1572,10 @@ function afterResult(){
   render();runQueue();
 }
 function goEnd(){
-  if(!S.taxed){S.taxed=true;const rv=recvSum();S.cash+=rv-Math.round((S.bridge||0)*1.01);S.bridge=0;S.recv=[];
+  if(!S.taxed){S.taxed=true;const rv=recvSum();S.cash+=rv-Math.round((S.bridge||0)*bridgeFee());S.bridge=0;S.recv=[];
     const gain=S.cash-(S.startCash||3000000);S.tax=gain>0?Math.round(gain*0.3):0;S.cash-=S.tax;
     S.rivals.forEach(r=>{const g=r.cash-(r.start||r.cash);if(g>0)r.cash-=g*0.3;});}
+  if(!S.bestDone){S.bestDone=true;const b=bestGet(),k=S.diff||'normal',sc=Math.round(S.cash),rk=myRank();if(S.cash>=0&&(!b[k]||sc>b[k].score)){b[k]={score:sc,rank:rk};bestSet(b);S.newBest=true;}}
   S.phase='end';render();SND.fanfare();if(myRank()===1)FX.confetti(240);
 }
 function endHTML(){
@@ -1552,9 +1591,9 @@ function endHTML(){
   const mx=Math.max(...list.map(x=>x.v),1);
   return `<div class="endg">
    <section class="stack" style="text-align:center;align-items:center">
-    <div class="eyebrow">1年間の最終結果</div><div class="rank">${rank}</div><h2>${title}</h2>
+    <div class="eyebrow">1年間の最終結果</div>${S.newBest?'<span class="chip gold">自己ベスト更新！</span>':''}<div class="rank">${rank}</div><h2>${title}</h2>
     <p class="lead">最終資金 <b class="num" style="color:var(--ink)">${fmtY(S.cash)}</b>（スタート300万円）<br>通算損益 <b class="num ${tot>=0?'good':'bad'}">${tot>=0?'+':''}${fmtY(tot)}</b> ／ ${S.history.length}公演 ／ 信頼度 ${Math.round(S.rep)}${S.tax?`<br><small>法人税（利益の30%）−${fmtY(S.tax)} を差し引き済み</small>`:''}</p>
-    <p class="muted" style="font-size:12px">難易度：${(DIFFS[S.diff]||DIFFS.normal).name}　獲得バッジ ${nb}/${BADGES.length}</p>
+    <p class="muted" style="font-size:12px">難易度：${(DIFFS[S.diff]||DIFFS.normal).name}　獲得バッジ ${nb}/${BADGES.length}　達成した依頼 ${S.mDone||0}件　人件費の合計 ${fmtY(S.payroll||0)}</p>
     <button class="btn fire big" onclick="clearSave();newGame()">もう一度プレイ</button>
    </section>
    <div class="stack"><div class="panel"><h3>業界ランキング</h3><div class="podium" style="margin-top:8px">${list.map((x,i)=>`<div class="pod ${x.me?'me':''}"><span class="num">${i+1}位</span><span>${esc(x.name)}</span><div class="bar" style="width:${Math.max(1,x.v/mx*70)}%;background:${x.c}"><span>${fmtY(x.v)}</span></div></div>`).join('')}</div></div>
@@ -1616,6 +1655,8 @@ function openHowTo(){
    <div class="tip"><b>同時進行：</b>公演は2本（信頼度40で3本）まで並行できる。行動力は毎週3。どの公演の宣伝に使うかが勝負。</div>
    <div class="tip"><b>宣伝で熱量を上げる：</b>炎の数が効果の大きさ。演者のファン層に合う媒体（相性◎）を選ぼう。</div>
    <div class="tip"><b>本番：</b>ジャンルごとにミニゲームが変わる（ポップは点火のタイミング、アイドルはペンライトの色合わせ、ロックは連打、クラシックは静寂から一瞬の反応）。豪華演出ほど演出の回数が増える。</div>
+   <div class="tip"><b>宣伝のコツ：</b>同じ媒体を続けると「飽き」で効果が落ちる。1つの公演に3種類を使うと「メディアミックス」ボーナス。毎週宣伝を続けると「勢い」がつき、熱量が冷めにくい。売れ行きを見て価格を1回だけ変えられる。</div>
+   <div class="tip"><b>会社を育てる：</b>スタッフを雇うと効果がずっと続くが、人件費が毎週かかる。数週間ごとに届く「依頼」を達成すると報酬がもらえる。</div>
    <div class="tip"><b>お金の流れ：</b>前売の代金は本番の2週後に入金。年末には利益の30%が法人税として引かれる。</div>
    <div class="tip"><b>勝利条件：</b>52週後の資産で、ライバル3社と順位を競う。資金がマイナスになると倒産。</div>
   </div><div class="row" style="margin-top:14px"><button class="btn primary" onclick="closeInfo()">わかった</button></div>`,true);
@@ -1636,6 +1677,78 @@ function openArtEditor(){
 }
 function setArt(id,inp){const f=inp.files&&inp.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{const img=new Image();img.onload=()=>{const W=400,H=240,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');const s=Math.max(W/img.width,H/img.height),w=img.width*s,h=img.height*s;x.drawImage(img,(W-w)/2,(H-h)/2,w,h);CUSTOM[id]=c.toDataURL('image/jpeg',0.82);saveCustom();openArtEditor();};img.onerror=()=>toast('画像を読み込めませんでした','bad');img.src=rd.result;};rd.readAsDataURL(f);}
 function resetArt(id){delete CUSTOM[id];saveCustom();openArtEditor();}
+/* ========== スタッフ・依頼・自己ベスト ========== */
+const STAFF=[
+ {id:'planner',name:'宣伝プランナー',role:'毎週の行動力が+1になる',sal:200000,rep:15,f:{hair:'bob',hc:'#7a3a2a',skin:SKIN[3],out:'#b02a4c',out2:'#ffd23f'}},
+ {id:'merch',name:'物販マネージャー',role:'グッズ売上+15%。発注数の「プロ予測」が見える',sal:80000,rep:0,f:{hair:'short',hc:'#2a2a2a',skin:SKIN[1],out:'#2c6e8f',out2:'#fff'}},
+ {id:'director',name:'舞台監督',role:'本番の演出が決めやすくなり、満足度も+3',sal:100000,rep:10,f:{hair:'spiky',hc:'#333',skin:SKIN[2],out:'#222',out2:'#e9b64f'}},
+ {id:'account',name:'経理担当',role:'借入の利息5%→2%、保険料3%→2%、つなぎ融資の手数料なし',sal:60000,rep:0,f:{hair:'slick',hc:'#555',skin:SKIN[0],out:'#3a3a50',out2:'#cfe0ff',glasses:true}},
+ {id:'booker',name:'ブッキング担当',role:'ライバルに日程を取られにくく、取り合いも起きにくい',sal:100000,rep:20,f:{hair:'long',hc:'#3a2028',skin:SKIN[3],out:'#5a189a',out2:'#ff8fab'}},
+ {id:'pr',name:'広報（PR）',role:'取材の売り込み成功率+20%。炎上やうわさの悪影響が半分',sal:70000,rep:10,f:{hair:'twin',hc:'#4a2a18',skin:SKIN[0],out:'#2a7a5a',out2:'#fff'}},
+];
+const has=id=>!!(S&&S.staff&&S.staff[id]);
+function salary(){return STAFF.filter(s=>has(s.id)).reduce((a,s)=>a+s.sal,0);}
+function apMax(){return 3+(has('planner')?1:0);}
+function loanRate(){return has('account')?0.02:0.05;}
+function bridgeFee(){return has('account')?1:1.01;}
+function staffAva(s,size){return `<span class="ava" title="${esc(s.name)}" style="width:${size}px;height:${size}px;--c1:${s.f.out};--c2:#150c1b"><svg viewBox="25 14 50 50" aria-hidden="true"><rect width="100" height="130" fill="${s.f.out2}" opacity=".35"/>${fig({x:50,y:121,s:1,...s.f})}</svg></span>`;}
+function companyHTML(){
+  const st=STAFF.filter(s=>has(s.id)),sal=salary();
+  const ms=(S.missions||[]).map(m=>`<li><span class="mt">${esc(m.title)}</span><span class="mr"><b class="good">+${fmtY(m.cash)}</b>　あと${Math.max(0,m.dl-S.week)}週</span></li>`).join('')||'<li class="muted">依頼は数週間ごとに届きます</li>';
+  return `<div class="panel compp"><div class="row" style="justify-content:space-between"><b style="font-size:13px">会社</b><button class="btn sm" onclick="openStaff()">${ic('users')} スタッフ ${st.length}/${STAFF.length}</button></div>
+   <div class="staffrow">${st.map(s=>staffAva(s,24)).join('')}<span class="muted" style="font-size:11px">${sal?`人件費 −${fmtY(sal)}/週`:'まだスタッフはいません'}</span></div>
+   ${slotsMax()<3?'<p class="muted" style="font-size:11px;margin-top:4px">信頼度40で 3本目の企画枠が解放</p>':''}<b style="font-size:13px;display:block;margin-top:6px">依頼（ミッション）</b><ul class="missions">${ms}</ul></div>`;
+}
+function openStaff(){
+  showModal(`<div class="eyebrow">会社の体制</div><h3>スタッフを雇う</h3><p class="lead">スタッフは毎週の人件費（固定費）がかかる代わりに、効果がずっと続く。売上が小さいうちは負担が重いので、雇うタイミングが勝負。雇うときは契約金（人件費2週分）がかかる。</p>
+  <div class="stafflist">${STAFF.map(s=>{const h=has(s.id),lock=S.rep<s.rep,fee=s.sal*2;return `<div class="staff ${h?'on':''}">${staffAva(s,48)}<div class="sinfo"><b>${s.name}</b><span>${s.role}</span><small class="num">人件費 ${fmtY(s.sal)}/週（1年で${fmtY(s.sal*52)}）</small></div>${lock?`<span class="chip ng">信頼度${s.rep}で解禁</span>`:h?`<button class="btn sm" onclick="fireStaff('${s.id}')">契約を終える</button>`:`<button class="btn sm primary" ${S.cash<fee?'disabled':''} onclick="hireStaff('${s.id}')">雇う（契約金 ${fmtY(fee)}）</button>`}</div>`;}).join('')}</div>
+  <p class="muted" style="font-size:12px;margin-top:8px">今の人件費：${fmtY(salary())}/週。毎週の始めに資金から支払われる。</p>
+  <div class="row" style="margin-top:10px"><button class="btn primary" onclick="closeModal();render();runQueue()">閉じる</button></div>`,true);
+}
+function hireStaff(id){const s=STAFF.find(x=>x.id===id);if(!s||has(id)||S.rep<s.rep||S.cash<s.sal*2)return;S.cash-=s.sal*2;S.staff[id]=S.week;if(id==='planner')S.ap++;SND.coin();award('staff');S.news.unshift({t:`${s.name}を雇った（人件費 ${fmtY(s.sal)}/週）`,c:'gd'});openStaff();}
+function fireStaff(id){const s=STAFF.find(x=>x.id===id);if(!has(id))return;delete S.staff[id];if(id==='planner')S.ap=Math.max(0,S.ap-1);S.news.unshift({t:`${s.name}との契約を終えた`,c:'ev'});SND.click();openStaff();}
+const MTPL=['soldout','sat85','genre','big','merch','perfect','profit','noloan','premium'];
+function newMission(){
+  const used=new Set(S.missions.map(m=>m.tid));const pool=MTPL.filter(t=>!used.has(t)&&(t!=='big'||S.rep>=28));if(!pool.length)return null;
+  const tid=pool[Math.floor(Math.random()*pool.length)];
+  const m={id:S.mseq=(S.mseq||0)+1,tid,dl:Math.min(SEASON,S.week+14),cash:Math.round(Math.max(300000,Math.min(15000000,assets()*0.03))/10000)*10000};
+  const T={soldout:'どれか1公演を満員にする',sat85:'満足度85以上の公演で黒字を出す',big:'アリーナ以上の会場で稼働率85%以上',merch:'グッズを品切れなし・売れ残り15%以下で売る',perfect:'本番の演出をすべてPERFECTで決める',noloan:'借入なしの公演で黒字を出す',premium:'相場の110%以上の価格で満員にする'};
+  m.title=T[tid];
+  if(tid==='genre'){const gs=[...new Set(ARTISTS.filter(a=>S.rep>=a.rep).map(a=>a.genre))];m.p=gs[Math.floor(Math.random()*gs.length)];m.title=`${GENRES[m.p]}の公演で黒字を出す`;}
+  if(tid==='profit'){m.p=Math.round(Math.max(500000,assets()*0.08)/100000)*100000;m.title=`1公演で${fmtY(m.p)}以上の利益を出す`;m.cash=Math.round(m.cash*1.3/10000)*10000;}
+  if(tid==='big'||tid==='perfect'||tid==='premium')m.cash=Math.round(m.cash*1.5/10000)*10000;
+  return m;
+}
+function mCheck(m,R){
+  const q=R.merch.reduce((s,x)=>s+x.q,0),lost=R.merch.filter(x=>x.dem>x.q).length,un=R.merch.reduce((s,x)=>s+x.unsold,0);
+  switch(m.tid){case'soldout':return R.fill>=0.999;case'sat85':return R.sat>=85&&R.net>0;case'genre':return A(R.artist).genre===m.p&&R.net>0;case'big':return Vn(R.venue).tier>=3&&R.fill>=0.85;
+    case'merch':return q>0&&lost===0&&un/q<=0.15;case'perfect':return R.mg.length>0&&R.mg.every(x=>x==='P');case'profit':return R.net>=m.p;case'noloan':return !R.loan&&R.net>0;case'premium':return R.price>=A(R.artist).ref*1.1&&R.fill>=0.999;}
+  return false;
+}
+function checkMissions(R){
+  if(!S.missions||!S.missions.length)return;const done=S.missions.filter(m=>mCheck(m,R));if(!done.length)return;
+  S.missions=S.missions.filter(m=>!done.includes(m));let tot=0;
+  done.forEach(m=>{S.cash+=m.cash;tot+=m.cash;S.rep=clamp(S.rep+2,0,100);S.mDone=(S.mDone||0)+1;S.news.unshift({t:`依頼達成「${esc(m.title)}」報酬 +${fmtY(m.cash)}`,c:'gd'});});
+  R.missions=done.map(m=>m.title);R.missionCash=tot;award('mission');
+  setTimeout(()=>{toast(`${ic('crown','fill')}<span><b>依頼達成！ +${fmtY(tot)}</b><small>${done.map(m=>esc(m.title)).join('／')}</small></span>`,'fire');SND.fanfare();},2600);
+}
+function missionTick(){
+  const ex=S.missions.filter(m=>m.dl<S.week);
+  if(ex.length){S.missions=S.missions.filter(m=>m.dl>=S.week);ex.forEach(m=>S.news.unshift({t:`依頼「${esc(m.title)}」は期限切れ`,c:'ev'}));}
+  if([2,9,17,25,33,41].includes(S.week)){let n=0;while(S.missions.length<3){const m=newMission();if(!m)break;S.missions.push(m);n++;}
+    if(n)setTimeout(()=>toast(`${ic('spark')}<span><b>新しい依頼が${n}件届いた</b><small>「会社」パネルで確認できます</small></span>`),1000);}
+}
+function changePrice(pid,dir){
+  const p=proj(pid);if(!p||p.priceChanged||S.ap<1)return;const a=A(p.artist),old=p.price;
+  p.price=clamp(Math.round(p.price*(dir>0?1.1:0.9)/100)*100,Math.round(a.ref*0.6/100)*100,Math.round(a.ref*1.8/100)*100);
+  p.priceChanged=dir;p.satMod-=3;S.ap--;SND.click();
+  S.news.unshift({t:`${esc(a.name)}：チケットを${fmtN(old)}円→${fmtN(p.price)}円に${dir>0?'値上げ':'値下げ'}`,c:'ev'});
+  render();toast(`${ic('coin')} ${dir>0?'値上げ':'値下げ'}：${fmtN(old)}円 → ${fmtN(p.price)}円<small>${dir>0?'1枚の利益は増えるが、客足は鈍る':'客足は戻るが、1枚の利益は減る'}（前に買った人は少し不満）</small>`);
+}
+function bestGet(){try{return JSON.parse(localStorage.getItem('manin-best')||'{}')||{};}catch(e){return{};}}
+function bestSet(b){try{localStorage.setItem('manin-best',JSON.stringify(b));}catch(e){}}
+function bestLine(){const b=bestGet(),ks=Object.keys(DIFFS).filter(k=>b[k]);if(!ks.length)return'';return `<p class="muted" style="font-size:12px;text-align:center">自己ベスト　${ks.map(k=>`${DIFFS[k].name}：${fmtY(b[k].score)}（${b[k].rank}位）`).join('　')}</p>`;}
+
 function tutInfo(){
   if(!S||!S.tut||!S.tut.on||$('#modal-root').innerHTML)return null;
   const d=S.tut.done;
