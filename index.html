@@ -591,7 +591,7 @@ button.td:hover:not(:disabled){border-color:var(--brass)}
 @media (max-width:860px){.iconbtn span{display:none}.iconbtn{padding:0}.iconbtn.help{padding:0 8px}.actionbar .btn{padding-left:12px;padding-right:12px}.fstep{display:none}}
 .hub .tile{padding:3px 9px}.hub .tile .ti{width:30px;height:30px}.hub .tiles{gap:5px}.heatp{padding:8px 12px}.subrow{margin-top:3px}
 .ava img,.art img,.dart img,.lineup img,.artprev img,.vart img{width:100%;height:100%;display:block;object-fit:cover}
-.art img.cut,.dart img.cut{object-fit:contain;object-position:right bottom}
+.art img,.dart img{object-position:50% 9%}
 .brand.me{display:flex;align-items:center;gap:8px;font-family:var(--f-body);letter-spacing:0}
 .brand .bn{display:flex;flex-direction:column;line-height:1.15}.brand .bn small{font-size:9px;color:var(--mute);font-weight:400;letter-spacing:.08em}.brand .bn b{font-family:var(--f-display);font-weight:400;font-size:15px;color:var(--brass)}
 .myrole{font-size:11px;font-weight:700;color:#2a1606;background:var(--brass);border-radius:99px;padding:1px 9px;white-space:nowrap}
@@ -601,7 +601,6 @@ button.td:hover:not(:disabled){border-color:var(--brass)}
 .org{display:flex;gap:6px 14px;flex-wrap:wrap;margin-top:6px;font-size:12px}.org span{display:inline-flex;align-items:center;gap:5px}.org b{color:var(--brass-soft);font-size:11px}
 .intro{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}.intro .iimg{display:flex;justify-content:center}
 @media (max-width:560px){.intro{grid-template-columns:1fr;text-align:center}.brand.me{display:flex}.brand.me{display:none}}
-:is(.ava[style*="width:2"],.ava[style*="width:3"]) img:is([src*="rival-"],[src*="staff-"],[src*="coach"],[src*="player"]){transform:scale(1.55);transform-origin:50% 38%}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head><body>
@@ -716,13 +715,13 @@ function artistDecor(a,id){
 // opts.bg: 背景を描くか / opts.fit: preserveAspectRatio
 function artistArt(a,opts={}){
   if(CUSTOM[a.id])return `<svg viewBox="0 0 200 120" preserveAspectRatio="${opts.fit&&opts.fit.includes('meet')?'xMaxYMax meet':'xMidYMid slice'}" aria-hidden="true"><image href="${CUSTOM[a.id]}" x="0" y="0" width="200" height="120" preserveAspectRatio="xMidYMid slice"/></svg>`;
-  if(IMG)return opts.bg===false?`<img class="aimg cut" alt="" src="${AST}artist-${a.id}-cut.png">`:`<img class="aimg" alt="" src="${AST}artist-${a.id}.png">`;
+  if(IMG)return `<img class="aimg" alt="" src="${AST}artist-${a.id}.png">`;
   const id='ag'+(++artSeq),bg=opts.bg!==false;
   const back=bg?`<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a.c[0]}"/><stop offset="1" stop-color="${a.c[1]}"/></linearGradient></defs><rect x="-60" y="-10" width="320" height="140" fill="url(#${id})"/>`:'';
   const spot=`<defs><radialGradient id="${id}s" cx=".5" cy="0" r=".9"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><path d="M100 -10 L36 122 L164 122Z" fill="url(#${id}s)"/>`;
   return `<svg viewBox="${opts.vb||'0 0 200 120'}" preserveAspectRatio="${opts.fit||'xMidYMid slice'}" aria-hidden="true">${back}${spot}${artistDecor(a)}${artistFigs(a)}</svg>`;
 }
-function avatar(a,size){return `<span class="ava" style="width:${size}px;height:${size}px;--c1:${a.c[0]};--c2:${a.c[1]}">${artistArt(a)}</span>`;}
+function avatar(a,size){if(IMG&&!CUSTOM[a.id])return `<span class="ava" style="width:${size}px;height:${size}px;--c1:${a.c[0]};--c2:${a.c[1]}"><img alt="" src="${AST}artist-${a.id}-face.png"></span>`;return `<span class="ava" style="width:${size}px;height:${size}px;--c1:${a.c[0]};--c2:${a.c[1]}">${artistArt(a)}</span>`;}
 function merchArt(mid,a,size=44){
   if(IMG)return `<img alt="" width="${size}" height="${size}" style="flex:none" src="${AST}merch-${a.id}-${mid}.png">`;
   const c1=a.c[0],c2=a.c[1],n=a.logo,id='mg'+(++artSeq);let g='';
