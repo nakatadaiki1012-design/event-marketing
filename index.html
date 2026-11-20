@@ -590,6 +590,18 @@ button.td:hover:not(:disabled){border-color:var(--brass)}
 .glist small{color:var(--mute);text-align:center;margin-top:4px}
 @media (max-width:860px){.iconbtn span{display:none}.iconbtn{padding:0}.iconbtn.help{padding:0 8px}.actionbar .btn{padding-left:12px;padding-right:12px}.fstep{display:none}}
 .hub .tile{padding:3px 9px}.hub .tile .ti{width:30px;height:30px}.hub .tiles{gap:5px}.heatp{padding:8px 12px}.subrow{margin-top:3px}
+.ava img,.art img,.dart img,.lineup img,.artprev img,.vart img{width:100%;height:100%;display:block;object-fit:cover}
+.art img.cut,.dart img.cut{object-fit:contain;object-position:right bottom}
+.brand.me{display:flex;align-items:center;gap:8px;font-family:var(--f-body);letter-spacing:0}
+.brand .bn{display:flex;flex-direction:column;line-height:1.15}.brand .bn small{font-size:9px;color:var(--mute);font-weight:400;letter-spacing:.08em}.brand .bn b{font-family:var(--f-display);font-weight:400;font-size:15px;color:var(--brass)}
+.myrole{font-size:11px;font-weight:700;color:#2a1606;background:var(--brass);border-radius:99px;padding:1px 9px;white-space:nowrap}
+.cnlab{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mute);margin-top:8px}
+.cninput{font:inherit;font-size:16px;font-weight:700;color:var(--ink);background:var(--velvet);border:1px solid var(--brass-dim);border-radius:8px;padding:8px 10px}
+.coach .bub b small{font-family:var(--f-body);font-size:10px;color:#7a5a3a;margin-left:6px;letter-spacing:0}
+.org{display:flex;gap:6px 14px;flex-wrap:wrap;margin-top:6px;font-size:12px}.org span{display:inline-flex;align-items:center;gap:5px}.org b{color:var(--brass-soft);font-size:11px}
+.intro{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}.intro .iimg{display:flex;justify-content:center}
+@media (max-width:560px){.intro{grid-template-columns:1fr;text-align:center}.brand.me{display:flex}.brand.me{display:none}}
+:is(.ava[style*="width:2"],.ava[style*="width:3"]) img:is([src*="rival-"],[src*="staff-"],[src*="coach"],[src*="player"]){transform:scale(1.55);transform-origin:50% 38%}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head><body>
@@ -646,7 +658,7 @@ const ICONS={
 };
 function ic(n,cls=''){return `<svg class="ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;}
 /* ========== イラスト（アーティスト・グッズ）をSVGで描く ========== */
-let artSeq=0;
+let artSeq=0;let IMG=false;const AST='assets/';
 const SKIN=['#f2c9a5','#e8b48f','#d9a07a','#f5d5b8'];
 function fig(o){
   const s=o.s||1,sk=o.skin||SKIN[0],hc=o.hc||'#222';
@@ -704,6 +716,7 @@ function artistDecor(a,id){
 // opts.bg: 背景を描くか / opts.fit: preserveAspectRatio
 function artistArt(a,opts={}){
   if(CUSTOM[a.id])return `<svg viewBox="0 0 200 120" preserveAspectRatio="${opts.fit&&opts.fit.includes('meet')?'xMaxYMax meet':'xMidYMid slice'}" aria-hidden="true"><image href="${CUSTOM[a.id]}" x="0" y="0" width="200" height="120" preserveAspectRatio="xMidYMid slice"/></svg>`;
+  if(IMG)return opts.bg===false?`<img class="aimg cut" alt="" src="${AST}artist-${a.id}-cut.png">`:`<img class="aimg" alt="" src="${AST}artist-${a.id}.png">`;
   const id='ag'+(++artSeq),bg=opts.bg!==false;
   const back=bg?`<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a.c[0]}"/><stop offset="1" stop-color="${a.c[1]}"/></linearGradient></defs><rect x="-60" y="-10" width="320" height="140" fill="url(#${id})"/>`:'';
   const spot=`<defs><radialGradient id="${id}s" cx=".5" cy="0" r=".9"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><path d="M100 -10 L36 122 L164 122Z" fill="url(#${id}s)"/>`;
@@ -711,6 +724,7 @@ function artistArt(a,opts={}){
 }
 function avatar(a,size){return `<span class="ava" style="width:${size}px;height:${size}px;--c1:${a.c[0]};--c2:${a.c[1]}">${artistArt(a)}</span>`;}
 function merchArt(mid,a,size=44){
+  if(IMG)return `<img alt="" width="${size}" height="${size}" style="flex:none" src="${AST}merch-${a.id}-${mid}.png">`;
   const c1=a.c[0],c2=a.c[1],n=a.logo,id='mg'+(++artSeq);let g='';
   if(mid==='tee')g=`<path d="M21 9 L8 16 L13 27 L19 24 L19 57 L45 57 L45 24 L51 27 L56 16 L43 9 Q38 15 32 15 Q26 15 21 9Z" fill="${c1}" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="32" y="38" text-anchor="middle" font-size="${n.length>5?6:7.5}" font-weight="700" fill="${c2}" font-family="sans-serif">${n}</text><path d="M24 43 h16" stroke="${c2}" stroke-width="1.4"/>`;
   if(mid==='towel')g=`<g transform="rotate(-14 32 32)"><rect x="5" y="23" width="54" height="18" rx="2" fill="${c2}"/><rect x="5" y="23" width="54" height="3.2" fill="${c1}"/><rect x="5" y="37.8" width="54" height="3.2" fill="${c1}"/><text x="32" y="35.2" text-anchor="middle" font-size="${n.length>5?6:7}" font-weight="700" fill="${c1}" font-family="sans-serif">${n}</text><path d="M5 24 l-3 1 M5 28 l-3 0 M5 32 l-3 0 M5 36 l-3 0 M5 40 l-3 -1 M59 24 l3 1 M59 28 l3 0 M59 32 l3 0 M59 36 l3 0 M59 40 l3 -1" stroke="${c2}" stroke-width="1.2"/></g>`;
@@ -847,8 +861,11 @@ const BADGES=[
 ];
 let CUSTOM={};try{CUSTOM=JSON.parse(localStorage.getItem('manin-art')||'{}')||{};}catch(e){CUSTOM={};}
 function saveCustom(){try{localStorage.setItem('manin-art',JSON.stringify(CUSTOM));}catch(e){toast('画像が大きすぎて保存できませんでした','bad');}}
-function rivalAva(r,size){return `<span class="ava" style="width:${size}px;height:${size}px;--c1:${r.c};--c2:#150c1b"><svg viewBox="25 14 50 50" aria-hidden="true"><rect x="0" y="0" width="100" height="130" fill="${r.c}" opacity=".45"/>${fig({x:50,y:121,s:1,...r.f})}</svg></span>`;}
-function coachAva(size){return `<span class="ava" style="width:${size}px;height:${size}px;--c1:#3a2a50;--c2:#e9b64f"><svg viewBox="25 14 50 50" aria-hidden="true"><rect x="0" y="0" width="100" height="130" fill="#e9b64f" opacity=".35"/>${fig({x:50,y:121,s:1,hair:'short',hc:'#4a3020',skin:SKIN[1],out:'#3a2a50',out2:'#e9b64f'})}</svg></span>`;}
+function rivalAva(r,size){if(IMG)return `<span class="ava" style="width:${size}px;height:${size}px;--c1:${r.c};--c2:#150c1b"><img alt="" src="${AST}rival-${Math.max(0,RIVALS0.findIndex(x=>x.name===r.name))}.png"></span>`;return `<span class="ava" style="width:${size}px;height:${size}px;--c1:${r.c};--c2:#150c1b"><svg viewBox="25 14 50 50" aria-hidden="true"><rect x="0" y="0" width="100" height="130" fill="${r.c}" opacity=".45"/>${fig({x:50,y:121,s:1,...r.f})}</svg></span>`;}
+const COACH={name:'相沢',role:'チーフプロデューサー',desc:'社員第1号。現場歴15年のベテランで、あなたの右腕'};
+function playerAva(size){if(IMG)return `<span class="ava" style="width:${size}px;height:${size}px;--c1:#1e3a7a;--c2:#e9b64f"><img alt="" src="${AST}player.png"></span>`;return `<span class="ava" style="width:${size}px;height:${size}px;--c1:#1e3a7a;--c2:#e9b64f"><svg viewBox="25 14 50 50" aria-hidden="true"><rect x="0" y="0" width="100" height="130" fill="#7cc7ff" opacity=".35"/>${fig({x:50,y:121,s:1,hair:'short',hc:'#1c1a22',skin:SKIN[0],out:'#1e2f5a',out2:'#e9b64f'})}</svg></span>`;}
+function coName(){return (S&&S.company)||'あなたの会社';}
+function coachAva(size){if(IMG)return `<span class="ava" style="width:${size}px;height:${size}px;--c1:#3a2a50;--c2:#e9b64f"><img alt="" src="${AST}coach.png"></span>`;return `<span class="ava" style="width:${size}px;height:${size}px;--c1:#3a2a50;--c2:#e9b64f"><svg viewBox="25 14 50 50" aria-hidden="true"><rect x="0" y="0" width="100" height="130" fill="#e9b64f" opacity=".35"/>${fig({x:50,y:121,s:1,hair:'short',hc:'#4a3020',skin:SKIN[1],out:'#3a2a50',out2:'#e9b64f'})}</svg></span>`;}
 const relOf=id=>(S&&S.rel&&S.rel[id])||0;
 const feeOf=a=>Math.round(a.fee*(1-0.05*relOf(a.id)));
 function hearts(n){return `<span class="hearts">${'♥'.repeat(n)}<i>${'♥'.repeat(5-n)}</i></span>`;}
@@ -894,6 +911,7 @@ const GLOSSARY=[
  ['広告の飽き','同じ広告を何度も見せると、効果がだんだん落ちていく。媒体を変えると新鮮さが戻る。'],
  ['公約','公演の前に「満員にする」と世間に宣言すること。話題になり、達成すれば評価が上がるが、失敗すると信用を失う。'],
  ['事務所の固定費','家賃や光熱費など、公演がなくても毎週かかるお金。会社が大きくなるほど増える。'],
+ ['社長とチーフプロデューサー','社長は会社の最終判断をして、結果の責任を負う人。チーフプロデューサーは公演づくりの現場をまとめる責任者で、社長を支える。'],
  ['セットリスト','ライブの曲順。テンポの速い曲と遅い曲で波をつくり、最後に最高潮へ持っていくのが定番。最初と最後に代表曲を置くと盛り上がる。'],
  ['トレンド（流行）','ジャンルの人気は時期によって変わる。ブームのジャンルは客が集まりやすいが、ブームはいつまでも続かない。'],
  ['競合公演','同じ週に他社の公演があると、お客さんが分散する。同じジャンルだと影響が大きい。日程選びで避けるか、宣伝で押し返す。'],
@@ -914,9 +932,9 @@ const baseOf=a=>Math.round(a.base*boost(a.id));
 const proj=id=>S.projects.find(p=>p.id===id);
 const slotsMax=()=>S.rep>=40?3:2;
 
-function newGame(diff='normal',tut=true){
-  const D=DIFFS[diff]||DIFFS.normal;
-  S={phase:'hub',diff,week:1,gates:{},grace:null,streak:0,legends:0,chance:null,duelW:0,duelL:0,staff:{},missions:[],mDone:0,payroll:0,cash:D.cash,startCash:D.cash,rep:10,ap:3,apPen:0,boost:{},rel:{},badges:{},recv:[],history:[],projects:[],seq:1,sel:null,plan:null,result:null,showQueue:[],
+function newGame(diff='normal',tut=true,cname){
+  const D=DIFFS[diff]||DIFFS.normal;const keepName=cname||(S&&S.company)||'スターライト企画';
+  S={phase:'hub',company:keepName,diff,week:1,gates:{},grace:null,streak:0,legends:0,chance:null,duelW:0,duelL:0,staff:{},missions:[],mDone:0,payroll:0,cash:D.cash,startCash:D.cash,rep:10,ap:3,apPen:0,boost:{},rel:{},badges:{},recv:[],history:[],projects:[],seq:1,sel:null,plan:null,result:null,showQueue:[],
      rivals:RIVALS0.map(r=>({...r,g:r.g*D.rg,start:r.cash})),news:[],sched:null,mg:null,sound:SND.on,bgm:BGM.on,mtab:'cards',seasonDone:{},tut:{on:tut,done:{}}};
   genSched();
   recordHist();
@@ -953,7 +971,7 @@ function investAmt(p){return Math.round(upfront(p).total*0.4/10000)*10000;}
 function breakEven(p){const a=A(p.artist),v=Vn(p.venue),u=upfront(p);const fixed=u.rent+u.prod+(p.deal==='fixed'?feeOf(a):Math.round(feeOf(a)*0.3))+v.cap*150;const per=p.price*0.92-400;return per>0?Math.ceil(fixed/per):Infinity;}
 function pricePenalty(a,price){return Math.max(0,(price/a.ref-1.1)*70);}
 function assets(){return S.cash+recvSum()-(S.bridge||0)-S.projects.reduce((s,p)=>s+p.loan+p.investAmt-p.sunk,0);}
-function ranking(){const l=S.rivals.map(r=>({name:r.name,v:r.cash,c:r.c,me:false}));l.push({name:'あなたの会社',v:assets(),c:'#e9b64f',me:true});l.sort((x,y)=>y.v-x.v);return l;}
+function ranking(){const l=S.rivals.map(r=>({name:r.name,v:r.cash,c:r.c,me:false}));l.push({name:coName(),v:assets(),c:'#e9b64f',me:true});l.sort((x,y)=>y.v-x.v);return l;}
 function myRank(){return ranking().findIndex(x=>x.me)+1;}
 
 /* ========== 描画 ========== */
@@ -979,7 +997,7 @@ function render(){
 function topbarHTML(){
   const rk=myRank(),rv=recvSum();
   return `<header class="topbar"><div class="in">
-   <div class="brand">満員御礼</div>
+   <div class="brand me" title="あなたは、コンサート企画会社の社長です">${playerAva(30)}<span class="bn"><small>コンサート企画会社</small><b>${esc(coName())}</b></span><span class="myrole">あなた＝社長</span></div>
    <div class="stat"><small>第${Math.min(S.week,SEASON)}週 / ${SEASON}</small><b>${fmtDate(slotDate(Math.min(S.week,SEASON),'wd')).replace(/\(.\)/,'')}</b><div class="bar4"><i style="width:${Math.min(S.week,SEASON)/SEASON*100}%"></i></div></div>
    <div class="stat"><small>資金${rv?` <span class="good" title="プレイガイドからの入金待ち">+${fmtY(rv)}待ち</span>`:''}${S.bridge?` <span class="bad" title="入金までの短期借入">つなぎ−${fmtY(S.bridge)}</span>`:''}</small><b class="${S.cash<0?'bad':''}">${fmtY(S.cash)}</b></div>
    <div class="stat hide-s"><small>信頼度</small><b>${Math.round(S.rep)}</b><div class="bar4"><i style="width:${clamp(S.rep,0,100)}%"></i></div></div>
@@ -1020,12 +1038,12 @@ function titleHTML(){
    </div></section>`;
 }
 function confirmNew(){
-  showModal(`<div class="eyebrow">はじめから</div><h3>難易度を選ぼう</h3>${loadSave()?'<p class="lead">今のセーブデータは上書きされます。</p>':''}
+  showModal(`<div class="eyebrow">はじめから</div><h3>会社の名前と難易度を決めよう</h3><label class="cnlab">あなたが社長をつとめる会社の名前<input id="cname" class="cninput" maxlength="12" value="${esc((loadSave()||{}).company||'スターライト企画')}"></label>${loadSave()?'<p class="lead">今のセーブデータは上書きされます。</p>':''}
    <div class="stack" style="margin-top:10px">${Object.entries(DIFFS).map(([k,d])=>`<button class="choice" onclick="startNew('${k}')"><b>${d.name}</b><span>${d.desc}</span></button>`).join('')}</div>
-   <label class="row" style="margin-top:12px;font-size:13px;gap:8px;cursor:pointer"><input type="checkbox" id="tutck" checked> 先輩のガイド（チュートリアル）を表示する</label>
+   <label class="row" style="margin-top:12px;font-size:13px;gap:8px;cursor:pointer"><input type="checkbox" id="tutck" checked> ${COACH.role}・${COACH.name}のアドバイス（チュートリアル）を表示する</label>
    <div class="row" style="margin-top:12px"><button class="btn" onclick="closeModal()">やめる</button></div>`);
 }
-function startNew(k){const t=$('#tutck')?$('#tutck').checked:true;closeModal();clearSave();newGame(k,t);}
+function startNew(k){const t=$('#tutck')?$('#tutck').checked:true;let n=($('#cname')?$('#cname').value:'').trim().slice(0,12)||'スターライト企画';if(RIVALS0.some(r=>r.name===n))n+='２';closeModal();clearSave();newGame(k,t,n);openIntro(0);}
 function continueGame(){S=loadSave();if(!S){newGame();return;}migrate();SND.on=S.sound!==false;render();resumeFlow();}
 function resumeFlow(){
   if(S.phase==='show'&&S.mg&&!S.mg.done&&S.mg.stage!=='setlist'){setupCue();}
@@ -1274,7 +1292,7 @@ function confirmPlan(force){
       curChoices=[{label:'上乗せして確保する',sub:`出演料に ${fmtY(prem)} 上乗せ（契約後の残り資金から払う）`,fn(){if(fundingTotals().after<prem){S.sched.a[p.artist][p.wk+'-'+p.d]='r';S.ap--;S.plan=null;S.phase='hub';return'上乗せ分の資金が足りず、日程を取られた…';}S.plan.premium=prem;confirmPlan(true);return`${fmtY(prem)} 上乗せで確保！`;}},
         {label:'今回は譲る',sub:'交渉に使った行動力1は戻らない',fn(){S.sched.a[p.artist][p.wk+'-'+p.d]='r';S.ap--;S.plan=null;S.phase='hub';return`${r.name}に日程を譲った`;}}];
       SND.bad();
-      showModal(`<div class="evhead">${rivalAva(r,60)}<div class="evicon" style="color:var(--bad)">${ic('alert')}</div></div><div class="eyebrow">${esc(r.name)} ／ ${r.boss}</div><h3>「${esc(a.name)}のその日程、うちも狙っているよ」</h3><p class="lead">事務所から条件の上乗せを求められた。ブッキングは取り合いだ。</p><div class="choices">${choiceBtns()}</div>`);
+      showModal(`<div class="evhead">${rivalAva(r,60)}<div class="evicon" style="color:var(--bad)">${ic('alert')}</div></div><div class="eyebrow">ライバル会社「${esc(r.name)}」の${r.boss}</div><h3>「${esc(a.name)}のその日程、うちも狙っているよ」</h3><p class="lead">事務所から条件の上乗せを求められた。ブッキングは取り合いだ。</p><div class="choices">${choiceBtns()}</div>`);
       return;
     }
   }
@@ -1482,7 +1500,7 @@ function merchModal(pid,forced){
       <div class="num" style="text-align:right"><b id="mq-${m.id}" style="font-size:16px;color:var(--brass-soft)">0</b>個</div></div>`;}).join('');
   showModal(`<div class="mstrip" style="margin-bottom:6px">${MERCH.map(m=>merchArt(m.id,a,40)).join('')}</div><div class="eyebrow">${esc(a.name)} ／ ${forced?'<span class="bad">発注の最終締め切り！</span>':'グッズの発注（本番まであと'+(p.K-p.k)+'週）'}</div><h3>グッズを何個つくる？</h3>
    <p class="lead">現在 <b class="num">${fmtN(p.sold)}枚</b> 販売、来場は <b class="num">約${fmtN(est)}人</b> の見込み。本番の盛り上がりで売れ行きが変わる。</p>
-   ${S.tut&&S.tut.on?`<div class="tip" style="margin-top:6px"><b>先輩のコツ：</b>グッズは利益率が高いから、平均より少し多め（1.2倍くらい）が儲かりやすいよ。</div>`:''}
+   ${S.tut&&S.tut.on?`<div class="tip" style="margin-top:6px"><b>${COACH.name}（${COACH.role}）のコツ：</b>グッズは利益率が高いから、平均より少し多め（1.2倍くらい）が儲かりやすいよ。</div>`:''}
    <div>${rows}</div>
    <div class="frow total"><span>発注総額（今すぐ支払い）</span><span class="v" id="mtotal">0円</span></div>
    <p class="muted" style="font-size:12px">売れ残りは原価の40%しか回収できない（<button class="term" onclick="term('在庫リスクと機会損失')">在庫リスク</button>）。でも利益率が高いので、少なすぎるのはもっと損。</p>
@@ -1743,7 +1761,7 @@ function afterResult(){
   if(S.showQueue.length){startShow(S.showQueue[0]);return;}
   S.phase='hub';
   if(wasFirst){S.tut.done.firstShow=true;S.tut.on=false;render();
-    showModal(`<div class="row" style="gap:14px;align-items:flex-start;flex-wrap:nowrap">${coachAva(64)}<div><div class="eyebrow">先輩より</div><h3>基本はこれでバッチリ！</h3><p class="lead">ここからは自分の判断で。公演を2本同時に回したり、大きな会場に挑戦したりして、ライバルを抜いていこう。用語やバッジは右上の本のマークで見られるよ。</p></div></div><div class="row" style="margin-top:12px"><button class="btn fire" onclick="closeInfo()">よし、やるぞ！</button></div>`);return;}
+    showModal(`<div class="row" style="gap:14px;align-items:flex-start;flex-wrap:nowrap">${coachAva(64)}<div><div class="eyebrow">${COACH.role}　${COACH.name}より</div><h3>基本はこれでバッチリ！</h3><p class="lead">ここからは自分の判断で。公演を2本同時に回したり、大きな会場に挑戦したりして、ライバルを抜いていこう。用語やバッジは右上の本のマークで見られるよ。</p></div></div><div class="row" style="margin-top:12px"><button class="btn fire" onclick="closeInfo()">よし、やるぞ！</button></div>`);return;}
   render();runQueue();
 }
 function goEnd(){
@@ -1768,7 +1786,7 @@ function endHTML(){
   return `<div class="endg">
    <section class="stack" style="text-align:center;align-items:center">
     <div class="eyebrow">1年間の最終結果</div>${S.newBest?'<span class="chip gold">自己ベスト更新！</span>':''}<div class="rank">${rank}</div><h2>${title}</h2>
-    ${S.bought?`<p class="lead bad">関門（第${S.week}週）までに順位を上げられなかった。守りに入らず、公約や同時進行で勝負に出よう。</p>`:''}<p class="lead">最終資金 <b class="num" style="color:var(--ink)">${fmtY(S.cash)}</b>（スタート300万円）<br>通算損益 <b class="num ${tot>=0?'good':'bad'}">${tot>=0?'+':''}${fmtY(tot)}</b> ／ ${S.history.length}公演 ／ 信頼度 ${Math.round(S.rep)}${S.tax?`<br><small>法人税（利益の30%）−${fmtY(S.tax)} を差し引き済み</small>`:''}</p>
+    ${S.bought?`<p class="lead bad">関門（第${S.week}週）までに順位を上げられなかった。守りに入らず、公約や同時進行で勝負に出よう。</p>`:''}<p class="lead">最終資金 <b class="num" style="color:var(--ink)">${fmtY(S.cash)}</b>（スタート${fmtY(S.startCash||3000000)}）<br>通算損益 <b class="num ${tot>=0?'good':'bad'}">${tot>=0?'+':''}${fmtY(tot)}</b> ／ ${S.history.length}公演 ／ 信頼度 ${Math.round(S.rep)}${S.tax?`<br><small>法人税（利益の30%）−${fmtY(S.tax)} を差し引き済み</small>`:''}</p>
     <p class="muted" style="font-size:12px">難易度：${(DIFFS[S.diff]||DIFFS.normal).name}　獲得バッジ ${nb}/${BADGES.length}　伝説の夜 ${S.legends||0}回　対決 ${S.duelW||0}勝${S.duelL||0}敗　達成した依頼 ${S.mDone||0}件　固定費の合計 ${fmtY(S.payroll||0)}</p>
     <button class="btn fire big" onclick="clearSave();newGame()">もう一度プレイ</button>
    </section>
@@ -1797,7 +1815,7 @@ function seatSVG(cap,sold,live,a){
    <defs><linearGradient id="stg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6d68c"/><stop offset="1" stop-color="#8a6727"/></linearGradient></defs>
    <path d="M150 2 H270 L262 34 H158 Z" fill="url(#stg)"/>
    <text x="210" y="24" text-anchor="middle" font-size="11" fill="#2a1606" font-weight="700" letter-spacing="4">STAGE</text>
-   ${live&&a?`<g class="lasers">${[[-40,-92],[60,-92],[140,-92],[280,-92],[360,-92],[460,-92],[0,40],[420,40]].map(([x,y],k)=>`<line x1="210" y1="0" x2="${x}" y2="${y}" stroke="${[a.c[1],'#ff6fa3','#7cc7ff','#ffd23f'][k%4]}" stroke-width="1.6" style="animation-delay:${(k*0.23).toFixed(2)}s"/>`).join('')}</g><ellipse cx="210" cy="14" rx="70" ry="10" fill="rgba(255,242,210,.25)"/>${CUSTOM[a.id]?`<clipPath id="stc"><rect x="150" y="-86" width="120" height="94" rx="8"/></clipPath><image href="${CUSTOM[a.id]}" x="150" y="-86" width="120" height="94" preserveAspectRatio="xMidYMid slice" clip-path="url(#stc)"/>`:`<g class="perf"><g transform="translate(130 -84) scale(.8)">${artistFigs(a)}</g></g>`}<text x="210" y="50" text-anchor="middle" font-size="12" fill="var(--spot)" font-weight="700">${esc(a.name)}</text>`:''}
+   ${live&&a?`<g class="lasers">${[[-40,-92],[60,-92],[140,-92],[280,-92],[360,-92],[460,-92],[0,40],[420,40]].map(([x,y],k)=>`<line x1="210" y1="0" x2="${x}" y2="${y}" stroke="${[a.c[1],'#ff6fa3','#7cc7ff','#ffd23f'][k%4]}" stroke-width="1.6" style="animation-delay:${(k*0.23).toFixed(2)}s"/>`).join('')}</g><ellipse cx="210" cy="14" rx="70" ry="10" fill="rgba(255,242,210,.25)"/>${CUSTOM[a.id]?`<clipPath id="stc"><rect x="150" y="-86" width="120" height="94" rx="8"/></clipPath><image href="${CUSTOM[a.id]}" x="150" y="-86" width="120" height="94" preserveAspectRatio="xMidYMid slice" clip-path="url(#stc)"/>`:(IMG?`<g class="perf"><image href="${AST}artist-${a.id}-cut.png" x="130" y="-84" width="160" height="96"/></g>`:`<g class="perf"><g transform="translate(130 -84) scale(.8)">${artistFigs(a)}</g></g>`)}<text x="210" y="50" text-anchor="middle" font-size="12" fill="var(--spot)" font-weight="700">${esc(a.name)}</text>`:''}
    ${dots}${cap>n?`<text x="410" y="282" text-anchor="end" font-size="10" fill="var(--faint)">● 1つ ≈ ${fmtN(cap/n)}席</text>`:''}</svg>`;
 }
 function chartSVG(p){
@@ -1843,7 +1861,7 @@ function openHowTo(){
 function openMenu(){
   showModal(`<h3>メニュー</h3><div class="stack" style="margin-top:10px">
    <button class="choice" onclick="closeModal();openHowTo()"><b>遊び方</b></button>
-   ${S?`<button class="choice" onclick="toggleTut()"><b>先輩のガイドを${S.tut&&S.tut.on?'隠す':'表示する'}</b><span>操作の案内を画面の端に出します</span></button>`:''}
+   ${S?`<button class="choice" onclick="toggleTut()"><b>${COACH.name}（${COACH.role}）のアドバイスを${S.tut&&S.tut.on?'隠す':'表示する'}</b><span>操作の案内を画面の端に出します</span></button>`:''}
    <button class="choice" onclick="openArtEditor()"><b>演者の画像を変更する</b><span>手持ちの画像に差し替えられます</span></button>
    ${S?`<button class="choice" onclick="closeModal();if(MG)MG.locked=true;S=null;render()"><b>タイトルに戻る</b><span>進行状況は自動でセーブされています</span></button>`:''}
    <button class="choice" onclick="closeInfo()"><b>閉じる</b></button></div>`);
@@ -1870,11 +1888,12 @@ function salary(){return STAFF.filter(s=>has(s.id)).reduce((a,s)=>a+s.sal,0);}
 function apMax(){return 3+(has('planner')?1:0);}
 function loanRate(){return has('account')?0.02:0.05;}
 function bridgeFee(){return has('account')?1:1.01;}
-function staffAva(s,size){return `<span class="ava" title="${esc(s.name)}" style="width:${size}px;height:${size}px;--c1:${s.f.out};--c2:#150c1b"><svg viewBox="25 14 50 50" aria-hidden="true"><rect width="100" height="130" fill="${s.f.out2}" opacity=".35"/>${fig({x:50,y:121,s:1,...s.f})}</svg></span>`;}
+function staffAva(s,size){if(IMG)return `<span class="ava" title="${esc(s.name)}" style="width:${size}px;height:${size}px;--c1:${s.f.out};--c2:#150c1b"><img alt="" src="${AST}staff-${s.id}.png"></span>`;return `<span class="ava" title="${esc(s.name)}" style="width:${size}px;height:${size}px;--c1:${s.f.out};--c2:#150c1b"><svg viewBox="25 14 50 50" aria-hidden="true"><rect width="100" height="130" fill="${s.f.out2}" opacity=".35"/>${fig({x:50,y:121,s:1,...s.f})}</svg></span>`;}
 function companyHTML(){
   const st=STAFF.filter(s=>has(s.id)),sal=salary();
   const ms=(S.missions||[]).map(m=>`<li>${ic(MICON[m.tid]||'spark')}<span class="mt">${esc(m.title)}</span><span class="mr"><b class="good">+${fmtY(m.cash)}</b>　あと${Math.max(0,m.dl-S.week)}週</span></li>`).join('')||'<li class="muted">依頼は数週間ごとに届きます</li>';
   return `<div class="panel compp"><div class="row" style="justify-content:space-between"><b style="font-size:13px">会社（スタッフと依頼）</b><button class="btn sm" onclick="openStaff()">${ic('users')} スタッフ ${st.length}/${STAFF.length}</button></div>
+   <div class="org"><span>${playerAva(26)}<b>社長</b>あなた</span><span>${coachAva(26)}<b>${COACH.role}</b>${COACH.name}</span></div>
    <div class="staffrow">${st.map(s=>staffAva(s,24)).join('')}<span class="muted" style="font-size:11px">固定費 −${fmtY(sal+office())}/週（事務所${fmtY(office())}${sal?'＋人件費'+fmtY(sal):''}）</span></div>
    ${slotsMax()<3?'<p class="muted" style="font-size:11px;margin-top:4px">信頼度40で 3本目の企画枠が解放</p>':''}<b style="font-size:13px;display:block;margin-top:6px">依頼（ミッション）</b><ul class="missions">${ms}</ul></div>`;
 }
@@ -1930,6 +1949,7 @@ function bestLine(){const b=bestGet(),ks=Object.keys(DIFFS).filter(k=>b[k]);if(!
 
 /* ========== 会場イラスト・グラフ・週替わり演出・トレンド・ライバル公演 ========== */
 function venueArt(v){
+  if(IMG)return `<img class="aimg" alt="" src="${AST}venue-${v.id}.png">`;
   const id='va'+(++artSeq);
   const stars=[[18,12],[44,22],[160,10],[182,26],[120,8],[70,6],[140,30]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1" fill="#fff" opacity=".7"/>`).join('');
   const bg=`<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#140b26"/><stop offset="1" stop-color="#3e2250"/></linearGradient></defs><rect width="200" height="100" fill="url(#${id})"/>${stars}<rect y="88" width="200" height="12" fill="#120a17"/>`;
@@ -2144,6 +2164,16 @@ function openGuide(){
   document.body.appendChild(ov);SND.click();
 }
 
+function openIntro(i){
+  const slides=[
+   [playerAva(110),'あなたは社長',`<b>${esc(coName())}</b> は、できたばかりの小さなコンサート企画会社。あなたはその<b>社長</b>です。<br>仕事は「コンサートプロモーター」。演者と会場を押さえ、お金を集め、チケットを売って、ライブを成功させます。赤字になれば、その責任もあなたが負います。`],
+   [coachAva(110),`${COACH.role}　${COACH.name}`,`社員第1号。現場歴15年のベテランで、あなたの<b>右腕</b>です。<br>画面の左下に出てきて、「次に何をすればいいか」を助言します。経営の最終判断をするのは、社長のあなたです。`],
+   [`<span class="row" style="gap:8px;flex-wrap:nowrap">${RIVALS0.map(r=>rivalAva(r,76)).join('')}</span>`,'ライバルは3社の社長',`業界にはすでに3つの会社があり、あなたの会社は<b>最下位（4位）</b>からのスタート。<br>決められた週（関門）までに順位を上げないと、ライバルに<b>買収</b>されてしまいます。1年後に業界1位なら、あなたの勝ちです。`],
+  ];
+  const s=slides[i];
+  showModal(`<div class="intro"><div class="iimg">${s[0]}</div><div><div class="eyebrow">はじめに ${i+1} / ${slides.length}</div><h3>${s[1]}</h3><p class="lead" style="font-size:14px;color:var(--ink)">${s[2]}</p></div></div>
+   <div class="row" style="margin-top:14px;justify-content:flex-end">${i<slides.length-1?`<button class="btn" onclick="closeModal();renderCoach()">とばす</button><button class="btn primary" onclick="openIntro(${i+1})">次へ ▶</button>`:`<button class="btn fire big" onclick="closeModal();renderCoach()">会社をはじめる ▶</button>`}</div>`,true);
+}
 function tutInfo(){
   if(!S||!S.tut||!S.tut.on||$('#modal-root').innerHTML)return null;
   const d=S.tut.done;
@@ -2174,13 +2204,13 @@ function renderCoach(){
   document.querySelectorAll('.tut-hl').forEach(e=>e.classList.remove('tut-hl'));
   const t=tutInfo();if(!t){box.innerHTML='';return;}
   box.className=t.pos||'left';
-  box.innerHTML=`<div class="coach">${coachAva(52)}<div class="bub"><b>先輩プロモーター</b>${t.t}<button class="x" onclick="skipTut()">ガイドを閉じる</button></div></div>`;
+  box.innerHTML=`<div class="coach">${coachAva(52)}<div class="bub"><b>${COACH.role}　${COACH.name}<small>あなたの右腕</small></b>${t.t}<button class="x" onclick="skipTut()">ガイドを閉じる</button></div></div>`;
   if(t.sel){const el=document.querySelector(t.sel);if(el)el.classList.add('tut-hl');}
 }
 function skipTut(){if(S&&S.tut)S.tut.on=false;renderCoach();save();}
 
 /* ========== 起動 ========== */
-function start(data){FX.setup();if(data&&data.S){S=data.S;migrate();SND.on=S.sound!==false;}render();if(S)resumeFlow();}
+function start(data){FX.setup();{const t=new Image();t.onload=()=>{IMG=true;render();};t.src=AST+'coach.png';}if(data&&data.S){S=data.S;migrate();SND.on=S.sound!==false;}render();if(S)resumeFlow();}
 try{window.claude?.hot?.snapshot?.(()=>({S}));}catch(e){}
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 </script>
