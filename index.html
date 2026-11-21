@@ -626,6 +626,14 @@ button.td:hover:not(:disabled){border-color:var(--brass)}
 .fsnum{position:absolute;top:8px;right:8px;z-index:3;background:var(--fire-hot);color:#2a0a02;font-weight:700;font-size:12px;border-radius:99px;padding:1px 10px}
 .tw.festwk{box-shadow:inset 0 -3px 0 var(--fire-hot)}.tw.festwk::before{content:"フェス";position:absolute;bottom:2px;left:1px;font-size:7px;color:var(--fire-hot)}
 .mdeal .vimg{display:none!important}.mdeal .vopt{padding:6px}
+@media (max-width:560px){
+ .actionbar .in{flex-wrap:wrap;gap:6px 8px;padding-top:6px}
+ .actionbar .hint{flex:1 1 100%;order:-1;min-width:0;white-space:normal!important;font-size:11.5px;line-height:1.4;max-height:2.9em;overflow:hidden;writing-mode:horizontal-tb}
+ .actionbar .spacer{display:none}
+ .actionbar .btn{flex:1 1 auto;min-width:0;padding-left:10px;padding-right:10px;font-size:13px}
+ .actionbar .btn.big{padding-top:10px;padding-bottom:10px;font-size:14px}
+ .actionbar .btn.big:last-child{flex:2 1 auto}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head><body>
