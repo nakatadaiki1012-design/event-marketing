@@ -601,6 +601,7 @@ button.td:hover:not(:disabled){border-color:var(--brass)}
 .org{display:flex;gap:6px 14px;flex-wrap:wrap;margin-top:6px;font-size:12px}.org span{display:inline-flex;align-items:center;gap:5px}.org b{color:var(--brass-soft);font-size:11px}
 .intro{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}.intro .iimg{display:flex;justify-content:center}
 @media (max-width:560px){.intro{grid-template-columns:1fr;text-align:center}.brand.me{display:flex}.brand.me{display:none}}
+.endhero{border-radius:14px;padding:18px 12px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head><body>
@@ -1018,7 +1019,7 @@ function openRanking(){
 function toggleSound(){SND.on=!SND.on;S.sound=SND.on;SND.init();SND.click();render();}
 function titleHTML(){
   const has=!!loadSave();
-  return `<section class="title-screen">
+  return `<section class="title-screen" style="${sceneBg('bg-title',.45)}">
    <div class="curtain l"></div><div class="curtain r"></div>
    <div class="beam b1"></div><div class="beam b2"></div>
    <div class="title-card">
@@ -1675,7 +1676,7 @@ function showHTML(){
    :(S.mg.stage==='setlist'?setlistPanel(a):mgPanel());
   return `<div class="phead"><div class="ttl"><span class="eyebrow">第${S.week}週 ／ 本番当日</span><h2>${esc(a.name)} LIVE ＠ ${esc(v.name)}</h2>${R?`<p class="lead">${sceneLine(R)}</p>`:''}</div>
     </div>
-   <div class="stage-scene ${!R&&S.mg.stage==='setlist'?'small':''}"><div class="beam b1"></div><div class="beam b2"></div>${seatSVG(v.cap,sold,true,a)}${R&&R.legend?'<div class="stamp legend">伝説の夜</div>':R&&R.fill>=0.999?'<div class="stamp">満員御礼</div>':''}</div>${mg}`;
+   <div class="stage-scene ${!R&&S.mg.stage==='setlist'?'small':''}" style="${stageBg(v,R)}"><div class="beam b1"></div><div class="beam b2"></div>${seatSVG(v.cap,sold,true,a)}${R&&R.legend?'<div class="stamp legend">伝説の夜</div>':R&&R.fill>=0.999?'<div class="stamp">満員御礼</div>':''}</div>${mg}`;
 }
 function sceneLine(R){if(R.fill>=0.999)return'開演前から熱気でいっぱい。最高の夜になった！';if(R.fill>=0.8)return'会場は大盛り上がり！';if(R.fill>=0.5)return'後方に空席はあるが、前方のファンは熱く盛り上がった。';return'空席が目立ち、演者もどこか寂しそうだった…。';}
 function animateCounters(){document.querySelectorAll('[data-count]').forEach(el=>{const to=+el.dataset.count,suf=el.dataset.suffix||'',yen=el.dataset.yen;const t0=performance.now(),dur=1600;const step=t=>{const k=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-k,3),v=to*e;el.textContent=(yen?fmtY(v):fmtN(v))+suf;if(k<1)requestAnimationFrame(step);};requestAnimationFrame(step);});}
@@ -1783,7 +1784,7 @@ function endHTML(){
   else{rank='D';title='修行中のイベンター';}
   const mx=Math.max(...list.map(x=>x.v),1);
   return `<div class="endg">
-   <section class="stack" style="text-align:center;align-items:center">
+   <section class="stack endhero" style="text-align:center;align-items:center;${sceneBg(S.bought?'scene-bought':broke?'scene-bankrupt':rk===1?'scene-win':'scene-end',.5)}">
     <div class="eyebrow">1年間の最終結果</div>${S.newBest?'<span class="chip gold">自己ベスト更新！</span>':''}<div class="rank">${rank}</div><h2>${title}</h2>
     ${S.bought?`<p class="lead bad">関門（第${S.week}週）までに順位を上げられなかった。守りに入らず、公約や同時進行で勝負に出よう。</p>`:''}<p class="lead">最終資金 <b class="num" style="color:var(--ink)">${fmtY(S.cash)}</b>（スタート${fmtY(S.startCash||3000000)}）<br>通算損益 <b class="num ${tot>=0?'good':'bad'}">${tot>=0?'+':''}${fmtY(tot)}</b> ／ ${S.history.length}公演 ／ 信頼度 ${Math.round(S.rep)}${S.tax?`<br><small>法人税（利益の30%）−${fmtY(S.tax)} を差し引き済み</small>`:''}</p>
     <p class="muted" style="font-size:12px">難易度：${(DIFFS[S.diff]||DIFFS.normal).name}　獲得バッジ ${nb}/${BADGES.length}　伝説の夜 ${S.legends||0}回　対決 ${S.duelW||0}勝${S.duelL||0}敗　達成した依頼 ${S.mDone||0}件　固定費の合計 ${fmtY(S.payroll||0)}</p>
@@ -2209,7 +2210,16 @@ function renderCoach(){
 function skipTut(){if(S&&S.tut)S.tut.on=false;renderCoach();save();}
 
 /* ========== 起動 ========== */
-function start(data){FX.setup();{const t=new Image();t.onload=()=>{IMG=true;render();};t.src=AST+'coach.png';}if(data&&data.S){S=data.S;migrate();SND.on=S.sound!==false;}render();if(S)resumeFlow();}
+const HAVE={};const OPT=['bg-title','stage-box','stage-horizon','stage-civic','stage-arena','stage-dome','scene-soldout','scene-legend','scene-bankrupt','scene-bought','scene-win','scene-end'];
+function probeOpt(){OPT.forEach(n=>{const t=new Image();t.onload=()=>{HAVE[n]=true;if(!S||S.phase==='end')render();};t.src=AST+n+'.png';});}
+function sceneBg(n,dark){return HAVE[n]?`background-image:linear-gradient(rgba(16,8,18,${dark}),rgba(16,8,18,${Math.min(.95,dark+.25)})),url(${AST}${n}.png);background-size:cover;background-position:center`:'';}
+function stageBg(v,R){
+  if(R&&R.legend&&HAVE['scene-legend'])return sceneBg('scene-legend',.25);
+  if(R&&R.fill>=0.999&&HAVE['scene-soldout'])return sceneBg('scene-soldout',.25);
+  if(HAVE['stage-'+v.id])return sceneBg('stage-'+v.id,.35);
+  return IMG?`background-image:linear-gradient(rgba(16,8,18,.72),rgba(16,8,18,.93)),url(${AST}venue-${v.id}.png);background-size:cover;background-position:center`:'';
+}
+function start(data){FX.setup();probeOpt();{const t=new Image();t.onload=()=>{IMG=true;render();};t.src=AST+'coach.png';}if(data&&data.S){S=data.S;migrate();SND.on=S.sound!==false;}render();if(S)resumeFlow();}
 try{window.claude?.hot?.snapshot?.(()=>({S}));}catch(e){}
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 </script>
