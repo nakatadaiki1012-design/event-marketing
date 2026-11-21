@@ -292,7 +292,7 @@ input[type=range]{width:100%;accent-color:var(--brass);margin:4px 0}
 .marquee i:nth-child(2n){animation-delay:.6s}
 @keyframes blink{50%{opacity:.25}}
 .rivalrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.rivalrow span{font-size:12px;border:1px solid var(--line);border-radius:99px;padding:3px 10px;background:rgba(21,12,27,.7)}
+.rivalrow>span{font-size:12px;border:1px solid var(--line);border-radius:99px;padding:3px 10px;background:rgba(21,12,27,.7)}
 
 /* show */
 .stage-scene{position:relative;border-radius:14px;overflow:hidden;background:radial-gradient(ellipse at 50% 0,#3b1f2c,#100812 70%);border:1px solid var(--brass-dim);padding:8px;flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
@@ -372,7 +372,7 @@ details.more summary{cursor:pointer;color:var(--brass-soft);font-size:12px;margi
 .dhead .dart{position:absolute;right:0;top:0;bottom:0;width:46%;z-index:0;opacity:.9;-webkit-mask-image:linear-gradient(90deg,transparent,#000 40%);mask-image:linear-gradient(90deg,transparent,#000 40%)}
 .dhead .dart svg{width:100%;height:100%;display:block}
 .lineup{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.lineup span{width:84px;height:52px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.25);box-shadow:0 6px 18px rgba(0,0,0,.5)}
+.lineup span{width:clamp(84px,11vw,150px);aspect-ratio:5/3;transition:transform .2s;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.25);box-shadow:0 6px 18px rgba(0,0,0,.5)}
 .lineup svg{width:100%;height:100%;display:block}
 .mrow{display:flex;gap:10px;align-items:center;min-width:0}
 .mi{display:inline-flex;vertical-align:middle;margin-right:6px}
@@ -388,7 +388,7 @@ details.more summary{cursor:pointer;color:var(--brass-soft);font-size:12px;margi
 .rk .rbar{height:8px;border-radius:4px;margin-top:4px}
 .rk.me b{color:var(--brass-soft)}
 .meava{display:flex!important;align-items:center;justify-content:center;background:var(--brass)!important;color:#2a1606}
-.rivalrow span{display:inline-flex;align-items:center;gap:6px}
+.rivalrow>span{display:inline-flex;align-items:center;gap:6px}
 .toast small{display:block;color:var(--mute);font-size:12px;margin-top:1px}
 .toast>span{min-width:0}
 .hearts{color:#ff6fa3;letter-spacing:1px}
@@ -602,6 +602,15 @@ button.td:hover:not(:disabled){border-color:var(--brass)}
 .intro{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}.intro .iimg{display:flex;justify-content:center}
 @media (max-width:560px){.intro{grid-template-columns:1fr;text-align:center}.brand.me{display:flex}.brand.me{display:none}}
 .endhero{border-radius:14px;padding:18px 12px}
+.lineup span:nth-child(odd){transform:rotate(-3deg) translateY(4px)}.lineup span:nth-child(even){transform:rotate(2.5deg)}.lineup span:hover{transform:scale(1.12);z-index:2}
+.evban{height:110px;margin:-18px -20px 12px;border-radius:14px 14px 0 0;overflow:hidden;position:relative}
+.evban img,.evban svg{width:100%;height:100%;object-fit:cover;object-position:50% 12%;display:block}
+.evban::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,var(--velvet-2))}
+.evban .evicon{position:absolute;left:20px;bottom:6px;z-index:1;margin:0}
+.rban{display:grid;grid-template-columns:1.4fr 1fr;height:84px;border-radius:12px;overflow:hidden;position:relative;border:1px solid var(--brass-dim);flex:none}
+.rban>div{overflow:hidden}.rban img,.rban svg{width:100%;height:100%;object-fit:cover;object-position:50% 12%;display:block}
+.rban .rt{position:absolute;left:0;top:0;bottom:0;display:flex;flex-direction:column;justify-content:center;padding:0 16px;background:linear-gradient(90deg,rgba(16,8,18,.85),rgba(16,8,18,.4) 70%,transparent);width:60%}
+.welcome .wposters{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;opacity:.9}.welcome .wposters span{width:92px;aspect-ratio:5/3;border-radius:8px;overflow:hidden;border:1px solid var(--line)}.welcome .wposters img,.welcome .wposters svg{width:100%;height:100%;object-fit:cover;display:block}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head><body>
@@ -1094,7 +1103,7 @@ function hubHTML(){
 function setTab(k){S.mtab=k;SND.click();render();}
 function welcomeHTML(){
   return `<div class="panel welcome">
-    <div class="flameic">${ic('flame','fill')}</div>
+    ${S.projects.length?`<div class="flameic">${ic('flame','fill')}</div>`:`<div class="wposters">${ARTISTS.filter(a=>S.rep>=a.rep).map(a=>`<span>${artistArt(a)}</span>`).join('')}</div>`}
     <h2>${S.projects.length?'公演を選んで宣伝しよう':'最初の公演を企画しよう'}</h2>
     <div class="flow"><span><i>1</i>演者</span><span><i>2</i>会場と日程</span><span><i>3</i>契約と価格</span><span><i>4</i>資金集め</span><span><i>5</i>宣伝</span><span><i>6</i>本番</span></div>
     <p class="lead">公演は${slotsMax()}本まで同時に進められる。関門までに順位を上げないと買収される。何もしない週も固定費は出ていく。</p>
@@ -1456,7 +1465,7 @@ function eventModal(pid,eid){
   const p=proj(pid),ev=EVENTS.find(e=>e.id===eid);if(!p){runQueue();return;}
   curEvent=ev;curPid=pid;const a=A(p.artist);curTitle=`${a.name}：${ev.title}`;
   curChoices=ev.choices(p);
-  showModal(`<div class="evhead">${avatar(a,60)}<div class="evicon" style="color:var(--fire-hot)">${ic(ev.icon,ev.icon==='flame'?'fill':'')}</div></div><div class="eyebrow">${esc(a.name)} 公演 ／ 判断が必要</div><h3>${ev.title}</h3><p class="lead">${ev.text}</p><div class="choices">${choiceBtns()}</div>`);
+  showModal(`<div class="evban">${artistArt(a)}<div class="evicon" style="color:var(--fire-hot)">${ic(ev.icon,ev.icon==='flame'?'fill':'')}</div></div><div class="eyebrow">${esc(a.name)} 公演 ／ 判断が必要</div><h3>${ev.title}</h3><p class="lead">${ev.text}</p><div class="choices">${choiceBtns()}</div>`);
 }
 function seasonModal(w){
   const se=SEASONAL[w];curTitle=se.title;curChoices=se.choices();
@@ -1730,7 +1739,7 @@ function waterfallSVG(R){
 function resultHTML(){
   const R=S.result,a=A(R.artist),v=Vn(R.venue);
   const nextLabel=S.showQueue.length>1?'次の本番へ':(liquid()<0)?'結果を見る':'司令室に戻る';
-  const head=`<div class="phead"><div class="ttl"><span class="eyebrow">収支報告</span><h2>${esc(a.name)} ＠ ${esc(v.name)}</h2></div></div>`;
+  const head=`<div class="rban"><div>${artistArt(a)}</div><div>${venueArt(v)}</div><div class="rt"><span class="eyebrow">収支報告</span><h2>${esc(a.name)} ＠ ${esc(v.name)}</h2></div></div>`;
   if(R.cancelled){
     return head+`<div class="panel" style="text-align:center;padding:24px"><div class="evicon" style="margin:0 auto 8px;color:var(--bad)">${ic(R.cancelled==='artist'?'alert':'storm')}</div>
       <h2 class="bad">公演中止</h2><p class="lead" style="margin-top:6px">${R.cancelled==='artist'?'演者が急病で出演できなくなりました。チケットは全額払い戻し。出演料は返金されました。':'大型台風が直撃し、公演は中止に。チケットは全額払い戻しです。'}</p>
@@ -2219,7 +2228,7 @@ function stageBg(v,R){
   if(HAVE['stage-'+v.id])return sceneBg('stage-'+v.id,.35);
   return IMG?`background-image:linear-gradient(rgba(16,8,18,.72),rgba(16,8,18,.93)),url(${AST}venue-${v.id}.png);background-size:cover;background-position:center`:'';
 }
-function start(data){FX.setup();probeOpt();{const t=new Image();t.onload=()=>{IMG=true;render();};t.src=AST+'coach.png';}if(data&&data.S){S=data.S;migrate();SND.on=S.sound!==false;}render();if(S)resumeFlow();}
+function start(data){FX.setup();probeOpt();{const t=new Image();t.onload=()=>{IMG=true;if(!$('#modal-root').innerHTML)render();};t.src=AST+'coach.png';}if(data&&data.S){S=data.S;migrate();SND.on=S.sound!==false;}render();if(S)resumeFlow();}
 try{window.claude?.hot?.snapshot?.(()=>({S}));}catch(e){}
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 </script>
