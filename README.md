@@ -45,11 +45,11 @@
 7. **収支報告** … お金の流れ（滝グラフ）と振り返り
 
 ## 画像について
-- `assets/` に、ゲームで使う画像（PNG）が入っています。`index.html` は、このフォルダの画像を読み込みます（フォルダが無い場合は、内蔵のイラストで表示します）。
-- 同じファイル名で画像を置き換えると、ゲーム内の絵が差し替わります。
-  - `artist-○○.png`（演者・背景つき 800×480）／`artist-○○-cut.png`（演者・背景なし）
-  - `venue-○○.png`（会場 800×400）
-  - `player.png`（社長＝プレイヤー）／`coach.png`（チーフプロデューサー相沢）／`rival-0〜2.png`（ライバル社長）／`staff-○○.png`（スタッフ）
-  - `merch-演者-商品.png`（グッズ 128×128）
+- `assets/` に、ゲームで使う画像（WebP）が入っています。`index.html` は、このフォルダの画像を読み込みます（フォルダが無い場合は、内蔵のイラストで表示します）。
+- 同じファイル名（.webp）で画像を置き換えると、ゲーム内の絵が差し替わります。
+  - `artist-○○.webp`（演者・背景つき 800×480）／`artist-○○-cut.webp`（演者・背景なし）
+  - `venue-○○.webp`（会場 800×400）
+  - `player.webp`（社長＝プレイヤー）／`coach.webp`（チーフプロデューサー相沢）／`rival-0〜2.webp`（ライバル社長）／`staff-○○.webp`（スタッフ）
+  - `merch-演者-商品.webp`（グッズ 128×128）
 - `tools/export-images.js` は、内蔵イラストから画像を書き出し直すためのスクリプトです。
-- あると使われる追加の画像（無くても動きます）：`bg-title.jpg`（タイトル背景）／`stage-box|horizon|civic|arena|dome.jpg`（本番の会場内）／`scene-soldout.jpg` `scene-legend.jpg`（満員・伝説の夜）／`scene-bankrupt.jpg` `scene-bought.jpg` `scene-win.jpg` `scene-end.jpg`（結末）。いずれも横長16:9。
+- あると使われる追加の画像（無くても動きます）：`bg-title.webp`（タイトル背景）／`stage-box|horizon|civic|arena|dome.webp`（本番の会場内）／`scene-soldout.webp` `scene-legend.webp`（満員・伝説の夜）／`scene-bankrupt.webp` `scene-bought.webp` `scene-win.webp` `scene-end.webp`（結末）。いずれも横長16:9。

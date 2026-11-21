@@ -739,15 +739,15 @@ function artistDecor(a,id){
 // opts.bg: 背景を描くか / opts.fit: preserveAspectRatio
 function artistArt(a,opts={}){
   if(CUSTOM[a.id])return `<svg viewBox="0 0 200 120" preserveAspectRatio="${opts.fit&&opts.fit.includes('meet')?'xMaxYMax meet':'xMidYMid slice'}" aria-hidden="true"><image href="${CUSTOM[a.id]}" x="0" y="0" width="200" height="120" preserveAspectRatio="xMidYMid slice"/></svg>`;
-  if(IMG)return `<img class="aimg" alt="" src="${AST}artist-${a.id}.png">`;
+  if(IMG)return `<img class="aimg" alt="" decoding="async" loading="lazy" src="${AST}artist-${a.id}.webp">`;
   const id='ag'+(++artSeq),bg=opts.bg!==false;
   const back=bg?`<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a.c[0]}"/><stop offset="1" stop-color="${a.c[1]}"/></linearGradient></defs><rect x="-60" y="-10" width="320" height="140" fill="url(#${id})"/>`:'';
   const spot=`<defs><radialGradient id="${id}s" cx=".5" cy="0" r=".9"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><path d="M100 -10 L36 122 L164 122Z" fill="url(#${id}s)"/>`;
   return `<svg viewBox="${opts.vb||'0 0 200 120'}" preserveAspectRatio="${opts.fit||'xMidYMid slice'}" aria-hidden="true">${back}${spot}${artistDecor(a)}${artistFigs(a)}</svg>`;
 }
-function avatar(a,size){if(IMG&&!CUSTOM[a.id])return `<span class="ava" style="width:${size}px;height:${size}px;--c1:${a.c[0]};--c2:${a.c[1]}"><img alt="" src="${AST}artist-${a.id}-face.png"></span>`;return `<span class="ava" style="width:${size}px;height:${size}px;--c1:${a.c[0]};--c2:${a.c[1]}">${artistArt(a)}</span>`;}
+function avatar(a,size){if(IMG&&!CUSTOM[a.id])return `<span class="ava" style="width:${size}px;height:${size}px;--c1:${a.c[0]};--c2:${a.c[1]}"><img alt="" src="${AST}artist-${a.id}-face.webp"></span>`;return `<span class="ava" style="width:${size}px;height:${size}px;--c1:${a.c[0]};--c2:${a.c[1]}">${artistArt(a)}</span>`;}
 function merchArt(mid,a,size=44){
-  if(IMG)return `<img alt="" width="${size}" height="${size}" style="flex:none" src="${AST}merch-${a.id}-${mid}.png">`;
+  if(IMG)return `<img alt="" decoding="async" loading="lazy" width="${size}" height="${size}" style="flex:none" src="${AST}merch-${a.id}-${mid}.webp">`;
   const c1=a.c[0],c2=a.c[1],n=a.logo,id='mg'+(++artSeq);let g='';
   if(mid==='tee')g=`<path d="M21 9 L8 16 L13 27 L19 24 L19 57 L45 57 L45 24 L51 27 L56 16 L43 9 Q38 15 32 15 Q26 15 21 9Z" fill="${c1}" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="32" y="38" text-anchor="middle" font-size="${n.length>5?6:7.5}" font-weight="700" fill="${c2}" font-family="sans-serif">${n}</text><path d="M24 43 h16" stroke="${c2}" stroke-width="1.4"/>`;
   if(mid==='towel')g=`<g transform="rotate(-14 32 32)"><rect x="5" y="23" width="54" height="18" rx="2" fill="${c2}"/><rect x="5" y="23" width="54" height="3.2" fill="${c1}"/><rect x="5" y="37.8" width="54" height="3.2" fill="${c1}"/><text x="32" y="35.2" text-anchor="middle" font-size="${n.length>5?6:7}" font-weight="700" fill="${c1}" font-family="sans-serif">${n}</text><path d="M5 24 l-3 1 M5 28 l-3 0 M5 32 l-3 0 M5 36 l-3 0 M5 40 l-3 -1 M59 24 l3 1 M59 28 l3 0 M59 32 l3 0 M59 36 l3 0 M59 40 l3 -1" stroke="${c2}" stroke-width="1.2"/></g>`;
@@ -885,11 +885,11 @@ const BADGES=[
 ];
 let CUSTOM={};try{CUSTOM=JSON.parse(localStorage.getItem('manin-art')||'{}')||{};}catch(e){CUSTOM={};}
 function saveCustom(){try{localStorage.setItem('manin-art',JSON.stringify(CUSTOM));}catch(e){toast('画像が大きすぎて保存できませんでした','bad');}}
-function rivalAva(r,size){if(IMG)return `<span class="ava" style="width:${size}px;height:${size}px;--c1:${r.c};--c2:#150c1b"><img alt="" src="${AST}rival-${Math.max(0,RIVALS0.findIndex(x=>x.name===r.name))}.png"></span>`;return `<span class="ava" style="width:${size}px;height:${size}px;--c1:${r.c};--c2:#150c1b"><svg viewBox="25 14 50 50" aria-hidden="true"><rect x="0" y="0" width="100" height="130" fill="${r.c}" opacity=".45"/>${fig({x:50,y:121,s:1,...r.f})}</svg></span>`;}
+function rivalAva(r,size){if(IMG)return `<span class="ava" style="width:${size}px;height:${size}px;--c1:${r.c};--c2:#150c1b"><img alt="" src="${AST}rival-${Math.max(0,RIVALS0.findIndex(x=>x.name===r.name))}.webp"></span>`;return `<span class="ava" style="width:${size}px;height:${size}px;--c1:${r.c};--c2:#150c1b"><svg viewBox="25 14 50 50" aria-hidden="true"><rect x="0" y="0" width="100" height="130" fill="${r.c}" opacity=".45"/>${fig({x:50,y:121,s:1,...r.f})}</svg></span>`;}
 const COACH={name:'相沢',role:'チーフプロデューサー',desc:'社員第1号。現場歴15年のベテランで、あなたの右腕'};
-function playerAva(size){if(IMG)return `<span class="ava" style="width:${size}px;height:${size}px;--c1:#1e3a7a;--c2:#e9b64f"><img alt="" src="${AST}player.png"></span>`;return `<span class="ava" style="width:${size}px;height:${size}px;--c1:#1e3a7a;--c2:#e9b64f"><svg viewBox="25 14 50 50" aria-hidden="true"><rect x="0" y="0" width="100" height="130" fill="#7cc7ff" opacity=".35"/>${fig({x:50,y:121,s:1,hair:'short',hc:'#1c1a22',skin:SKIN[0],out:'#1e2f5a',out2:'#e9b64f'})}</svg></span>`;}
+function playerAva(size){if(IMG)return `<span class="ava" style="width:${size}px;height:${size}px;--c1:#1e3a7a;--c2:#e9b64f"><img alt="" src="${AST}player.webp"></span>`;return `<span class="ava" style="width:${size}px;height:${size}px;--c1:#1e3a7a;--c2:#e9b64f"><svg viewBox="25 14 50 50" aria-hidden="true"><rect x="0" y="0" width="100" height="130" fill="#7cc7ff" opacity=".35"/>${fig({x:50,y:121,s:1,hair:'short',hc:'#1c1a22',skin:SKIN[0],out:'#1e2f5a',out2:'#e9b64f'})}</svg></span>`;}
 function coName(){return (S&&S.company)||'あなたの会社';}
-function coachAva(size){if(IMG)return `<span class="ava" style="width:${size}px;height:${size}px;--c1:#3a2a50;--c2:#e9b64f"><img alt="" src="${AST}coach.png"></span>`;return `<span class="ava" style="width:${size}px;height:${size}px;--c1:#3a2a50;--c2:#e9b64f"><svg viewBox="25 14 50 50" aria-hidden="true"><rect x="0" y="0" width="100" height="130" fill="#e9b64f" opacity=".35"/>${fig({x:50,y:121,s:1,hair:'short',hc:'#4a3020',skin:SKIN[1],out:'#3a2a50',out2:'#e9b64f'})}</svg></span>`;}
+function coachAva(size){if(IMG)return `<span class="ava" style="width:${size}px;height:${size}px;--c1:#3a2a50;--c2:#e9b64f"><img alt="" src="${AST}coach.webp"></span>`;return `<span class="ava" style="width:${size}px;height:${size}px;--c1:#3a2a50;--c2:#e9b64f"><svg viewBox="25 14 50 50" aria-hidden="true"><rect x="0" y="0" width="100" height="130" fill="#e9b64f" opacity=".35"/>${fig({x:50,y:121,s:1,hair:'short',hc:'#4a3020',skin:SKIN[1],out:'#3a2a50',out2:'#e9b64f'})}</svg></span>`;}
 const relOf=id=>(S&&S.rel&&S.rel[id])||0;
 const feeOf=a=>Math.round(a.fee*(1-0.05*relOf(a.id)));
 function hearts(n){return `<span class="hearts">${'♥'.repeat(n)}<i>${'♥'.repeat(5-n)}</i></span>`;}
@@ -1872,7 +1872,7 @@ function seatSVG(cap,sold,live,a){
    <defs><linearGradient id="stg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6d68c"/><stop offset="1" stop-color="#8a6727"/></linearGradient></defs>
    <path d="M150 2 H270 L262 34 H158 Z" fill="url(#stg)"/>
    <text x="210" y="24" text-anchor="middle" font-size="11" fill="#2a1606" font-weight="700" letter-spacing="4">STAGE</text>
-   ${live&&a?`<g class="lasers">${[[-40,-92],[60,-92],[140,-92],[280,-92],[360,-92],[460,-92],[0,40],[420,40]].map(([x,y],k)=>`<line x1="210" y1="0" x2="${x}" y2="${y}" stroke="${[a.c[1],'#ff6fa3','#7cc7ff','#ffd23f'][k%4]}" stroke-width="1.6" style="animation-delay:${(k*0.23).toFixed(2)}s"/>`).join('')}</g><ellipse cx="210" cy="14" rx="70" ry="10" fill="rgba(255,242,210,.25)"/>${CUSTOM[a.id]?`<clipPath id="stc"><rect x="150" y="-86" width="120" height="94" rx="8"/></clipPath><image href="${CUSTOM[a.id]}" x="150" y="-86" width="120" height="94" preserveAspectRatio="xMidYMid slice" clip-path="url(#stc)"/>`:(IMG?`<g class="perf"><image href="${AST}artist-${a.id}-cut.png" x="130" y="-84" width="160" height="96"/></g>`:`<g class="perf"><g transform="translate(130 -84) scale(.8)">${artistFigs(a)}</g></g>`)}<text x="210" y="50" text-anchor="middle" font-size="12" fill="var(--spot)" font-weight="700">${esc(a.name)}</text>`:''}
+   ${live&&a?`<g class="lasers">${[[-40,-92],[60,-92],[140,-92],[280,-92],[360,-92],[460,-92],[0,40],[420,40]].map(([x,y],k)=>`<line x1="210" y1="0" x2="${x}" y2="${y}" stroke="${[a.c[1],'#ff6fa3','#7cc7ff','#ffd23f'][k%4]}" stroke-width="1.6" style="animation-delay:${(k*0.23).toFixed(2)}s"/>`).join('')}</g><ellipse cx="210" cy="14" rx="70" ry="10" fill="rgba(255,242,210,.25)"/>${CUSTOM[a.id]?`<clipPath id="stc"><rect x="150" y="-86" width="120" height="94" rx="8"/></clipPath><image href="${CUSTOM[a.id]}" x="150" y="-86" width="120" height="94" preserveAspectRatio="xMidYMid slice" clip-path="url(#stc)"/>`:(IMG?`<g class="perf"><image href="${AST}artist-${a.id}-cut.webp" x="130" y="-84" width="160" height="96"/></g>`:`<g class="perf"><g transform="translate(130 -84) scale(.8)">${artistFigs(a)}</g></g>`)}<text x="210" y="50" text-anchor="middle" font-size="12" fill="var(--spot)" font-weight="700">${esc(a.name)}</text>`:''}
    ${dots}${cap>n?`<text x="410" y="282" text-anchor="end" font-size="10" fill="var(--faint)">● 1つ ≈ ${fmtN(cap/n)}席</text>`:''}</svg>`;
 }
 function chartSVG(p){
@@ -1945,7 +1945,7 @@ function salary(){return STAFF.filter(s=>has(s.id)).reduce((a,s)=>a+s.sal,0);}
 function apMax(){return 3+(has('planner')?1:0);}
 function loanRate(){return has('account')?0.02:0.05;}
 function bridgeFee(){return has('account')?1:1.01;}
-function staffAva(s,size){if(IMG)return `<span class="ava" title="${esc(s.name)}" style="width:${size}px;height:${size}px;--c1:${s.f.out};--c2:#150c1b"><img alt="" src="${AST}staff-${s.id}.png"></span>`;return `<span class="ava" title="${esc(s.name)}" style="width:${size}px;height:${size}px;--c1:${s.f.out};--c2:#150c1b"><svg viewBox="25 14 50 50" aria-hidden="true"><rect width="100" height="130" fill="${s.f.out2}" opacity=".35"/>${fig({x:50,y:121,s:1,...s.f})}</svg></span>`;}
+function staffAva(s,size){if(IMG)return `<span class="ava" title="${esc(s.name)}" style="width:${size}px;height:${size}px;--c1:${s.f.out};--c2:#150c1b"><img alt="" src="${AST}staff-${s.id}.webp"></span>`;return `<span class="ava" title="${esc(s.name)}" style="width:${size}px;height:${size}px;--c1:${s.f.out};--c2:#150c1b"><svg viewBox="25 14 50 50" aria-hidden="true"><rect width="100" height="130" fill="${s.f.out2}" opacity=".35"/>${fig({x:50,y:121,s:1,...s.f})}</svg></span>`;}
 function companyHTML(){
   const st=STAFF.filter(s=>has(s.id)),sal=salary();
   const ms=(S.missions||[]).map(m=>`<li>${ic(MICON[m.tid]||'spark')}<span class="mt">${esc(m.title)}</span><span class="mr"><b class="good">+${fmtY(m.cash)}</b>　あと${Math.max(0,m.dl-S.week)}週</span></li>`).join('')||'<li class="muted">依頼は数週間ごとに届きます</li>';
@@ -2006,7 +2006,7 @@ function bestLine(){const b=bestGet(),ks=Object.keys(DIFFS).filter(k=>b[k]);if(!
 
 /* ========== 会場イラスト・グラフ・週替わり演出・トレンド・ライバル公演 ========== */
 function venueArt(v){
-  if(IMG)return `<img class="aimg" alt="" src="${AST}venue-${v.id}.png">`;
+  if(IMG)return `<img class="aimg" alt="" decoding="async" loading="lazy" src="${AST}venue-${v.id}.webp">`;
   const id='va'+(++artSeq);
   const stars=[[18,12],[44,22],[160,10],[182,26],[120,8],[70,6],[140,30]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1" fill="#fff" opacity=".7"/>`).join('');
   const bg=`<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#140b26"/><stop offset="1" stop-color="#3e2250"/></linearGradient></defs><rect width="200" height="100" fill="url(#${id})"/>${stars}<rect y="88" width="200" height="12" fill="#120a17"/>`;
@@ -2290,15 +2290,15 @@ function skipTut(){if(S&&S.tut)S.tut.on=false;renderCoach();save();}
 
 /* ========== 起動 ========== */
 const HAVE={};const OPT=['bg-title','stage-box','stage-horizon','stage-civic','stage-arena','stage-dome','scene-soldout','scene-legend','scene-bankrupt','scene-bought','scene-win','scene-end'];
-function probeOpt(){OPT.forEach(n=>{const t=new Image();t.onload=()=>{HAVE[n]=true;if(!S||S.phase==='end')render();};t.src=AST+n+'.jpg';});}
-function sceneBg(n,dark){return HAVE[n]?`background-image:linear-gradient(rgba(16,8,18,${dark}),rgba(16,8,18,${Math.min(.95,dark+.25)})),url(${AST}${n}.jpg);background-size:cover;background-position:center`:'';}
+function probeOpt(){OPT.forEach(n=>{const t=new Image();t.onload=()=>{HAVE[n]=true;if(!S||S.phase==='end')render();};t.src=AST+n+'.webp';});}
+function sceneBg(n,dark){return HAVE[n]?`background-image:linear-gradient(rgba(16,8,18,${dark}),rgba(16,8,18,${Math.min(.95,dark+.25)})),url(${AST}${n}.webp);background-size:cover;background-position:center`:'';}
 function stageBg(v,R){
   if(R&&R.legend&&HAVE['scene-legend'])return sceneBg('scene-legend',.25);
   if(R&&R.fill>=0.999&&HAVE['scene-soldout'])return sceneBg('scene-soldout',.25);
   if(HAVE['stage-'+v.id])return sceneBg('stage-'+v.id,.35);
-  return IMG?`background-image:linear-gradient(rgba(16,8,18,.72),rgba(16,8,18,.93)),url(${AST}venue-${v.id}.png);background-size:cover;background-position:center`:'';
+  return IMG?`background-image:linear-gradient(rgba(16,8,18,.72),rgba(16,8,18,.93)),url(${AST}venue-${v.id}.webp);background-size:cover;background-position:center`:'';
 }
-function start(data){FX.setup();probeOpt();{const t=new Image();t.onload=()=>{IMG=true;if(!$('#modal-root').innerHTML)render();};t.src=AST+'coach.png';}if(data&&data.S){S=data.S;migrate();SND.on=S.sound!==false;}render();if(S)resumeFlow();}
+function start(data){FX.setup();setTimeout(probeOpt,1500);{const t=new Image();t.onload=()=>{IMG=true;if(!$('#modal-root').innerHTML)render();};t.src=AST+'coach.webp';}if(data&&data.S){S=data.S;migrate();SND.on=S.sound!==false;}render();if(S)resumeFlow();}
 try{window.claude?.hot?.snapshot?.(()=>({S}));}catch(e){}
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 </script>
