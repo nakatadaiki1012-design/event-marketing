@@ -634,6 +634,9 @@ button.td:hover:not(:disabled){border-color:var(--brass)}
  .actionbar .btn.big{padding-top:10px;padding-bottom:10px;font-size:14px}
  .actionbar .btn.big:last-child{flex:2 1 auto}
 }
+#savedpill{position:fixed;left:50%;top:calc(58px + env(safe-area-inset-top,0px));transform:translate(-50%,-8px);z-index:47;background:rgba(33,19,42,.95);border:1px solid var(--good);color:var(--good);font-size:12px;font-weight:700;border-radius:99px;padding:3px 12px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;white-space:nowrap}
+#savedpill.ng{border-color:var(--bad);color:var(--bad)}
+#savedpill.show{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head><body>
@@ -1007,7 +1010,21 @@ function genSched(){
 function slotDate(w,d){const base=new Date(2027,0,4);return new Date(base.getTime()+((w-1)*7+(d==='we'?5:2))*86400000);}
 function fmtDate(dt){return `${dt.getMonth()+1}/${dt.getDate()}(${'日月火水木金土'[dt.getDay()]})`;}
 function parseSlot(k){const [w,d]=k.split('-');return{w:+w,d};}
-function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S));}catch(e){}}
+let saveSig='',saveWarned=false,saveTimer=0;
+function save(){
+  let ok=true;try{localStorage.setItem(SAVE_KEY,JSON.stringify(S));}catch(e){ok=false;}
+  if(!S)return;
+  const sig=[S.phase,S.week,S.projects.length,S.history.length,S.company].join('|');
+  if(sig===saveSig)return;const first=!saveSig;saveSig=sig;if(first)return;
+  if(!ok){if(!saveWarned){saveWarned=true;flashSaved(false);}return;}
+  flashSaved(true);
+}
+function flashSaved(ok){
+  let el=$('#savedpill');if(!el){el=document.createElement('div');el.id='savedpill';el.setAttribute('role','status');document.body.appendChild(el);}
+  el.className=ok?'':'ng';el.innerHTML=ok?'✓ 保存しました':'⚠ このブラウザでは保存できません（シークレットモード等）';
+  el.classList.remove('show');void el.offsetWidth;el.classList.add('show');
+  clearTimeout(saveTimer);saveTimer=setTimeout(()=>el.classList.remove('show'),ok?1600:5000);
+}
 function loadSave(){try{const s=localStorage.getItem(SAVE_KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
 function clearSave(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
 
