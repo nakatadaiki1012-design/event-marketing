@@ -611,6 +611,8 @@ button.td:hover:not(:disabled){border-color:var(--brass)}
 .rban>div{overflow:hidden}.rban img,.rban svg{width:100%;height:100%;object-fit:cover;object-position:50% 12%;display:block}
 .rban .rt{position:absolute;left:0;top:0;bottom:0;display:flex;flex-direction:column;justify-content:center;padding:0 16px;background:linear-gradient(90deg,rgba(16,8,18,.85),rgba(16,8,18,.4) 70%,transparent);width:60%}
 .welcome .wposters{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;opacity:.9}.welcome .wposters span{width:92px;aspect-ratio:5/3;border-radius:8px;overflow:hidden;border:1px solid var(--line)}.welcome .wposters img,.welcome .wposters svg{width:100%;height:100%;object-fit:cover;display:block}
+.adv{display:inline-flex;align-items:center;gap:7px;min-width:0}.adv b{color:var(--brass-soft);font-size:12px;white-space:nowrap}
+@media (max-width:560px){.actionbar .hint{display:block!important;white-space:normal;font-size:11px;line-height:1.3}.adv .ava,.adv b{display:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head><body>
@@ -842,7 +844,7 @@ const RIVALS0=[
  {name:'サンライズ興行',boss:'日向社長',cash:6000000,g:0.022,c:'#ff8a3d',f:{hair:'spiky',hc:'#ff8a3d',skin:SKIN[1],out:'#5a2a10',out2:'#ffd23f'},
   say:{book:'熱さなら負けないぜ！この日はもらった！',up:'くっ、抜かれた！燃えてきたぜ！',down:'へへっ、抜かせてもらったぜ！'}},
 ];
-const DIFFS={easy:{name:'やさしい',cash:5000000,rg:0.82,desc:'資金500万円。ライバルの成長がゆっくり。はじめての人向け。'},normal:{name:'ふつう',cash:3000000,rg:1,desc:'資金300万円。標準のルール。'},hard:{name:'むずかしい',cash:2000000,rg:1.12,desc:'資金200万円。ライバルが手ごわい。'}};
+const DIFFS={easy:{name:'やさしい',cash:5000000,rg:0.75,desc:'資金500万円。ライバルの成長がゆっくり。はじめての人向け。'},normal:{name:'ふつう',cash:3000000,rg:1,desc:'資金300万円。標準のルール。'},hard:{name:'むずかしい',cash:2000000,rg:1.12,desc:'資金200万円。ライバルが手ごわい。'}};
 const BADGES=[
  ['first','はじめての公演','企画から精算まで、プロモーターの一連の仕事をやり遂げた。'],
  ['profit','黒字達成','損益分岐点を超えて売れば、利益が出る。'],
@@ -1158,7 +1160,7 @@ function footHTML(){
   if(S.phase!=='hub')return'';
   const shows=S.projects.filter(p=>p.wk===S.week+1).length;
   const end=S.week>=SEASON;
-  const hint=S.projects.length===0?'まずは公演を企画しよう（行動力1）':S.ap>0?`行動力が残っています。宣伝に使うか、新しい公演を企画しよう`:shows?'来週は本番！':'準備ができたら次の週へ';
+  const hint=`<span class="adv">${coachAva(26)}<b>${COACH.name}</b>${advice()}</span>`;
   return `<footer class="actionbar"><div class="in">
     <span class="muted" style="font-size:12px">行動力</span><span class="apdots">${Array.from({length:apMax()},(_,i)=>i).map(i=>`<i class="${i<S.ap?'on':''}"></i>`).join('')}</span>
     <span class="hint">${hint}</span><span class="spacer"></span>
@@ -1797,7 +1799,7 @@ function endHTML(){
     <div class="eyebrow">1年間の最終結果</div>${S.newBest?'<span class="chip gold">自己ベスト更新！</span>':''}<div class="rank">${rank}</div><h2>${title}</h2>
     ${S.bought?`<p class="lead bad">関門（第${S.week}週）までに順位を上げられなかった。守りに入らず、公約や同時進行で勝負に出よう。</p>`:''}<p class="lead">最終資金 <b class="num" style="color:var(--ink)">${fmtY(S.cash)}</b>（スタート${fmtY(S.startCash||3000000)}）<br>通算損益 <b class="num ${tot>=0?'good':'bad'}">${tot>=0?'+':''}${fmtY(tot)}</b> ／ ${S.history.length}公演 ／ 信頼度 ${Math.round(S.rep)}${S.tax?`<br><small>法人税（利益の30%）−${fmtY(S.tax)} を差し引き済み</small>`:''}</p>
     <p class="muted" style="font-size:12px">難易度：${(DIFFS[S.diff]||DIFFS.normal).name}　獲得バッジ ${nb}/${BADGES.length}　伝説の夜 ${S.legends||0}回　対決 ${S.duelW||0}勝${S.duelL||0}敗　達成した依頼 ${S.mDone||0}件　固定費の合計 ${fmtY(S.payroll||0)}</p>
-    <button class="btn fire big" onclick="clearSave();newGame()">もう一度プレイ</button>
+    <button class="btn fire big" onclick="clearSave();newGame(S.diff,false)">もう一度プレイ（${(DIFFS[S.diff]||DIFFS.normal).name}）</button>
    </section>
    <div class="stack"><div class="panel"><h3>業界ランキング</h3><div class="racebox">${raceSVG(560,150)}</div><div class="podium" style="margin-top:8px">${list.map((x,i)=>`<div class="pod ${x.me?'me':''}"><span class="num">${i+1}位</span><span>${esc(x.name)}</span><div class="bar" style="width:${Math.max(1,x.v/mx*70)}%;background:${x.c}"><span>${fmtY(x.v)}</span></div></div>`).join('')}</div></div>
     <div class="panel"><h3>獲得バッジ ${nb} / ${BADGES.length}</h3><div style="max-height:150px;overflow:auto;margin-top:6px">${badgeGrid()}</div></div>
@@ -1862,7 +1864,7 @@ function openHowTo(){
    <div class="tip"><b>会社を育てる：</b>スタッフを雇うと効果がずっと続くが、人件費が毎週かかる。数週間ごとに届く「依頼」を達成すると報酬がもらえる。</div>
    <div class="tip"><b>セットリスト：</b>本番の前に5曲の曲順を決める。点線の「盛り上がりの波」に曲のテンポを合わせ、最初と最後にヒット曲を置くと満足度が上がる。</div>
    <div class="tip"><b>お金の流れ：</b>前売の代金は本番の2週後に入金。年末には利益の30%が法人税として引かれる。</div>
-   <div class="tip"><b>関門：</b>決められた週までに順位を上げないと、ライバルに買収されてゲームオーバー（「ふつう」では第20週までに3位以内、第36週までに2位以内。届かなくても4週間の猶予あり）。</div>
+   <div class="tip"><b>関門：</b>決められた週までに順位を上げないと、ライバルに買収されてゲームオーバー（「ふつう」では第20週までに3位以内、第36週までに2位以内。「やさしい」はもっと遅い。届かなくても4週間の猶予あり）。</div>
    <div class="tip"><b>勝負に出る：</b>「公約」で満員を宣言すると話題になり、達成で賞金と信頼度。満員を続けると需要が増え、すべて完璧なら「伝説の夜」。毎週の「チャンス」も見逃さないで。</div>
    <div class="tip"><b>勝利条件：</b>関門を越えて、52週後の資産で1位を目指す。資金がマイナスになると倒産。事務所の固定費は毎週かかる。</div>
   </div><div class="row" style="margin-top:14px"><button class="btn primary" onclick="closeInfo()">わかった</button></div>`,true);
@@ -2096,7 +2098,8 @@ function fundBars(t,p){
 }
 
 /* ========== 関門・固定費・公約・連勝・伝説・対決・今週のチャンス ========== */
-function gatesList(){const sh=S.diff==='easy'?4:S.diff==='hard'?-2:0;return [{wk:20+sh,rank:3},{wk:36+sh,rank:2}];}
+function gatesList(){const sh=S.diff==='easy'?4:S.diff==='hard'?-2:0;return [{wk:20+sh,rank:3},{wk:36+sh+(S.diff==='easy'?4:0),rank:2}];}
+function graceLen(){return S.diff==='easy'?8:4;}
 function nextGate(){return gatesList().find(g=>!(S.gates&&S.gates[g.rank]));}
 function office(){return [50000,100000,150000,200000][Math.min(3,Math.floor((Math.min(S.week,SEASON)-1)/13))];}
 function streakFactor(){return 1+0.04*Math.min(5,(S&&S.streak)||0);}
@@ -2104,7 +2107,7 @@ function gateBarHTML(){
   const g=nextGate(),rk=myRank(),l=ranking();
   const st=S.streak?`<span class="gstreak" title="満員を続けると次の公演の需要が増える">${ic('flame','fill')}連続満員 ×${S.streak}<small>需要+${Math.round((streakFactor()-1)*100)}%</small></span>`:'';
   if(!g)return `<div class="gatebar clear"><span class="gflag">${ic('crown','fill')}</span><b>関門をすべて突破！</b><span class="muted">あとは第52週の最終順位で勝負。目指せ1位</span>${st}</div>`;
-  const dl=g.wk+(S.grace===g.rank?4:0),left=dl-S.week,target=l[g.rank-1],gap=rk>g.rank?Math.max(0,target.v-assets()):0;
+  const dl=g.wk+(S.grace===g.rank?graceLen():0),left=dl-S.week,target=l[g.rank-1],gap=rk>g.rank?Math.max(0,target.v-assets()):0;
   const total=g.wk,pct=clamp(S.week/dl*100,0,100);
   return `<div class="gatebar ${S.grace===g.rank?'danger':left<=4?'warn':''}"><span class="gflag">${ic(S.grace===g.rank?'alert':'bolt')}</span>
     <div class="gmain"><b>${S.grace===g.rank?'崖っぷち！ ':''}関門：第${dl}週までに業界${g.rank}位以内</b><div class="gprog"><i style="width:${pct}%"></i></div></div>
@@ -2113,12 +2116,12 @@ function gateBarHTML(){
 }
 function gateTick(){
   const g=nextGate();if(!g)return null;
-  const inGrace=S.grace===g.rank,dl=g.wk+(inGrace?4:0);
+  const inGrace=S.grace===g.rank,dl=g.wk+(inGrace?graceLen():0);
   if(S.week<g.wk)return null;
   if(myRank()<=g.rank){S.gates[g.rank]=S.week;S.grace=null;S.rep=clamp(S.rep+3,0,100);S.news.unshift({t:`関門突破！ 業界${g.rank}位以内を達成（信頼度+3）`,c:'gd'});award('gate');
     setTimeout(()=>{toast(`${ic('crown','fill')}<span><b>関門突破！</b><small>業界${g.rank}位以内を達成。信頼度+3</small></span>`,'fire');SND.fanfare();FX.confetti(120);},900);return 'pass';}
-  if(!inGrace){S.grace=g.rank;S.news.unshift({t:`関門に届かず…。あと4週で${g.rank}位以内に入れなければ買収される`,c:'ev'});
-    setTimeout(()=>{toast(`${ic('alert')}<span><b>崖っぷち！</b><small>あと4週で業界${g.rank}位以内に入れなければ、ライバルに買収される</small></span>`,'bad');SND.bad();},900);return 'grace';}
+  if(!inGrace){S.grace=g.rank;S.news.unshift({t:`関門に届かず…。あと${graceLen()}週で${g.rank}位以内に入れなければ買収される`,c:'ev'});
+    setTimeout(()=>{toast(`${ic('alert')}<span><b>崖っぷち！</b><small>あと${graceLen()}週で業界${g.rank}位以内に入れなければ、ライバルに買収される</small></span>`,'bad');SND.bad();},900);return 'grace';}
   if(S.week>=dl){S.bought=ranking()[g.rank-1].name;return 'fail';}
   return null;
 }
@@ -2182,6 +2185,25 @@ function openIntro(i){
   const s=slides[i];
   showModal(`<div class="intro"><div class="iimg">${s[0]}</div><div><div class="eyebrow">はじめに ${i+1} / ${slides.length}</div><h3>${s[1]}</h3><p class="lead" style="font-size:14px;color:var(--ink)">${s[2]}</p></div></div>
    <div class="row" style="margin-top:14px;justify-content:flex-end">${i<slides.length-1?`<button class="btn" onclick="closeModal();renderCoach()">とばす</button><button class="btn primary" onclick="openIntro(${i+1})">次へ ▶</button>`:`<button class="btn fire big" onclick="closeModal();renderCoach()">会社をはじめる ▶</button>`}</div>`,true);
+}
+function advice(){
+  const g=nextGate(),rk=myRank(),free=S.projects.length<slotsMax(),canPlan=free&&S.ap>=1&&S.week<=SEASON-4;
+  const due=S.projects.find(q=>!q.merchDone&&q.K-q.k<=2);
+  const est=p=>demand(p,p.aw,p.demandMod),cap=p=>Vn(p.venue).cap,nm=p=>'「'+A(p.artist).name+'」';
+  if(S.grace)return '崖っぷちです。売れている公演に宣伝を集中して、満員で一気に稼ぎましょう。';
+  if(!S.projects.length)return canPlan?'公演がゼロだと固定費だけが出ていきます。すぐ企画しましょう。':'来週、行動力が戻ったらすぐ企画しましょう。';
+  if(due)return nm(due)+'のグッズ発注の締め切りが近いです。上の「グッズ発注」から。';
+  if(g&&rk>g.rank&&g.wk-S.week<=10&&canPlan)return `関門まであと${g.wk-S.week}週。枠が空いています。もう1本企画して攻めましょう。`;
+  const weak=S.projects.find(p=>p.sold<cap(p)&&est(p)<cap(p)*0.75);
+  if(weak&&S.ap>0)return nm(weak)+'は空席が出そうです。相性◎の宣伝で熱量を上げましょう。';
+  const hot=S.projects.find(p=>p.sold<cap(p)&&!p.priceChanged&&est(p)>cap(p)*1.35&&p.K-p.k>=2);
+  if(hot&&S.ap>0)return nm(hot)+'は需要がキャパを大きく超えています。+10%の値上げも手です。';
+  if(S.chance&&S.chance.wk===S.week&&S.chance.t!=='ap'&&S.ap>0)return '今週のチャンスが出ています。宣伝の欄を見てください。';
+  if(S.cash<office()*4&&S.ap>0)return '資金が少ないです。無料の「取材の売り込み」と「招待券」を使いましょう。';
+  if(canPlan)return '公演の枠が空いています。同時進行で稼ぎを増やせます。';
+  if(g&&rk>g.rank&&g.wk-S.week<=6)return `関門まであと${g.wk-S.week}週。次の公演を満員にして順位を上げましょう。`;
+  if(S.ap>0&&S.projects.some(p=>p.sold<cap(p)))return '行動力が残っています。1公演に3種類の宣伝でメディアミックスです。';
+  return '準備OKです。右下で週を進めましょう。';
 }
 function tutInfo(){
   if(!S||!S.tut||!S.tut.on||$('#modal-root').innerHTML)return null;
