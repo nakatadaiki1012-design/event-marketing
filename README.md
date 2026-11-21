@@ -51,4 +51,4 @@
   - `player.png`（社長＝プレイヤー）／`coach.png`（チーフプロデューサー相沢）／`rival-0〜2.png`（ライバル社長）／`staff-○○.png`（スタッフ）
   - `merch-演者-商品.png`（グッズ 128×128）
 - `tools/export-images.js` は、内蔵イラストから画像を書き出し直すためのスクリプトです。
-- あると使われる追加の画像（無くても動きます）：`bg-title.png`（タイトル背景）／`stage-box|horizon|civic|arena|dome.png`（本番の会場内）／`scene-soldout.png` `scene-legend.png`（満員・伝説の夜）／`scene-bankrupt.png` `scene-bought.png` `scene-win.png` `scene-end.png`（結末）。いずれも横長16:9。
+- あると使われる追加の画像（無くても動きます）：`bg-title.jpg`（タイトル背景）／`stage-box|horizon|civic|arena|dome.jpg`（本番の会場内）／`scene-soldout.jpg` `scene-legend.jpg`（満員・伝説の夜）／`scene-bankrupt.jpg` `scene-bought.jpg` `scene-win.jpg` `scene-end.jpg`（結末）。いずれも横長16:9。

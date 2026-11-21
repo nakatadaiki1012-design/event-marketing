@@ -613,6 +613,7 @@ button.td:hover:not(:disabled){border-color:var(--brass)}
 .welcome .wposters{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;opacity:.9}.welcome .wposters span{width:92px;aspect-ratio:5/3;border-radius:8px;overflow:hidden;border:1px solid var(--line)}.welcome .wposters img,.welcome .wposters svg{width:100%;height:100%;object-fit:cover;display:block}
 .adv{display:inline-flex;align-items:center;gap:7px;min-width:0}.adv b{color:var(--brass-soft);font-size:12px;white-space:nowrap}
 @media (max-width:560px){.actionbar .hint{display:block!important;white-space:normal;font-size:11px;line-height:1.3}.adv .ava,.adv b{display:none}}
+.title-screen.hasbg .curtain{display:none}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head><body>
@@ -1030,7 +1031,7 @@ function openRanking(){
 function toggleSound(){SND.on=!SND.on;S.sound=SND.on;SND.init();SND.click();render();}
 function titleHTML(){
   const has=!!loadSave();
-  return `<section class="title-screen" style="${sceneBg('bg-title',.45)}">
+  return `<section class="title-screen ${HAVE['bg-title']?'hasbg':''}" style="${sceneBg('bg-title',.45)}">
    <div class="curtain l"></div><div class="curtain r"></div>
    <div class="beam b1"></div><div class="beam b2"></div>
    <div class="title-card">
@@ -2242,8 +2243,8 @@ function skipTut(){if(S&&S.tut)S.tut.on=false;renderCoach();save();}
 
 /* ========== 起動 ========== */
 const HAVE={};const OPT=['bg-title','stage-box','stage-horizon','stage-civic','stage-arena','stage-dome','scene-soldout','scene-legend','scene-bankrupt','scene-bought','scene-win','scene-end'];
-function probeOpt(){OPT.forEach(n=>{const t=new Image();t.onload=()=>{HAVE[n]=true;if(!S||S.phase==='end')render();};t.src=AST+n+'.png';});}
-function sceneBg(n,dark){return HAVE[n]?`background-image:linear-gradient(rgba(16,8,18,${dark}),rgba(16,8,18,${Math.min(.95,dark+.25)})),url(${AST}${n}.png);background-size:cover;background-position:center`:'';}
+function probeOpt(){OPT.forEach(n=>{const t=new Image();t.onload=()=>{HAVE[n]=true;if(!S||S.phase==='end')render();};t.src=AST+n+'.jpg';});}
+function sceneBg(n,dark){return HAVE[n]?`background-image:linear-gradient(rgba(16,8,18,${dark}),rgba(16,8,18,${Math.min(.95,dark+.25)})),url(${AST}${n}.jpg);background-size:cover;background-position:center`:'';}
 function stageBg(v,R){
   if(R&&R.legend&&HAVE['scene-legend'])return sceneBg('scene-legend',.25);
   if(R&&R.fill>=0.999&&HAVE['scene-soldout'])return sceneBg('scene-soldout',.25);
