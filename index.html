@@ -637,6 +637,40 @@ button.td:hover:not(:disabled){border-color:var(--brass)}
 #savedpill{position:fixed;left:50%;top:calc(58px + env(safe-area-inset-top,0px));transform:translate(-50%,-8px);z-index:47;background:rgba(33,19,42,.95);border:1px solid var(--good);color:var(--good);font-size:12px;font-weight:700;border-radius:99px;padding:3px 12px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;white-space:nowrap}
 #savedpill.ng{border-color:var(--bad);color:var(--bad)}
 #savedpill.show{opacity:1;transform:translate(-50%,0)}
+ /* ---- 印刷物風（生成AIっぽさを減らす） ---- */
+body{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 .95 0 0 0 0 .85 0 0 0 .06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")!important;background-attachment:scroll}
+.panel,.pcard,.acard,.vcard,.tile,.opt,.vopt,.toggle,.choice,.modal,.kpi,.counter,.seatbox,.stage-scene,.dhead,.rban,.gatebar,.td,.slslot,.song,.cal-wrap,.fsum,.fslot,.tip,.news li,.missions li,.bdg,.staff,.wc-in,.toast,.glist,.mtabs button{border-radius:5px!important}
+.pc-top{border-radius:4px 4px 0 0!important}
+.btn,.iconbtn,.cbtn{border-radius:4px!important}
+.btn.primary,.btn.fire{background:var(--brass)!important;color:#1a0d05!important;border:2px solid #0c060f!important;box-shadow:3px 3px 0 #0c060f!important}
+.btn.fire{background:var(--fire-hot)!important}
+.btn.primary:hover:not(:disabled),.btn.fire:hover:not(:disabled){background:var(--brass-soft)!important}
+.btn.primary:active:not(:disabled),.btn.fire:active:not(:disabled){transform:translate(2px,2px)!important;box-shadow:1px 1px 0 #0c060f!important}
+.logo{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;color:var(--brass)!important;filter:none!important;text-shadow:5px 5px 0 var(--curtain),9px 9px 0 rgba(0,0,0,.55)}
+div.rank{text-shadow:4px 4px 0 var(--curtain)!important}
+.pcard.sel{box-shadow:inset 0 0 0 2px var(--brass)!important}
+.vopt.sel,.opt.sel,.toggle.on,.acard.fsel{box-shadow:inset 0 0 0 2px var(--brass)!important}
+.tile:hover:not(:disabled){box-shadow:none!important}
+.apdots i.on{background:var(--fire-hot)!important;box-shadow:none!important;border-color:#0c060f!important}
+.flameic{filter:none!important}
+.heat i,.heatbig i,.meter i,.tbar i,.wcbar i,.gprog i,.repbar i,.bar4 i{background:var(--fire)!important}
+.gatebar,.gatebar.warn,.gatebar.clear,.chance,.td.go,.td.urgent,.toast.fire,.festcard{background:var(--velvet-2)!important;background-image:none!important}
+.gatebar.danger{background:#3a1420!important}
+.chance,.td.urgent,.festcard,.chip.due{animation:none!important}
+.td.urgent,.chance{border-width:2px!important;border-style:dashed!important}
+.ava{box-shadow:none!important;border-width:1.5px!important}
+.lineup span{box-shadow:4px 4px 0 rgba(0,0,0,.6)!important;border-radius:3px!important;border:3px solid #f4ead8!important}
+.lineup span:hover{transform:none!important}
+.posters img,.welcome .wposters span{border-radius:3px!important}
+.poster::after{background:linear-gradient(90deg,rgba(0,0,0,.6),transparent 60%)!important}
+.dhead::after{display:none!important}
+.stamp{box-shadow:none!important}
+.stamp.legend{box-shadow:none!important}
+.cbtn{box-shadow:none!important}
+.mtabs button.on,.stepper span.on,.myrole{box-shadow:none!important}
+.marquee i{border-radius:0!important;width:8px!important;height:8px!important}
+.title-screen .beam{opacity:.5}
+#savedpill{border-radius:3px!important}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head><body>
@@ -1137,7 +1171,7 @@ function ringSVG(f,col){const r=24,c=2*Math.PI*r;return `<svg viewBox="0 0 58 58
 function pcardHTML(p){
   const a=A(p.artist),v=Vn(p.venue),f=p.sold/v.cap,rem=p.wk-S.week,due=!p.merchDone&&p.K-p.k<=3;
   return `<button class="pcard ${S.sel===p.id?'sel':''}" data-pid="${p.id}" style="--c1:${a.c[0]};--c2:${a.c[1]}" onclick="selProj(${p.id})">
-    <div class="pc-top"><span class="row" style="gap:7px;flex-wrap:nowrap;min-width:0">${avatar(a,32)}<span class="pc-name">${p.lineup?'🎪 年末フェス':esc(a.name)}</span></span><span class="pc-cd">${rem<=0?'今週本番':'あと'+rem+'週'}</span></div>
+    <div class="pc-top"><span class="row" style="gap:7px;flex-wrap:nowrap;min-width:0">${avatar(a,32)}<span class="pc-name">${p.lineup?'年末フェス':esc(a.name)}</span></span><span class="pc-cd">${rem<=0?'今週本番':'あと'+rem+'週'}</span></div>
     <div class="pc-body">
       <div class="ring">${ringSVG(f,f>=1?'var(--fire-hot)':'var(--brass)')}<b>${Math.round(f*100)}%</b></div>
       <div class="pc-info">
