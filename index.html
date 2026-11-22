@@ -709,6 +709,11 @@ h3,.modal h3{font-family:var(--f-body)!important;font-weight:700!important;lette
  .vcard .cap{font-size:16px!important}
  .vcard .fitlab{font-size:10px!important}
 }
+@media (max-width:640px){
+ #toasts{top:auto!important;bottom:calc(92px + env(safe-area-inset-bottom,0px));right:8px!important;left:8px;align-items:stretch;max-width:none}
+ #toasts .toast:nth-last-child(n+3){display:none}
+ .toast{font-size:12px;padding:6px 10px}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head><body>
@@ -907,17 +912,18 @@ document.addEventListener('pointerdown',()=>SND.init(),{once:false});
 /* ========== パーティクル（紙吹雪・炎） ========== */
 const FX={cv:null,ctx:null,ps:[],run:false,
   reduce:window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches,
-  setup(){this.cv=$('#fx');if(!this.cv)return;this.ctx=this.cv.getContext('2d');const r=()=>{const d=Math.min(2,devicePixelRatio||1);this.cv.width=innerWidth*d;this.cv.height=innerHeight*d;this.ctx.setTransform(d,0,0,d,0,0);};r();addEventListener('resize',r);},
+  fit(){const cv=this.cv,d=Math.min(2,devicePixelRatio||1),w=cv.clientWidth||innerWidth,h=cv.clientHeight||innerHeight;if(cv.width!==Math.round(w*d)||cv.height!==Math.round(h*d)){cv.width=Math.round(w*d);cv.height=Math.round(h*d);}this.W=w;this.H=h;this.ctx.setTransform(d,0,0,d,0,0);},
+  setup(){this.cv=$('#fx');if(!this.cv)return;this.ctx=this.cv.getContext('2d');this.fit();addEventListener('resize',()=>this.fit());if(window.visualViewport)visualViewport.addEventListener('resize',()=>this.fit());},
   add(p){if(this.reduce||!this.ctx)return;this.ps.push(p);if(!this.run){this.run=true;requestAnimationFrame(t=>this.loop(t));}},
   confetti(n=140){const cols=['#e9b64f','#ff6fa3','#7cc7ff','#b98cff','#fff2d2','#ff6a2b'];for(let i=0;i<n;i++)this.add({x:Math.random()*innerWidth,y:-20-Math.random()*200,vx:rnd(-1,1),vy:rnd(2,5),g:.04,life:220,col:cols[i%6],s:rnd(4,8),rot:Math.random()*6,vr:rnd(-.2,.2),k:'c'});},
   fire(x,y,n=70){for(let i=0;i<n;i++)this.add({x:x+rnd(-14,14),y,vx:rnd(-1.6,1.6),vy:rnd(-9,-4),g:.12,life:rnd(40,70),col:Math.random()<.5?'#ffd23f':'#ff6a2b',s:rnd(3,7),k:'f'});},
   spark(x,y,n=40){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,v=rnd(2,7);this.add({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,g:.08,life:rnd(30,55),col:'#fff2d2',s:rnd(2,4),k:'f'});}},
-  loop(){const c=this.ctx;c.clearRect(0,0,innerWidth,innerHeight);
+  loop(){const c=this.ctx;this.fit();c.save();c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,this.cv.width,this.cv.height);c.restore();
     this.ps=this.ps.filter(p=>{p.life--;p.x+=p.vx;p.y+=p.vy;p.vy+=p.g;
       if(p.k==='c'){p.rot+=p.vr;c.save();c.translate(p.x,p.y);c.rotate(p.rot);c.fillStyle=p.col;c.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);c.restore();}
       else{c.globalAlpha=Math.max(0,p.life/60);c.fillStyle=p.col;c.beginPath();c.arc(p.x,p.y,p.s*Math.max(.2,p.life/70),0,7);c.fill();c.globalAlpha=1;}
-      return p.life>0&&p.y<innerHeight+40;});
-    if(this.ps.length)requestAnimationFrame(t=>this.loop(t));else{this.run=false;c.clearRect(0,0,innerWidth,innerHeight);}}
+      return p.life>0&&p.y<this.H+40&&p.x>-40&&p.x<this.W+40;});
+    if(this.ps.length)requestAnimationFrame(t=>this.loop(t));else{this.run=false;c.save();c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,this.cv.width,this.cv.height);c.restore();}}
 };
 function toast(html,kind=''){const box=$('#toasts');if(!box)return;const t=document.createElement('div');t.className='toast '+kind;t.innerHTML=html;box.appendChild(t);while(box.children.length>4)box.firstChild.remove();setTimeout(()=>t.classList.add('out'),3400);setTimeout(()=>t.remove(),3900);}
 
@@ -1326,7 +1332,7 @@ function footHTML(){
     if(S.mg.done)return wrap(`<span class="fstep">本番 終了</span><span class="hint">${sceneLine(S.result)}</span>`,`<button class="btn primary big" onclick="goResult()">収支報告へ ▶</button>`);
     if(S.mg.stage==='setlist'){const left=S.mg.sl.filter(x=>x==null).length;return wrap(`<span class="fstep">本番 1/2 曲順</span><span class="hint">${left?`曲をあと${left}つ選ぶ`:'曲順が決まった。右下で開演'}</span>`,`<button class="btn" onclick="autoShow()">全部おまかせ</button><button class="btn fire big" ${left?'disabled':''} onclick="slConfirm()">${ic('music')} この曲順で開演 ▶</button>`);}
     return wrap(`<span class="fstep">本番 2/2 演出</span><span class="hint">${MGINFO[S.mg.type].help}</span>`,`<button class="btn" onclick="autoShow()">スタッフにおまかせ</button>`);}
-  if(S.phase==='result'){const lab=S.showQueue.length>1?'次の本番へ':(liquid()<0)?'結果を見る':'司令室に戻る';return wrap(`<span class="fstep">収支報告</span><span class="hint">左がお金の流れ、右が振り返り</span>`,`<button class="btn primary big" onclick="afterResult()">${lab} ▶</button>`);}
+  if(S.phase==='result'){const lab=S.showQueue.length>1?'次の本番へ':(liquid()<0)?'結果を見る':'司令室に戻る';return wrap(`<span class="fstep">収支報告</span><span class="hint">${innerWidth<=640?'上のタブで「お金の流れ」と「振り返り」を切り替え':'左がお金の流れ、右が振り返り'}</span>`,`<button class="btn primary big" onclick="afterResult()">${lab} ▶</button>`);}
   if(S.phase!=='hub')return'';
   const shows=S.projects.filter(p=>p.wk===S.week+1).length;
   const end=S.week>=SEASON;
@@ -1949,7 +1955,8 @@ function waterfallSVG(R){
   const it=items.filter(x=>Math.round(x[1])!==0);
   let run=0;const bars=it.map(([l,v])=>{const s=run;run+=v;return{l,v,s,e:run};});
   bars.push({l:'最終損益',v:run,s:0,e:run,fin:true});
-  const W=640,H=230,pl=8,pr=8,pt=22,pb=34,iw=W-pl-pr,ih=H-pt-pb;
+  const SL={'運営・手数料':'運営','グッズ原価':'原価','著作権・消費税':'税・著作権','会場・制作':'会場','協賛ほか':'協賛','出資者へ':'出資','運営受託料':'受託料'};bars.forEach(b=>{if(bars.length>8&&SL[b.l])b.l=SL[b.l];});
+  const W=640,H=230,pl=8,pr=22,pt=22,pb=34,iw=W-pl-pr,ih=H-pt-pb;
   const mx=Math.max(...bars.map(b=>Math.max(b.s,b.e)),1),mn=Math.min(0,...bars.map(b=>Math.min(b.s,b.e)));
   const y=v=>pt+(mx-v)/(mx-mn)*ih,bw=iw/bars.length;
   const short=v=>{const a=Math.abs(v);return (v<0?'−':'+')+(a>=1e8?(a/1e8).toFixed(1)+'億':a>=1e4?Math.round(a/1e4)+'万':fmtN(a));};
