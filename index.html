@@ -671,6 +671,44 @@ div.rank{text-shadow:4px 4px 0 var(--curtain)!important}
 .marquee i{border-radius:0!important;width:8px!important;height:8px!important}
 .title-screen .beam{opacity:.5}
 #savedpill{border-radius:3px!important}
+ /* ---- レイアウト・文字の整理 ---- */
+:root{--f-num:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","Noto Sans JP",sans-serif}
+.num,.stat b,.kpi b,.counter b,.frow .v,.pl td.v,.kv4 dd,.srow .num,.bigval,.pc-info .sold,.gleft,.tc{font-variant-numeric:tabular-nums;letter-spacing:0}
+h3,.modal h3{font-family:var(--f-body)!important;font-weight:700!important;letter-spacing:.02em}
+.modal h3{font-size:18px}
+.eyebrow{letter-spacing:.05em!important}
+.stat small{letter-spacing:0}
+.panel,.pcard,.vcard,.acard,.kpi,.counter,.tile,.opt,.vopt,.toggle,.choice,.td{border-color:rgba(255,255,255,.07)}
+.panel{background:rgba(33,19,42,.85)}
+.lead{line-height:1.6}
+.acard{align-items:stretch}.acard>*{width:100%}
+.poster .art img{position:absolute;inset:0;width:100%!important;height:100%!important;object-fit:cover;object-position:right 12%}
+.srow{width:100%}
+.subtabs{display:none}
+@media (max-width:640px){
+ .subtabs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px}
+ .subtabs button{appearance:none;border:1px solid var(--line);background:var(--velvet-2);border-radius:4px;padding:7px 4px;font-weight:700;font-size:12.5px;cursor:pointer;color:var(--ink)}
+ .subtabs button.on{background:var(--brass);color:#1a0d05;border-color:var(--brass)}
+ .subwrap [data-pane].off{display:none!important}
+ .hub[data-tab=detail] .seatbox{display:none}
+ .stage-scene.small{height:110px!important}.stage-scene.small svg{max-height:100px!important}
+ .phead .lead{display:none}
+ .g3,.g2{gap:8px}
+ .vopt .pros{font-size:10.5px}
+ .rgrid>.panel{max-height:none}
+}
+.stage-scene svg{max-height:calc(100dvh - 330px)}
+@media (max-width:640px){
+ .endg{display:flex!important;flex-direction:column;align-items:stretch}
+ .endhero{padding:12px!important}
+ div.rank{font-size:64px!important}
+ .vgrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+ .vcard{padding:6px 8px!important;gap:2px!important}
+ .vcard .vart{height:40px!important;margin:-6px -8px 2px!important}
+ .vcard .vm{font-size:10px!important}
+ .vcard .cap{font-size:16px!important}
+ .vcard .fitlab{font-size:10px!important}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head><body>
@@ -785,7 +823,7 @@ function artistDecor(a,id){
 // opts.bg: 背景を描くか / opts.fit: preserveAspectRatio
 function artistArt(a,opts={}){
   if(CUSTOM[a.id])return `<svg viewBox="0 0 200 120" preserveAspectRatio="${opts.fit&&opts.fit.includes('meet')?'xMaxYMax meet':'xMidYMid slice'}" aria-hidden="true"><image href="${CUSTOM[a.id]}" x="0" y="0" width="200" height="120" preserveAspectRatio="xMidYMid slice"/></svg>`;
-  if(IMG)return `<img class="aimg" alt="" decoding="async" loading="lazy" src="${AST}artist-${a.id}.webp">`;
+  if(IMG)return `<img class="aimg" alt="" width="640" height="384" decoding="async" src="${AST}artist-${a.id}.webp">`;
   const id='ag'+(++artSeq),bg=opts.bg!==false;
   const back=bg?`<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a.c[0]}"/><stop offset="1" stop-color="${a.c[1]}"/></linearGradient></defs><rect x="-60" y="-10" width="320" height="140" fill="url(#${id})"/>`:'';
   const spot=`<defs><radialGradient id="${id}s" cx=".5" cy="0" r=".9"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><path d="M100 -10 L36 122 L164 122Z" fill="url(#${id}s)"/>`;
@@ -818,19 +856,50 @@ const SND={ctx:null,on:true,master:null,
   bad(){this.tone(330,.18,'triangle',.06);this.tone(247,.3,'triangle',.06,.16);},
   click(){this.tone(660,.03,'square',.015);},
 };
-const BGM={on:false,timer:null,step:0,next:0,mode:'hub',
-  start(){SND.init();if(!SND.ctx||this.timer)return;this.next=SND.ctx.currentTime+.1;this.step=0;this.timer=setInterval(()=>this.sched(),60);},
+const BGM={on:false,timer:null,step:0,next:0,mode:'hub',bus:null,
+  init(){SND.init();const c=SND.ctx;if(!c||this.bus)return;
+    const bus=c.createGain();bus.gain.value=0.55;const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=5200;
+    const comp=c.createDynamicsCompressor();comp.threshold.value=-20;comp.ratio.value=3;
+    const dl=c.createDelay(1);dl.delayTime.value=0.33;const fb=c.createGain();fb.gain.value=0.28;const wet=c.createGain();wet.gain.value=0.22;const dlp=c.createBiquadFilter();dlp.type='lowpass';dlp.frequency.value=2200;
+    bus.connect(lp);lp.connect(comp);comp.connect(SND.out());lp.connect(dl);dl.connect(dlp);dlp.connect(fb);fb.connect(dl);dlp.connect(wet);wet.connect(comp);
+    this.bus=bus;},
+  start(){this.init();if(!SND.ctx||this.timer)return;this.next=SND.ctx.currentTime+.12;this.step=0;this.timer=setInterval(()=>this.sched(),50);},
   stop(){clearInterval(this.timer);this.timer=null;},
-  sched(){const c=SND.ctx;if(!c||!this.on||!SND.on)return;const show=this.mode==='show',st=60/(show?128:96)/2;
-    const prog=[[262,330,392],[220,262,330],[175,220,262],[196,247,294]];
+  env(g,t,a,d,v){g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(v,t+a);g.gain.exponentialRampToValueAtTime(0.0001,t+a+d);},
+  ep(f,t,d,v){const c=SND.ctx;const o1=c.createOscillator(),o2=c.createOscillator(),g=c.createGain(),f1=c.createBiquadFilter();o1.type='sine';o2.type='triangle';o1.frequency.value=f;o2.frequency.value=f*2.001;
+    const g2=c.createGain();g2.gain.value=0.18;f1.type='lowpass';f1.frequency.value=2400;o1.connect(g);o2.connect(g2).connect(g);g.connect(f1).connect(this.bus);this.env(g,t,0.008,d,v);o1.start(t);o2.start(t);o1.stop(t+d+.1);o2.stop(t+d+.1);},
+  bass(f,t,d,v){const c=SND.ctx;const o=c.createOscillator(),g=c.createGain(),lp=c.createBiquadFilter();o.type='triangle';o.frequency.value=f;lp.type='lowpass';lp.frequency.value=420;o.connect(lp).connect(g).connect(this.bus);this.env(g,t,0.01,d,v);o.start(t);o.stop(t+d+.1);},
+  pad(fs,t,d,v){const c=SND.ctx;fs.forEach((f,i)=>{[-6,6].forEach(cents=>{const o=c.createOscillator(),g=c.createGain(),lp=c.createBiquadFilter();o.type='sawtooth';o.frequency.value=f;o.detune.value=cents;lp.type='lowpass';lp.frequency.value=900;lp.Q.value=0.3;o.connect(lp).connect(g).connect(this.bus);
+    g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(v,t+d*0.35);g.gain.linearRampToValueAtTime(0.0001,t+d);o.start(t);o.stop(t+d+.05);});});},
+  kick(t,v){const c=SND.ctx;const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(42,t+0.12);o.connect(g).connect(this.bus);this.env(g,t,0.003,0.22,v);o.start(t);o.stop(t+0.3);},
+  noise(t,d,v,f,type){const c=SND.ctx;const b=c.createBuffer(1,Math.floor(c.sampleRate*d),c.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;
+    const s=c.createBufferSource();s.buffer=b;const fl=c.createBiquadFilter();fl.type=type;fl.frequency.value=f;const g=c.createGain();s.connect(fl).connect(g).connect(this.bus);this.env(g,t,0.002,d,v);s.start(t);},
+  sched(){const c=SND.ctx;if(!c||!this.on||!SND.on)return;if(!this.bus)this.init();
+    const show=this.mode==='show';const bpm=show?122:82,e8=60/bpm/2;
+    // コード（Hz）: 司令室は Fmaj9-Em7-Dm9-Cmaj7、本番は Am-F-C-G
+    const H=[[174.6,[220,261.6,329.6,392]],[164.8,[196,246.9,293.7,392]],[146.8,[174.6,220,261.6,329.6]],[130.8,[164.8,196,246.9,329.6]]];
+    const L=[[110,[220,261.6,329.6]],[87.3,[220,261.6,349.2]],[130.8,[261.6,329.6,392]],[98,[246.9,293.7,392]]];
+    const prog=show?L:H;
     if(this.next<c.currentTime)this.next=c.currentTime+.05;
-    while(this.next<c.currentTime+.25){const at=this.next-c.currentTime,i=this.step,ch=prog[Math.floor(i/8)%4];
-      if(i%8===0)SND.tone(ch[0]/2,st*3.5,'triangle',.05,at);
-      if(i%8===4)SND.tone(ch[0]/2,st*2,'triangle',.035,at);
-      if(i%2===0)SND.tone(ch[(i/2)%3]*(show?2:1),st*.9,'square',.01,at);
-      if(show){if(i%4===0)SND.tone(60,.14,'sine',.14,at,40);if(i%4===2)SND.noise(.08,.03,5000,'highpass',at);}
-      else if(i%4===2)SND.noise(.04,.01,7000,'highpass',at);
-      this.next+=st;this.step++;}}
+    while(this.next<c.currentTime+.3){const i=this.step,bar=Math.floor(i/8)%4,pos=i%8,[root,ch]=prog[bar];
+      const swing=(!show&&pos%2===1)?e8*0.18:0,t=this.next+swing;
+      if(!show){
+        if(pos===0)this.pad(ch,t,e8*8,0.006);
+        if(pos===0||pos===3||pos===6)ch.forEach((f,k)=>this.ep(f,t+k*0.012,pos===0?1.4:0.6,pos===0?0.035:0.022));
+        if(pos===0)this.bass(root/2,t,e8*2.6,0.16);if(pos===5)this.bass(root/2*1.5,t,e8*1.2,0.1);if(pos===7)this.bass(root/2,t,e8*0.8,0.08);
+        if(pos===0||pos===5)this.kick(t,0.32);
+        if(pos===2||pos===6)this.noise(t,0.18,0.05,1800,'bandpass');
+        this.noise(t,0.05,pos%2?0.012:0.02,7500,'highpass');
+        if(bar===3&&pos===4&&Math.random()<0.5)this.ep(ch[3]*2,t,0.8,0.02);
+      }else{
+        if(pos===0)this.pad(ch.map(f=>f/2),t,e8*8,0.008);
+        if(pos%2===0)this.kick(t,0.42);
+        if(pos%2===1)this.noise(t,0.06,0.035,8000,'highpass');
+        if(pos===2||pos===6)this.noise(t,0.16,0.09,2000,'bandpass');
+        this.bass(root/2,t,e8*0.8,pos%2?0.1:0.14);
+        if(pos===1||pos===4||pos===6)ch.forEach(f=>this.ep(f,t,0.35,0.02));
+      }
+      this.next+=e8;this.step++;}}
 };
 function toggleMusic(){BGM.on=!BGM.on;if(S)S.bgm=BGM.on;if(BGM.on)BGM.start();else BGM.stop();SND.click();render();}
 document.addEventListener('pointerdown',()=>SND.init(),{once:false});
@@ -1096,6 +1165,7 @@ function render(){
   else if(S.phase==='end') body=endHTML();
   app.innerHTML=topbarHTML()+`<main class="wrap"><div class="in2 ${S.phase==='hub'?'fit':''}">${body}</div></main>`+(S.phase==='end'?'':footHTML());
   document.querySelector('main.wrap').scrollTop=st;lastKey=key;
+  applySub();
   if(S.phase==='plan'&&S.plan.step===3) updateForecast();
   if(S.phase==='plan'&&S.plan.step===4) updateFunding();
   BGM.mode=S.phase==='show'?'show':'hub';
@@ -1269,10 +1339,13 @@ function footHTML(){
 }
 
 /* ----- 企画（ブッキング） ----- */
+const UI={};
+function subTabs(key,list){const cur=UI[key]||list[0][0];return `<div class="subtabs" role="tablist">${list.map(([id,l])=>`<button role="tab" class="${cur===id?'on':''}" onclick="UI['${key}']='${id}';SND.click();render()">${l}</button>`).join('')}</div>`;}
+function applySub(){document.querySelectorAll('.subwrap').forEach(w=>{const c=w.dataset.cur;w.querySelectorAll('[data-pane]').forEach(p=>p.classList.toggle('off',p.dataset.pane!==c));});}
 function stepperHTML(step){const names=['演者','会場と日程','契約と価格','資金集め'];return `<div class="stepper">${names.map((n,i)=>`<span class="${i+1===step?'on':i+1<step?'done':''}">${i+1}. ${n}</span>`).join('')}</div>`;}
 function stars(x){const n=clamp(Math.round(x*3),1,5);return `<span class="stars">${'★'.repeat(n)}<i>${'★'.repeat(5-n)}</i></span>`;}
 function planHead(step,title,lead,nav){return `<div class="phead"><div class="ttl"><div class="top"><span class="eyebrow">第${S.week}週 ／ 新しい公演</span>${stepperHTML(step)}</div><h2>${title}</h2><p class="lead">${lead}</p></div></div>`;}
-function openPlan(){if(S.ap<1||normalCount()>=slotsMax()||S.week>SEASON-4)return;SND.click();S.phase='plan';S.plan={step:1,artist:null,venue:null,slot:null,deal:'fixed',price:null,grade:'std',loan:0,sponsor:false,investor:false,crowd:false,insured:false,presale:false,host:'own',merchDeal:'consign'};render();}
+function openPlan(){UI.p2='v';UI.p3='c';if(S.ap<1||normalCount()>=slotsMax()||S.week>SEASON-4)return;SND.click();S.phase='plan';S.plan={step:1,artist:null,venue:null,slot:null,deal:'fixed',price:null,grade:'std',loan:0,sponsor:false,investor:false,crowd:false,insured:false,presale:false,host:'own',merchDeal:'consign'};render();}
 function cancelPlan(){S.plan=null;S.phase='hub';render();}
 function freeCount(a){let n=0;for(let w=S.week+4;w<=Math.min(S.week+28,SEASON);w++)for(const d of['wd','we'])if(S.sched.a[a.id][w+'-'+d]==='f')n++;return n;}
 function planHTML(){
@@ -1327,15 +1400,15 @@ function planHTML(){
       <div class="calleg"><span>${ic('userx')}演者NG</span><span>${ic('homex')}会場NG</span><span class="rv">${ic('alert')}ライバルが確保</span><span class="bad">⚔ 同じ週に同ジャンルのライバル公演</span><span class="muted">先の日程ほど宣伝期間が長い／土曜は人が多いが会場費が高い</span></div>`;
     } else cal=`<div class="tip"><b>会場を選ぶと空き日程が出ます。</b>満員の小さな会場は、ガラガラの大会場より評判が上がります。</div>`;
     return planHead(2,p.fest?'フェスの会場を選ぶ':'どの会場で、いつやる？',`${p.fest?'出演者全体':esc(a.name)} の動員力は <b class="num" style="color:var(--ink)">約${fmtN(b)}人</b>。会場の<button class="term" onclick="term('キャパ（キャパシティ）')">キャパ</button>とのバランスを見よう。`,
-      `<button class="btn" onclick="planStep(1)">戻る</button><button class="btn primary" ${p.venue&&p.slot?'':'disabled'} onclick="planStep(3)">次へ</button>`)+`<div class="vgrid">${venues}</div>${cal}`;
+      `<button class="btn" onclick="planStep(1)">戻る</button><button class="btn primary" ${p.venue&&p.slot?'':'disabled'} onclick="planStep(3)">次へ</button>`)+`${p.fest?'':subTabs('p2',[['v','① 会場を選ぶ'],['d','② 日程を選ぶ']])}<div class="subwrap" data-cur="${p.fest?'v':(UI.p2||'v')}"><div data-pane="v"><div class="vgrid">${venues}</div></div><div data-pane="d" style="display:flex;flex-direction:column;gap:8px">${cal}</div></div>`;
   }
   if(p.step===3){
     const a=A(p.artist);if(!p.price)p.price=a.ref;
     const minP=Math.round(pRef(p)*0.5/100)*100,maxP=Math.round(pRef(p)*2/100)*100;
     return planHead(3,'契約とチケット価格','右の事前シミュレーションを見ながら決めよう。',
       `<button class="btn" onclick="planStep(2)">戻る</button><button class="btn primary" onclick="planStep(4)">次へ</button>`)+
-    `<div class="g3">
-      <div class="panel"><h3>主催の形</h3>
+    `${subTabs('p3',[['c','契約と価格'],['e','演出・公約'],['f','見込み・グッズ']])}<div class="g3 subwrap" data-cur="${UI.p3||'c'}">
+      <div class="panel" data-pane="c"><h3>主催の形</h3>
        <div class="opts vopts" style="margin-bottom:8px"><button class="vopt ${p.host!=='agency'?'sel':''}" onclick="setPlan('host','own')"><span class="pic warm">${ic('crown')}</span><b>自社主催</b><span class="pros"><i class="up">▲利益は全部自社</i><i class="dn">▼赤字も全部自社</i></span></button>
         <button class="vopt ${p.host==='agency'?'sel':''}" onclick="setPlan('host','agency')" title="事務所が主催し、費用とチケット収入は事務所側。自社は運営を請け負って手数料をもらう"><span class="pic">${ic('shield')}</span><b>運営受託</b><span class="pros"><i class="up">▲費用ゼロ・赤字なし</i><i class="dn">▼手数料だけ・評判は控えめ</i></span></button></div>
        ${p.host==='agency'?`<div class="tip">事務所が主催する公演の運営を請け負う。会場費・出演料・制作費は事務所持ちで、チケット代もグッズ代も事務所の収入。自社には<b>運営受託料（キャパ×250円＋動員×250円）</b>が入る。値段は事務所が決める（${fmtN(A(p.artist).ref)}円）。</div>`:`<h3>出演契約</h3>
@@ -1349,13 +1422,13 @@ function planHTML(){
        <p class="muted" style="font-size:12px" id="pnote"></p>`}
        ${p.tour?'<p class="good" style="font-size:12px;margin-top:6px">ツアー割：同じ演者の公演が続くので、セットを使い回せる（制作費30%引き）。出演料も10%引き。</p>':''}
       </div>
-      <div class="panel">${p.host==='agency'?`<p class="muted" style="font-size:12px">演出・グッズ・チケットの売り方は事務所が決める。</p>`:`<h3>演出グレード</h3><p class="muted gdesc" style="font-size:12px">${GRADES[p.grade].desc}</p>
+      <div class="panel" data-pane="e">${p.host==='agency'?`<p class="muted" style="font-size:12px">演出・グッズ・チケットの売り方は事務所が決める。</p>`:`<h3>演出グレード</h3><p class="muted gdesc" style="font-size:12px">${GRADES[p.grade].desc}</p>
        <div class="opts vopts3 grade-opts">${Object.entries(GRADES).map(([k,g])=>`<button class="vopt ${p.grade===k?'sel':''}" onclick="setPlan('grade','${k}')" title="${esc(g.desc)}"><span class="vimg">${stageMini(k==='simple'?2:k==='std'?4:6,k==='lux')}</span><b>${g.name}</b><span class="num">制作費×${g.mult}</span>${fxIcons(k==='simple'?-1:k==='lux'?1:0,k==='simple'?-1:k==='lux'?1:0,k==='simple'?-1:k==='lux'?1:0)}</button>`).join('')}</div>
        <h3 style="margin-top:10px">チケットの売り方</h3><button class="toggle ${p.presale?'on':''}" onclick="togglePlan('presale')" style="margin-top:6px"><span class="box">${p.presale?'✓':''}</span><span class="t"><b>${ic('ticket')} ファンクラブ先行抽選　−${fmtY(presaleCost(p))}</b><span>${ic('flame','fill')}初週ダッシュ　需要+8%　${ic('heart')}満足+4</span></span></button>
 `}
        <h3 style="margin-top:10px">公約（勝負に出る）</h3><div class="opts vopts3" style="margin-top:6px">${pledgeCards(p)}</div>
       </div>
-      <div class="stack"><div class="panel" id="forecast"></div>${p.host==='agency'?'':`<div class="panel mdeal">       <h3>グッズの取り分</h3><div class="opts vopts" style="margin-top:6px">
+      <div class="stack" data-pane="f"><div class="panel" id="forecast"></div>${p.host==='agency'?'':`<div class="panel mdeal">       <h3>グッズの取り分</h3><div class="opts vopts" style="margin-top:6px">
         <button class="vopt ${p.merchDeal!=='own'?'sel':''}" onclick="setPlan('merchDeal','consign')" title="グッズは事務所が作り、こちらは会場で売るだけ"><span class="vimg" style="display:flex;justify-content:center">${merchArt('tee',A(p.artist),40)}</span><b>委託販売</b><span class="num">売上の${MERCH_FEE*100}%が入る</span><span class="pros"><i class="up">▲在庫リスクなし</i><i class="dn">▼取り分は少ない</i></span></button>
         <button class="vopt ${p.merchDeal==='own'?'sel':''}" onclick="setPlan('merchDeal','own')" title="こちらがグッズを作って売る。演者にライセンス料を払う"><span class="vimg" style="display:flex;justify-content:center">${merchArt('towel',A(p.artist),40)}</span><b>自社制作</b><span class="num">ライセンス料${MERCH_ROY*100}%</span><span class="pros"><i class="up">▲当たれば大きい</i><i class="dn">▼作りすぎると在庫</i></span></button></div></div>`}</div>
     </div>`;
@@ -1379,7 +1452,7 @@ function openFest(){if(!S.fest||S.fest.planned||S.week>FEST_DL||S.ap<1)return;SN
 function festToggle(id){const p=S.plan,i=p.lineup.indexOf(id);if(i>=0)p.lineup.splice(i,1);else if(p.lineup.length<3)p.lineup.push(id);else{toast('出演者は3組までです');return;}SND.click();render();}
 function festNext(){const p=S.plan;if(!p.lineup.length)return;const a=A(p.lineup[0]);Object.assign(p,{artist:a.id,price:Math.round(a.ref*1.1/100)*100,wk:FEST_WK,d:'we',L:FEST_WK-S.week,slot:FEST_WK+'-we',venue:null,step:2});render();}
 function pickArtist(id){SND.click();S.plan.tour=isTour(id);S.plan.artist=id;S.plan.venue=null;S.plan.slot=null;S.plan.price=A(id).ref;S.plan.step=2;render();}
-function pickVenue(id){SND.click();S.plan.venue=id;S.plan.slot=null;render();}
+function pickVenue(id){SND.click();S.plan.venue=id;S.plan.slot=null;if(!S.plan.fest)UI.p2='d';render();}
 function pickSlot(k){SND.click();S.plan.slot=k;const s=parseSlot(k);S.plan.wk=s.w;S.plan.d=s.d;S.plan.L=s.w-S.week;render();}
 function planStep(n){S.plan.step=n;render();}
 function setPlan(k,v){S.plan[k]=v;render();}
@@ -1836,7 +1909,7 @@ function showHTML(){
 }
 function sceneLine(R){if(R.fill>=0.999)return'開演前から熱気でいっぱい。最高の夜になった！';if(R.fill>=0.8)return'会場は大盛り上がり！';if(R.fill>=0.5)return'後方に空席はあるが、前方のファンは熱く盛り上がった。';return'空席が目立ち、演者もどこか寂しそうだった…。';}
 function animateCounters(){document.querySelectorAll('[data-count]').forEach(el=>{const to=+el.dataset.count,suf=el.dataset.suffix||'',yen=el.dataset.yen;const t0=performance.now(),dur=1600;const step=t=>{const k=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-k,3),v=to*e;el.textContent=(yen?fmtY(v):fmtN(v))+suf;if(k<1)requestAnimationFrame(step);};requestAnimationFrame(step);});}
-function goResult(){S.phase='result';render();if(S.result.net>0)SND.coin();}
+function goResult(){UI.rs='m';S.phase='result';render();if(S.result.net>0)SND.coin();}
 function lessons(R){
   const a=A(R.artist),L=[];
   if(R.missions)L.push(`<b>依頼達成！</b>${R.missions.map(esc).join('／')}　報酬 +${fmtY(R.missionCash)}`);
@@ -1906,12 +1979,12 @@ function resultHTML(){
     <div class="kpi"><small>信頼度</small><b>${Math.round(R.repBefore)}→${Math.round(S.rep)} <span class="${R.dRep>=0?'good':'bad'}" style="font-size:13px">(${R.dRep>=0?'+':''}${R.dRep})</span></b></div></div>
    ${R.deferred>0?`<p class="muted" style="font-size:12px">${ic('coin')} 前売代金 ${fmtY(R.deferred)} は第${S.week+2}週に入金予定（今の資金 ${fmtY(S.cash)}）</p>`:''}
    ${liquid()<0?`<div class="tip" style="border-color:var(--bad)"><b class="bad">資金がマイナスに。</b>支払いができず、会社は倒産してしまった…。</div>`:''}
-   <div class="rgrid">
-    <div class="panel wf"><h3>お金の流れ</h3>${waterfallSVG(R)}
+   ${subTabs('rs',[['m','お金の流れ'],['r','振り返り']])}<div class="rgrid subwrap" data-cur="${UI.rs||'m'}">
+    <div class="panel wf" data-pane="m"><h3>お金の流れ</h3>${waterfallSVG(R)}
       <details class="more"><summary>明細を見る</summary><table class="pl">
        ${[['チケット売上（前売'+fmtN(R.presold)+'＋当日'+fmtN(R.walk)+'枚）',R.ticketRev],['運営受託料',R.agFee||0],['グッズ売上（全体）',R.merchDeal==='own'?R.merchRev:0],['グッズの委託販売手数料（売上'+fmtY(R.merchRev)+'の20%）',R.merchDeal==='consign'?R.merchIncome:0],['グッズのライセンス料（売上の25%）',-(R.merchRoyalty||0)],['売れ残りの後日回収',R.salvage],['協賛金',R.sponsor-R.refund],['クラファン',R.crowd],['臨時収入',R.eventIncome],['冠スポンサー',(R.crown||0)-(R.crownRefund||0)],['公約の賞金・違約金',R.pledgeCash||0],['出演料',-R.artistPay],['会場費',-R.rent],['制作・演出費',-R.prod],['宣伝費',-R.promo],['グッズ原価',-R.merchCost],['運営・警備人件費',-R.staff],['プレイガイド手数料',-R.playguide],['クラファンお礼',-R.gift],['その他の出費（先行抽選・イベント等）',-R.eventCost],['著作権使用料（チケット売上の'+(R.copyright&&A(R.artist).genre==='classical'?1:5)+'%）',-(R.copyright||0)],['消費税（納付）',-(R.vat||0)],['借入利息',-R.interest],['保険料',-R.insCost],['出資者への分配',-(R.invPayout-R.investAmt)]].filter(x=>Math.round(x[1])).map(x=>`<tr><td>${x[0]}</td><td class="v">${x[1]<0?'−':''}${fmtY(Math.abs(x[1]))}</td></tr>`).join('')}
       </table></details></div>
-    <div class="panel"><h3>振り返り</h3><div class="lessons" style="margin-top:6px">${lessons(R).map(l=>`<div class="tip icotip">${ic(lessonIcon(l))}<span>${l}</span></div>`).join('')}</div>
+    <div class="panel" data-pane="r"><h3>振り返り</h3><div class="lessons" style="margin-top:6px">${lessons(R).map(l=>`<div class="tip icotip">${ic(lessonIcon(l))}<span>${l}</span></div>`).join('')}</div>
       ${R.merch.some(m=>m.q)?`<h3 style="margin-top:10px">グッズ</h3><table class="pl">${R.merch.filter(m=>m.q).map(m=>`<tr><td><span class="mi">${merchArt(m.id,a,26)}</span>${m.name}</td><td class="v">${fmtN(m.sold)}/${fmtN(m.q)}個 ${m.lost?'<span class="bad">品切れ</span>':m.unsold?'<span class="muted">残'+fmtN(m.unsold)+'</span>':'<span class="good">完売</span>'}</td></tr>`).join('')}</table>`:''}
     </div></div>`;
 }
@@ -1944,14 +2017,14 @@ function endHTML(){
   else if(tot>0){rank='C';title='一人前のイベンター';}
   else{rank='D';title='修行中のイベンター';}
   const mx=Math.max(...list.map(x=>x.v),1);
-  return `<div class="endg">
-   <section class="stack endhero" style="text-align:center;align-items:center;${sceneBg(S.bought?'scene-bought':broke?'scene-bankrupt':rk===1?'scene-win':'scene-end',.5)}">
+  return `${subTabs('en',[['r','最終結果'],['k','ランキングと記録']])}<div class="endg subwrap" data-cur="${UI.en||'r'}">
+   <section data-pane="r" class="stack endhero" style="text-align:center;align-items:center;${sceneBg(S.bought?'scene-bought':broke?'scene-bankrupt':rk===1?'scene-win':'scene-end',.5)}">
     <div class="eyebrow">1年間の最終結果</div>${S.newBest?'<span class="chip gold">自己ベスト更新！</span>':''}<div class="rank">${rank}</div><h2>${title}</h2>
     ${S.bought?`<p class="lead bad">関門（第${S.week}週）までに順位を上げられなかった。守りに入らず、公約や同時進行で勝負に出よう。</p>`:''}<p class="lead">最終資金 <b class="num" style="color:var(--ink)">${fmtY(S.cash)}</b>（スタート${fmtY(S.startCash||3000000)}）<br>通算損益 <b class="num ${tot>=0?'good':'bad'}">${tot>=0?'+':''}${fmtY(tot)}</b> ／ ${S.history.length}公演 ／ 信頼度 ${Math.round(S.rep)}${S.tax?`<br><small>法人税（利益の30%）−${fmtY(S.tax)} を差し引き済み</small>`:''}</p>
     <p class="muted" style="font-size:12px">難易度：${(DIFFS[S.diff]||DIFFS.normal).name}　獲得バッジ ${nb}/${BADGES.length}　伝説の夜 ${S.legends||0}回　対決 ${S.duelW||0}勝${S.duelL||0}敗　達成した依頼 ${S.mDone||0}件　固定費の合計 ${fmtY(S.payroll||0)}</p>
     <button class="btn fire big" onclick="clearSave();newGame(S.diff,false)">もう一度プレイ（${(DIFFS[S.diff]||DIFFS.normal).name}）</button>
    </section>
-   <div class="stack"><div class="panel"><h3>業界ランキング</h3><div class="racebox">${raceSVG(560,150)}</div><div class="podium" style="margin-top:8px">${list.map((x,i)=>`<div class="pod ${x.me?'me':''}"><span class="num">${i+1}位</span><span>${esc(x.name)}</span><div class="bar" style="width:${Math.max(1,x.v/mx*70)}%;background:${x.c}"><span>${fmtY(x.v)}</span></div></div>`).join('')}</div></div>
+   <div class="stack" data-pane="k"><div class="panel"><h3>業界ランキング</h3><div class="racebox">${raceSVG(560,150)}</div><div class="podium" style="margin-top:8px">${list.map((x,i)=>`<div class="pod ${x.me?'me':''}"><span class="num">${i+1}位</span><span>${esc(x.name)}</span><div class="bar" style="width:${Math.max(1,x.v/mx*70)}%;background:${x.c}"><span>${fmtY(x.v)}</span></div></div>`).join('')}</div></div>
     <div class="panel"><h3>獲得バッジ ${nb} / ${BADGES.length}</h3><div style="max-height:150px;overflow:auto;margin-top:6px">${badgeGrid()}</div></div>
     <div class="panel"><h3>公演の記録</h3><div style="overflow:auto;max-height:calc(100dvh - 560px);min-height:80px;margin-top:4px"><table class="hist"><thead><tr><th>週</th><th>演者</th><th>会場</th><th>動員</th><th>満足度</th><th>損益</th></tr></thead>
      <tbody>${S.history.map(h=>`<tr><td>${h.wk}</td><td>${esc(h.artist)}</td><td>${esc(h.venue)}</td><td class="v">${fmtN(h.sold)}/${fmtN(h.cap)}</td><td class="v">${h.sat}</td><td class="v ${h.net>=0?'good':'bad'}">${h.net>=0?'+':''}${fmtY(h.net)}</td></tr>`).join('')}</tbody></table></div></div></div>
