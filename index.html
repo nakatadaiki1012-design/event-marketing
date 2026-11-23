@@ -813,7 +813,7 @@ const ICONS={video:'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M1
 };
 function ic(n,cls=''){return `<svg class="ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;}
 /* ========== イラスト（アーティスト・グッズ）をSVGで描く ========== */
-let artSeq=0;let IMG=false;const MERCH_ART=new Set(['mizuiro','blaze','chamber','hoshino','neon','kaito']);const NO_CUT=new Set(['signal']);const BASE_ART=new Set(['jazz','signal','origin','mizuiro','blaze','chamber','hoshino','neon','kaito','box','horizon','civic','arena','dome']);const hasArt=id=>IMG&&BASE_ART.has(id);const AST='assets/';
+let artSeq=0;let IMG=false;const MERCH_ART=new Set(['mizuiro','blaze','chamber','hoshino','neon','kaito']);const MERCH_IMG=new Set([...['mizuiro','blaze','chamber','hoshino','neon','kaito','jazz','signal','origin'].flatMap(x=>['tee','towel','pamph','light','cd','acsta'].map(m=>x+'-'+m))].filter(k=>k!=='neon-acsta'));const NO_CUT=new Set(['signal']);const BASE_ART=new Set(['jazz','signal','origin','mizuiro','blaze','chamber','hoshino','neon','kaito','box','horizon','civic','arena','dome']);const hasArt=id=>IMG&&BASE_ART.has(id);const AST='assets/';
 const SKIN=['#f2c9a5','#e8b48f','#d9a07a','#f5d5b8'];
 function fig(o){
   const s=o.s||1,sk=o.skin||SKIN[0],hc=o.hc||'#222';
@@ -882,7 +882,7 @@ function artistArt(a,opts={}){
 }
 function avatar(a,size){if(hasArt(a.id)&&!CUSTOM[a.id])return `<span class="ava" style="width:${size}px;height:${size}px;--c1:${a.c[0]};--c2:${a.c[1]}"><img alt="" src="${AST}artist-${a.id}-face.webp"></span>`;return `<span class="ava" style="width:${size}px;height:${size}px;--c1:${a.c[0]};--c2:${a.c[1]}">${artistArt(a)}</span>`;}
 function merchArt(mid,a,size=44){
-  if(IMG&&MERCH_ART.has(a.id)&&BASE_MERCH.has(mid))return `<img alt="" decoding="async" loading="lazy" width="${size}" height="${size}" style="flex:none" src="${AST}merch-${a.id}-${mid}.webp">`;
+  if(IMG&&MERCH_IMG.has(a.id+'-'+mid))return `<img alt="" decoding="async" loading="lazy" width="${size}" height="${size}" style="flex:none" src="${AST}merch-${a.id}-${mid}.webp">`;
   const c1=a.c[0],c2=a.c[1],n=a.logo,id='mg'+(++artSeq);let g='';
   if(mid==='tee')g=`<path d="M21 9 L8 16 L13 27 L19 24 L19 57 L45 57 L45 24 L51 27 L56 16 L43 9 Q38 15 32 15 Q26 15 21 9Z" fill="${c1}" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="32" y="38" text-anchor="middle" font-size="${n.length>5?6:7.5}" font-weight="700" fill="${c2}" font-family="sans-serif">${n}</text><path d="M24 43 h16" stroke="${c2}" stroke-width="1.4"/>`;
   if(mid==='towel')g=`<g transform="rotate(-14 32 32)"><rect x="5" y="23" width="54" height="18" rx="2" fill="${c2}"/><rect x="5" y="23" width="54" height="3.2" fill="${c1}"/><rect x="5" y="37.8" width="54" height="3.2" fill="${c1}"/><text x="32" y="35.2" text-anchor="middle" font-size="${n.length>5?6:7}" font-weight="700" fill="${c1}" font-family="sans-serif">${n}</text><path d="M5 24 l-3 1 M5 28 l-3 0 M5 32 l-3 0 M5 36 l-3 0 M5 40 l-3 -1 M59 24 l3 1 M59 28 l3 0 M59 32 l3 0 M59 36 l3 0 M59 40 l3 -1" stroke="${c2}" stroke-width="1.2"/></g>`;
