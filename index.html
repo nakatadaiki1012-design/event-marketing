@@ -1026,7 +1026,7 @@ let awardN=0;
 function award(id){if(!S||!S.badges||S.badges[id])return;S.badges[id]=S.week;const b=BADGES.find(x=>x[0]===id);if(!b)return;const d=1300+(awardN++)*2200;setTimeout(()=>{awardN=Math.max(0,awardN-1);toast(`<span class="badge on">${ic('spark')}</span><span><b>バッジ獲得：${b[1]}</b><small>${b[2]}</small></span>`,'fire');SND.coin();},d);}
 function badgeGrid(){return `<div class="badges">${BADGES.map(b=>{const on=S&&S.badges&&S.badges[b[0]];return `<div class="bdg ${on?'on':''}" title="${esc(b[2])}"><span class="badge">${ic(on?'spark':'crown')}</span><b>${on?b[1]:'？？？'}</b>${on?`<small>${b[2]}</small>`:'<small>まだ見つけていない</small>'}</div>`;}).join('')}</div>`;}
 function migrate(){
-  if(!S.gates)S.gates={3:1,2:1};S.streak=S.streak||0;
+  if(!S.gates)S.gates={3:1,2:1};if(S.sched)festReserve();S.streak=S.streak||0;
   S.rel=S.rel||{};S.staff=S.staff||{};S.missions=S.missions||[];S.badges=S.badges||{};S.recv=S.recv||[];S.seasonDone=S.seasonDone||{};S.tut=S.tut||{on:false,done:{}};S.startCash=S.startCash||3000000;S.mtab=S.mtab||'cards';
   S.rivals.forEach((r,i)=>{const r0=RIVALS0[i];if(r0){r.boss=r.boss||r0.boss;r.f=r.f||r0.f;r.say=r.say||r0.say;r.start=r.start||r0.cash;}});
   if(S.mg&&!S.mg.type){S.mg.type='timing';S.mg.n=3;}
@@ -1369,11 +1369,11 @@ function planHTML(){
     return planHead(1,`${esc(coName())} 年末フェスの出演者を選ぶ`,`第${FEST_WK}週（${fmtDate(slotDate(FEST_WK,'we'))}）に、最大3組を集めて自社フェスを開く。1番目がヘッドライナー（主役）。ジャンルがばらけるほど客層が広がり、動員+10%ずつ。出演料はまとめ契約で15%引き。`)+
     `<div class="festline">${[0,1,2].map(i=>{const id=p.lineup[i];const a=id&&A(id);return `<div class="fslot ${a?'on':''}"><small>${i===0?'ヘッドライナー':i+1+'組目（動員×'+FEST_W[i]+'）'}</small>${a?`<span class="fsart">${artistArt(a)}</span><b>${esc(a.name)}</b>`:'<span class="fsempty">＋</span>'}</div>`;}).join('')}
       <div class="fsum"><span>想定動員</span><b class="num">約${fmtN(festBase(p))}人</b><span>出演料（15%引き）</span><b class="num">${fmtY(pFee(p))}</b></div></div>
-    <div class="grid-cards">${ARTISTS.map(a=>{const locked=S.rep<a.rep,busy=S.sched.a[a.id][k]!=='f',on=p.lineup.indexOf(a.id);
+    <div class="grid-cards">${ARTISTS.map(a=>{const locked=S.rep<a.rep,busy=S.sched.a[a.id][k]!=='f',own=S.sched.a[a.id][k]==='y',on=p.lineup.indexOf(a.id);
       return `<button class="acard ${locked||busy?'locked':''} ${on>=0?'fsel':''}" data-a="${a.id}" ${locked||busy?'disabled':''} onclick="festToggle('${a.id}')">
         <div class="poster" style="background:linear-gradient(135deg,${a.c[0]},${a.c[1]})"><div class="art">${artistArt(a,{bg:false,fit:'xMaxYMax meet',vb:'26 18 148 102'})}</div><div><div class="pk">${esc(a.kana)}</div><div class="pn">${esc(a.name)}</div></div><span class="chip ptype">${a.type}</span></div>
         <div class="body">${statRow('users','約'+fmtN(baseOf(a))+'人',Math.log10(baseOf(a)/150)/Math.log10(40000/150),'linear-gradient(90deg,var(--curtain),var(--fire-hot))','動員力')}${statRow('coin',fmtY(Math.round(feeOf(a)*0.85)),Math.log10(feeOf(a)/100000)/Math.log10(2e8/1e5),'var(--brass)','出演料（フェス価格）')}</div>
-        ${on>=0?`<span class="fsnum">${on===0?'主役':on+1}</span>`:''}${locked?`<span class="lock">信頼度${a.rep}で解禁</span>`:busy?'<span class="lock">その日は予定あり</span>':''}
+        ${on>=0?`<span class="fsnum">${on===0?'主役':on+1}</span>`:''}${locked?`<span class="lock">信頼度${a.rep}で解禁</span>`:busy?`<span class="lock">${own?'自社の公演と重なる':'その日は予定あり'}</span>`:''}
       </button>`;}).join('')}</div>`;
   }
   if(p.step===1){
@@ -1406,6 +1406,8 @@ function planHTML(){
       const sa=S.sched.a[a.id],sv=S.sched.v[p.venue];
       const taken=new Set(S.projects.filter(q=>q.artist===a.id).map(q=>q.wk));
       const row=d=>weeks.map(w=>{const k=w+'-'+d,as=sa[k],vs=sv[k],dt=fmtDate(slotDate(w,d));
+        const fx=festHeld()&&k===FEST_WK+'-we';
+        if(fx)return `<td><div class="slot na" title="年末フェスのために確保している日">${ic('crown')}<small>${dt}</small><small>フェス用</small></div></td>`;
         if(as==='f'&&vs==='f'&&!taken.has(w))return `<td><button class="slot ok ${p.slot===k?'sel':''}" onclick="pickSlot('${k}')">${p.slot===k?'決定':'押さえる'}<small>${dt}</small>${isDisc(p.venue,k)?'<small class="disc">直前割</small>':''}${rivalAt(w,a.genre).length?'<small class="vs">⚔ライバル対決</small>':''}</button></td>`;
         const rv=as==='r'||vs==='r';const why=taken.has(w)?ic('music'):rv?ic('alert'):(as!=='f'?ic('userx'):'')+(vs!=='f'?ic('homex'):'');const tipw=taken.has(w)?'自社公演あり':rv?'ライバルが押さえた':as!=='f'&&vs!=='f'?'演者も会場も空いていない':as!=='f'?'演者の予定が埋まっている':'会場が埋まっている';
         return `<td><div class="slot na ${rv?'rival':''}" title="${tipw}">${why}<small>${dt}</small></div></td>`;}).join('');
@@ -1462,7 +1464,9 @@ function planHTML(){
      </div><div class="panel" id="funding"></div></div>`;
   }
 }
-function openFest(){if(!S.fest||S.fest.planned||S.week>FEST_DL||S.ap<1)return;SND.click();S.phase='plan';S.plan={fest:true,lineup:[],step:1,artist:null,venue:null,slot:null,deal:'fixed',price:null,grade:'lux',loan:0,sponsor:false,investor:false,crowd:false,insured:false,presale:false};render();}
+function festHeld(){return !!(S&&S.fest&&!S.fest.planned&&!S.fest.lost);}
+function festReserve(){if(!festHeld())return;const k=FEST_WK+'-we';ARTISTS.forEach(a=>{if(S.sched.a[a.id][k]!=='y')S.sched.a[a.id][k]='f';});VENUES.forEach(v=>{if(v.tier>=2&&S.sched.v[v.id][k]!=='y')S.sched.v[v.id][k]='f';});}
+function openFest(){festReserve();if(!S.fest||S.fest.planned||S.week>FEST_DL||S.ap<1)return;SND.click();S.phase='plan';S.plan={fest:true,lineup:[],step:1,artist:null,venue:null,slot:null,deal:'fixed',price:null,grade:'lux',loan:0,sponsor:false,investor:false,crowd:false,insured:false,presale:false};render();}
 function festToggle(id){const p=S.plan,i=p.lineup.indexOf(id);if(i>=0)p.lineup.splice(i,1);else if(p.lineup.length<3)p.lineup.push(id);else{toast('出演者は3組までです');return;}SND.click();render();}
 function festNext(){const p=S.plan;if(!p.lineup.length)return;const a=A(p.lineup[0]);Object.assign(p,{artist:a.id,price:Math.round(a.ref*1.1/100)*100,wk:FEST_WK,d:'we',L:FEST_WK-S.week,slot:FEST_WK+'-we',venue:null,step:2});render();}
 function pickArtist(id){SND.click();S.plan.tour=isTour(id);S.plan.artist=id;S.plan.venue=null;S.plan.slot=null;S.plan.price=A(id).ref;S.plan.step=2;render();}
@@ -1700,7 +1704,7 @@ const SEASONAL={
    {label:'出店する',sub:`−${fmtY(c)}（固定費）／売上は信頼度しだい`,cost:c,fn(){S.cash-=c;const g=Math.round((c*rnd(0.4,1.6)+S.rep*rnd(20000,60000))/10000)*10000;S.cash+=g;const net=g-c;SND[net>=0?'coin':'bad']();return`売上${fmtY(g)}、差し引き ${net>=0?'+':''}${fmtY(net)}`;}},
    {label:'見送る',sub:'リスクを取らない',fn(){return'出店を見送った';}}];}},
  30:{icon:'crown',cond:()=>S.rep>=(S.diff==='easy'?12:20)&&!S.fest,title:'年末フェスの主催権が売りに出た',text:`第${FEST_WK}週の土曜、大きな会場で自社主催のフェスを開ける権利。複数の演者をまとめて出せるので、大成功すれば1年で最大の稼ぎと評判になる。企画の締め切りは第${FEST_DL}週。`,choices:()=>{const c=Math.round(Math.max(1000000,assets()*0.04)/100000)*100000;return[
-   {label:'主催権を取る',sub:`権利金 −${fmtY(c)}／第${FEST_DL}週までに企画`,cost:c,fn(){S.cash-=c;S.fest={cost:c,planned:false};ARTISTS.forEach(a=>{const k=FEST_WK+'-we';if(S.sched.a[a.id][k]!=='y')S.sched.a[a.id][k]='f';});SND.fanfare();return`年末フェスの主催権を獲得！（${fmtY(c)}）`;}},
+   {label:'主催権を取る',sub:`権利金 −${fmtY(c)}／第${FEST_DL}週までに企画`,cost:c,fn(){S.cash-=c;S.fest={cost:c,planned:false};festReserve();SND.fanfare();return`年末フェスの主催権を獲得！（${fmtY(c)}）`;}},
    {label:'見送る',sub:'通常の公演に集中する',fn(){return'主催権は他社に渡った';}}];}},
  34:{icon:'coin',cond:()=>S.projects.length>0,title:'大手飲料メーカーから冠スポンサーの提案',text:'次の公演に社名を冠したいという。ただし「稼働率80%以上」が条件だ。',choices:()=>{const p=S.projects.slice().sort((x,y)=>x.wk-y.wk)[0],v=Vn(p.venue),amt=Math.round(v.cap*600/10000)*10000;return[
    {label:`受ける（${esc(A(p.artist).name)}公演）`,sub:`+${fmtY(amt)}／80%未満なら全額返金・信頼度−5`,fn(){p.crown=amt;S.cash+=amt;SND.coin();return`冠スポンサー決定 +${fmtY(amt)}`;}},
