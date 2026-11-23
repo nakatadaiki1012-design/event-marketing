@@ -1155,7 +1155,7 @@ const slotsMax=()=>2+(S.rep>=40?1:0)+(S.rep>=65?1:0)+(has('pm')?1:0);
 function slotHint(){const m=slotsMax();if(S.rep<40)return'信頼度40で 3本目の企画枠が解放';if(S.rep<65)return`信頼度65で ${m+1}本目の企画枠が解放`;if(!has('pm'))return'スタッフ「制作進行」を雇うと もう1枠増える';return'';}
 const LEAD={box:4,horizon:6,civic:8,park:10,arena:12,dome:16};
 const COPY_RATE=g=>g==='classical'?0.01:0.05;
-const MERCH_FEE=0.2,MERCH_ROY=0.25,VAT=1/11;
+const MERCH_FEE=0.12,MERCH_ROY=0.25,VAT=1/11;
 function isTour(aid){return S.projects.some(q=>q.artist===aid&&!q.lineup)||(S.history||[]).some(h=>h.aid===aid&&h.wk>=S.week-8&&!h.fest&&!h.cancel);}
 function agencyFee(v,sold){return Math.round((v.cap*250+sold*250)/1000)*1000;}
 const FEST_WK=50,FEST_DL=46,FEST_W=[1,0.55,0.4];
@@ -1562,7 +1562,7 @@ function planHTML(){
     return planHead(4,'お金を集める','費用は公演前に払い、チケット代は公演後に入る。宣伝費とグッズ代も残そう。',`<button class="btn" onclick="planStep(3)">戻る</button>`)+
     `<div class="g2"><div class="stack">
       <div class="panel"><div class="row" style="justify-content:space-between"><h3>銀行から借りる</h3><span class="chip">あと ${fmtY(lim)} まで</span></div>
-       <div class="row" style="justify-content:space-between"><span class="bigval" id="loanv">${fmtY(p.loan)}</span><span class="muted" style="font-size:12px">公演後に利息${Math.round(loanRate()*100)}%で返済</span></div>
+       <div class="row" style="justify-content:space-between"><span class="bigval" id="loanv">${fmtY(p.loan)}</span><span class="muted" style="font-size:12px">公演後に利息${Math.round(loanRate()*100)}%〜で返済</span></div>
        <input id="loan" type="range" min="0" max="${lim}" step="${step}" value="${p.loan}" oninput="onLoan(this.value)" aria-label="借入額"></div>
       <button class="toggle ${p.sponsor?'on':''}" onclick="togglePlan('sponsor')" ${S.rep<5?'disabled':''}><span class="box">${p.sponsor?'✓':''}</span><span class="t"><b>${ic('coin')} 協賛スポンサー　+${fmtY(sponsorAmt(p))}</b><span>${ic('alert')}稼働率70%未満で半額返金</span></span></button>
       <button class="toggle ${p.investor?'on':''}" onclick="togglePlan('investor')"><span class="box">${p.investor?'✓':''}</span><span class="t"><b>${ic('users')} 共同主催の出資　+${fmtY(investAmt(p))}</b><span>損益を40%ずつ分け合う</span></span></button>
@@ -1611,7 +1611,7 @@ function updateFunding(){
   const p=S.plan,t=fundingTotals(),ok=t.after>=0;
   $('#funding').innerHTML=`<div class="eyebrow">資金計画</div>${fundBars(t,p)}
    <div class="fresult ${ok?'good':'bad'}"><span>契約後に残るお金</span><b class="num">${fmtY(t.after)}</b></div>
-   ${p.loan?`<p style="font-size:12px;margin-top:4px" class="${t.after>t.u.total*0.6+300000?'bad':'muted'}">${ic('coin')} 借入${fmtY(p.loan)}の利息 <b>${fmtY(p.loan*loanRate())}</b>（公演後に返済）${t.after>t.u.total*0.6+300000?'。必要以上に借りると、利息の分だけ損になる':''}</p>`:''}
+   ${p.loan?`<p style="font-size:12px;margin-top:4px" class="${t.after>t.u.total*0.6+300000?'bad':'muted'}">${ic('coin')} 借入${fmtY(p.loan)}の利息 <b>${fmtY(p.loan*planRate(p.loan))}</b>（金利${(planRate(p.loan)*100).toFixed(1)}%・公演後に返済）${planRate(p.loan)>loanRate()?'<br><span class="bad">借入枠の4割を超えると金利が上がる</span>':''}${t.after>t.u.total*0.6+300000?'。必要以上に借りると、利息の分だけ損になる':''}</p>`:''}
    <p class="muted" style="font-size:12px;margin-top:2px">${ok?(t.after<t.u.total*0.15?'残りが少なめ。宣伝費やグッズ代が足りなくなるかも。':'宣伝費とグッズ代はこの残りから払う。'):'足りない！ 借入やスポンサーで「用意」のバーを伸ばそう。'}</p>
    <p class="muted" style="font-size:12px;margin-top:6px">${ok?'準備OK。右下の「契約！」で公演が決まる。':''}</p>`;
   const go=$('#planGo');if(go)go.disabled=!ok;
@@ -1636,7 +1636,7 @@ function confirmPlan(force){
   const id=S.seq++,fee=pFee(p);
   const pr={id,artist:p.artist,venue:p.venue,wk:p.wk,d:p.d,L:p.L,deal:p.deal,price:p.price,grade:p.grade,loan:p.loan,insured:p.insured,insCost:t.ins,fee,presale:p.presale,
     sponsorAmt:p.sponsor?sponsorAmt(p):0,investAmt:p.investor?investAmt(p):0,rentPaid:t.u.rent,prodPaid:t.u.prod,artistPaid:t.u.art,
-    vip:!!p.vip&&p.host!=='agency',grant:0,host:p.host||'own',merchDeal:p.host==='agency'?'none':(p.merchDeal||'consign'),tour:!!p.tour&&!p.lineup,lineup:p.lineup||null,pledge:p.pledge||0,aw:(S.perk==='perk_fan'?0.05:0)+Math.min(0.06,(S.fans||0)/60000)+(p.lineup?0.12:0)+(p.tour?0.05:0)+a.aw0+PLEDGE[p.pledge||0].aw+(relOf(a.id)>=4?0.1:0)+(p.presale?0.04:0)+(p.grade==='lux'?0.06:p.grade==='simple'?-0.03:0),sold:0,prevSold:0,k:0,K:p.L,weekly:[],used:{},promoSpent:0,eventCost:prem+t.pre,eventIncome:0,demandMod:1,merchMod:1,satMod:0,noShow:0.02,walkinMod:1,
+    rate:planRate(p.loan),vip:!!p.vip&&p.host!=='agency',grant:0,host:p.host||'own',merchDeal:p.host==='agency'?'none':(p.merchDeal||'consign'),tour:!!p.tour&&!p.lineup,lineup:p.lineup||null,pledge:p.pledge||0,aw:(S.perk==='perk_fan'?0.05:0)+Math.min(0.06,(S.fans||0)/60000)+(p.lineup?0.12:0)+(p.tour?0.05:0)+a.aw0+PLEDGE[p.pledge||0].aw+(relOf(a.id)>=4?0.1:0)+(p.presale?0.04:0)+(p.grade==='lux'?0.06:p.grade==='simple'?-0.03:0),sold:0,prevSold:0,k:0,K:p.L,weekly:[],used:{},promoSpent:0,eventCost:prem+t.pre,eventIncome:0,demandMod:1,merchMod:1,satMod:0,noShow:0.02,walkinMod:1,
     noise:rnd(0.88,1.12),merch:null,merchCost:0,merchDone:p.host==='agency'||(p.merchDeal||'consign')!=='own',crowd:0,soldOutWeek:0,seen:{},cancel:null,comps:0,crown:0};
   pr.sunk=t.u.total+t.ins+t.pre+prem;
   S.cash=t.after-prem;S.ap--;
@@ -1833,29 +1833,30 @@ function runQueue(){
 }
 
 /* ----- グッズ ----- */
+function merchAttend(p){const v=Vn(p.venue);return Math.round(Math.min(v.cap,Math.max(p.sold,demand(p,Math.min(1.6,p.aw+0.2),p.demandMod))));}
 function merchRate(m,a){const r=(m.over&&m.over[a.genre]!=null)?m.over[a.genre]:m.rate;return r*a.merch;}
 let merchOrder={},merchPid=null;
 function merchModal(pid,forced){
   const p=proj(pid);if(!p||p.merchDone){runQueue();return;}
   const a=A(p.artist),v=Vn(p.venue);merchPid=pid;
-  const est=Math.round(Math.min(v.cap,demand(p,p.aw,p.demandMod)));
+  const est=merchAttend(p);
   merchOrder={};const lot=v.cap>=8000?100:v.cap>=1200?20:10;
-  const rows=MERCH.filter(merchOpen).map(m=>{const r=merchRate(m,a),sug=Math.round(est*r/lot)*lot,max=Math.max(lot*10,Math.ceil(est*r*2.5/lot)*lot);merchOrder[m.id]=0;
-    return `<div class="mitem"><div class="mrow">${merchArt(m.id,a,46)}<div><b>${m.name}</b><br><small class="muted">${ic('coin')}${fmtN(m.cost)}→${fmtN(m.price)}円　平均 ${fmtN(sug)}個${has('merch')?`<br><b class="good">プロ予測 約${fmtN(Math.round(est*r*merchBoost()/lot)*lot)}個</b>`:''}</small></div></div>
-      <div class="mctl"><input type="range" id="mr-${m.id}" min="0" max="${max}" step="${lot}" value="0" oninput="onMerch('${m.id}',this.value)" aria-label="${m.name}の発注数"><div class="mbar"><i id="mb-${m.id}" style="width:0"></i><span class="avg" style="left:${(sug/max*100).toFixed(1)}%" title="平均の目安"></span></div></div>
+  const rows=MERCH.filter(merchOpen).map(m=>{const r=merchRate(m,a),k=p.merchMod*merchBoost(),sug=Math.round(est*r*k/lot)*lot,max=Math.max(lot*10,Math.ceil(est*r*2.4/lot)*lot);merchOrder[m.id]=0;
+    return `<div class="mitem"><div class="mrow">${merchArt(m.id,a,46)}<div><b>${m.name}</b><br><small class="muted">${ic('coin')}${fmtN(m.cost)}→${fmtN(m.price)}円　目安 ${fmtN(sug)}個<br><b class="good">大成功なら 約${fmtN(Math.round(est*r*k*1.25/lot)*lot)}個</b></small></div></div>
+      <div class="mctl"><input type="range" id="mr-${m.id}" min="0" max="${max}" step="${lot}" value="0" oninput="onMerch('${m.id}',this.value)" aria-label="${m.name}の発注数"><div class="mbar"><i id="mb-${m.id}" style="width:0"></i><span class="avg" style="left:${(sug/max*100).toFixed(1)}%" title="目安（満足度ふつうの場合）"></span></div></div>
       <div class="num" style="text-align:right"><b id="mq-${m.id}" style="font-size:16px;color:var(--brass-soft)">0</b>個</div></div>`;}).join('');
   showModal(`<div class="mstrip" style="margin-bottom:6px">${MERCH.filter(merchOpen).map(m=>merchArt(m.id,a,40)).join('')}</div><div class="eyebrow">${esc(a.name)} ／ ${forced?'<span class="bad">発注の最終締め切り！</span>':'グッズの発注（本番まであと'+(p.K-p.k)+'週）'}</div><h3>グッズを何個つくる？</h3>
    <p class="lead">現在 <b class="num">${fmtN(p.sold)}枚</b> 販売、来場は <b class="num">約${fmtN(est)}人</b> の見込み。本番の盛り上がりで売れ行きが変わる。</p>
    ${S.tut&&S.tut.on?`<div class="tip" style="margin-top:6px"><b>${COACH.name}（${COACH.role}）のコツ：</b>グッズは利益率が高いから、平均より少し多め（1.2倍くらい）が儲かりやすいよ。</div>`:''}
    <div class="mlist">${rows}</div>${MERCH.filter(m=>!merchOpen(m)).map(m=>`<p class="muted" style="font-size:11px">${ic('star')} 信頼度${m.rep}で「${m.name}」が作れるようになる</p>`).join('')}
-   <div class="frow total"><span>発注総額（今すぐ支払い）</span><span class="v" id="mtotal">0円</span></div>
-   <p class="muted" style="font-size:12px">売れ残りは原価の40%しか回収できない（<button class="term" onclick="term('在庫リスクと機会損失')">在庫リスク</button>）。でも利益率が高いので、少なすぎるのはもっと損。</p>
+   <div class="frow total"><span>発注総額（半額は今、残りは公演後に支払い）</span><span class="v" id="mtotal">0円</span></div>
+   <p class="muted" style="font-size:12px">売れ残りは3割を公演後の通販で売り、残りは原価の40%で処分（<button class="term" onclick="term('在庫リスクと機会損失')">在庫リスク</button>）。満足度が高いほど売れるので、目安より多めも作戦。</p>
    <div class="row" style="margin-top:10px"><button class="btn primary" id="mok" onclick="confirmMerch()">この数で発注</button>${forced?'':'<button class="btn" onclick="closeModal();render();runQueue()">あとで決める</button>'}<span class="muted" id="mwarn" style="font-size:13px"></span></div>`,true);
 }
-function onMerch(id,v){merchOrder[id]=+v;{const inp=$('#mr-'+id),b=$('#mb-'+id);if(inp&&b)b.style.width=(v/inp.max*100)+'%';}$('#mq-'+id).textContent=fmtN(v);const t=MERCH.reduce((s,m)=>s+(merchOrder[m.id]||0)*m.cost,0);$('#mtotal').textContent=fmtY(t);const over=t>S.cash;$('#mok').disabled=over;$('#mwarn').textContent=over?'資金が足りません':'';}
+function onMerch(id,v){merchOrder[id]=+v;{const inp=$('#mr-'+id),b=$('#mb-'+id);if(inp&&b)b.style.width=(v/inp.max*100)+'%';}$('#mq-'+id).textContent=fmtN(v);const t=MERCH.reduce((s,m)=>s+(merchOrder[m.id]||0)*m.cost,0);$('#mtotal').textContent=fmtY(t)+'（今払うのは半額 '+fmtY(Math.round(t/2))+'）';const over=t/2>S.cash;$('#mok').disabled=over;$('#mwarn').textContent=over?'資金が足りません':'';}
 function confirmMerch(){
-  const p=proj(merchPid);MERCH.forEach(m=>{if(!merchOpen(m))delete merchOrder[m.id];});const t=MERCH.reduce((s,m)=>s+(merchOrder[m.id]||0)*m.cost,0);if(!p||t>S.cash)return;
-  S.cash-=t;p.merch={...merchOrder};p.merchCost=t;p.sunk+=t;p.merchDone=true;
+  const p=proj(merchPid);MERCH.forEach(m=>{if(!merchOpen(m))delete merchOrder[m.id];});const t=MERCH.reduce((s,m)=>s+(merchOrder[m.id]||0)*m.cost,0);if(!p||t/2>S.cash)return;
+  const pay=Math.round(t/2);S.cash-=pay;p.merch={...merchOrder};p.merchCost=t;p.merchPaid=pay;p.sunk+=t;p.merchDone=true;
   S.news.unshift({t:t?`${esc(A(p.artist).name)}：グッズ発注（${fmtY(t)}）`:`${esc(A(p.artist).name)}：グッズは作らない`,c:'gd'});
   SND.coin();closeModal();render();runQueue();
 }
@@ -1944,10 +1945,10 @@ function computeShow(p,bonus){
   let sat=58+g.sat+v.fit[a.genre]+p.satMod+bonus-pPen(p)+rnd(-5,5)+[0,3,5,7][lv('director')]+(p.presale?4:0)+(p.vip?2:0);
   if(fill>=0.95)sat+=10;else if(fill>=0.8)sat+=5;else if(fill<0.3)sat-=18;else if(fill<0.5)sat-=10;
   sat=clamp(Math.round(sat),5,100);
-  const sf=Math.pow(sat/70,1.5);
+  const sf=clamp(sat/75,0.5,1.25);
   const md=p.merchDeal||'own';
-  const merch=MERCH.filter(m=>md==='own'?(p.merch&&p.merch[m.id]!=null):merchOpen(m)).map(m=>{const dem=md==='none'?0:Math.round(attend*merchRate(m,a)*sf*p.merchMod*rnd(0.75,1.25)*merchBoost());const q=md==='consign'?dem:((p.merch&&p.merch[m.id])||0);const s=Math.min(q,dem);
-    return{id:m.id,name:m.name,q,dem,sold:s,rev:s*m.price,unsold:q-s,salv:Math.round((q-s)*m.cost*salvRate()),lost:Math.max(0,dem-q)*(m.price-m.cost)};});
+  const merch=MERCH.filter(m=>md==='own'?(p.merch&&p.merch[m.id]!=null):merchOpen(m)).map(m=>{const dem=md==='none'?0:Math.round(attend*merchRate(m,a)*sf*p.merchMod*rnd(0.75,1.25)*merchBoost());const q=md==='consign'?dem:((p.merch&&p.merch[m.id])||0);const s0=Math.min(q,dem),mail=md==='own'?Math.round((q-s0)*0.3):0,s=s0+mail;
+    return{id:m.id,name:m.name,q,dem,sold:s,mail,rev:s*m.price,unsold:q-s,salv:Math.round((q-s)*m.cost*salvRate()),lost:Math.max(0,dem-q)*(m.price-m.cost)};});
   const merchRev=merch.reduce((s,x)=>s+x.rev,0),salvage=merch.reduce((s,x)=>s+x.salv,0);
   const merchIncome=md==='consign'?Math.round(merchRev*MERCH_FEE):md==='own'?merchRev-Math.round(merchRev*MERCH_ROY):0,merchRoyalty=md==='own'?Math.round(merchRev*MERCH_ROY):0;
   const presoldRev=p.preRev!=null?p.preRev:(presold-comps)*p.price,walkRev=walk*p.price;
@@ -1959,7 +1960,7 @@ function computeShow(p,bonus){
   const artistPay=p.deal==='fixed'?fee:sharePay,altPay=p.deal==='fixed'?sharePay:fee;
   const refund=p.sponsorAmt&&fill<0.7?Math.round(p.sponsorAmt*0.5):0;
   const crown=p.crown||0,crownRefund=crown&&fill<0.8?crown:0;
-  const gift=Math.round(p.crowd*0.35),interest=Math.round(p.loan*loanRate());
+  const gift=Math.round(p.crowd*0.35),interest=Math.round(p.loan*(p.rate??loanRate()));
   const agency=p.host==='agency';
   const copyright=agency?0:Math.round(ticketRev/1.1*COPY_RATE(a.genre));
   const agFee=agency?agencyFee(v,sold):0;
@@ -1970,7 +1971,7 @@ function computeShow(p,bonus){
   const invShare=p.investAmt?Math.round(P0*0.4):0,invPayout=p.investAmt?Math.max(0,p.investAmt+invShare):0;
   const deferred=agency?0:presoldRev-playguide;
   if(agency)S.cash+=agFee-vat;
-  else S.cash+=walkRev+vipRev-vipCost+merchIncome+salvage-staff-(artistPay-p.artistPaid)-refund-crownRefund-gift-(p.loan+interest)-invPayout-copyright-vat;
+  else S.cash+=walkRev+vipRev-vipCost+merchIncome+salvage-(p.merchCost-(p.merchPaid??p.merchCost))-staff-(artistPay-p.artistPaid)-refund-crownRefund-gift-(p.loan+interest)-invPayout-copyright-vat;
   if(deferred>0)S.recv.push({wk:S.week+2,amt:deferred});else S.cash+=deferred;
   const bridge=takeBridge();
   let net=P0-(invPayout-p.investAmt);
@@ -2015,10 +2016,10 @@ function computeCancel(p){
   const sunkCosts=p.rentPaid+p.prodPaid+p.promoSpent+p.merchCost+p.eventCost+(p.artistPaid-artistRefund)-venueRefund-prodRefund;
   const insPay=p.insured&&!self?sunkCosts:0;
   const salvage=Math.round(p.merchCost*0.4);
-  const gift=Math.round(p.crowd*0.35),interest=Math.round(p.loan*loanRate());
+  const gift=Math.round(p.crowd*0.35),interest=Math.round(p.loan*(p.rate??loanRate()));
   const P0=-sunkCosts+insPay+salvage-p.insCost+p.crowd-gift+p.eventIncome-interest;
   const invShare=p.investAmt?Math.round(P0*0.4):0,invPayout=p.investAmt?Math.max(0,p.investAmt+invShare):0;
-  S.cash+=artistRefund+venueRefund+prodRefund+insPay+salvage-p.sponsorAmt-(p.grant||0)-(p.crown||0)-gift-(p.loan+interest)-invPayout;
+  S.cash+=artistRefund+venueRefund+prodRefund+insPay+salvage-(p.merchCost-(p.merchPaid??p.merchCost))-p.sponsorAmt-(p.grant||0)-(p.crown||0)-gift-(p.loan+interest)-invPayout;
   if(self){S.rep=clamp(S.rep-3,0,100);S.rel[a.id]=clamp(relOf(a.id)-1,0,5);}
   takeBridge();
   const net=P0-(invPayout-p.investAmt);
@@ -2121,7 +2122,7 @@ function resultHTML(){
        ${[['チケット売上（前売'+fmtN(R.presold)+'＋当日'+fmtN(R.walk)+'枚）',R.ticketRev],['運営受託料',R.agFee||0],['グッズ売上（全体）',R.merchDeal==='own'?R.merchRev:0],['グッズの委託販売手数料（売上'+fmtY(R.merchRev)+'の20%）',R.merchDeal==='consign'?R.merchIncome:0],['グッズのライセンス料（売上の25%）',-(R.merchRoyalty||0)],['売れ残りの後日回収',R.salvage],['協賛金',R.sponsor-R.refund],['クラファン',R.crowd],['臨時収入',R.eventIncome],['冠スポンサー',(R.crown||0)-(R.crownRefund||0)],['公約の賞金・違約金',R.pledgeCash||0],['出演料',-R.artistPay],['会場費',-R.rent],['制作・演出費',-R.prod],['宣伝費',-R.promo],['グッズ原価',-R.merchCost],['運営・警備人件費',-R.staff],['プレイガイド手数料',-R.playguide],['クラファンお礼',-R.gift],['その他の出費（先行抽選・イベント等）',-R.eventCost],['著作権使用料（チケット売上の'+(R.copyright&&A(R.artist).genre==='classical'?1:5)+'%）',-(R.copyright||0)],['消費税（納付）',-(R.vat||0)],['借入利息',-R.interest],['保険料',-R.insCost],['出資者への分配',-(R.invPayout-R.investAmt)]].filter(x=>Math.round(x[1])).map(x=>`<tr><td>${x[0]}</td><td class="v">${x[1]<0?'−':''}${fmtY(Math.abs(x[1]))}</td></tr>`).join('')}
       </table></details></div>
     <div class="panel" data-pane="r"><h3>振り返り</h3><div class="lessons" style="margin-top:6px">${lessons(R).map(l=>`<div class="tip icotip">${ic(lessonIcon(l))}<span>${l}</span></div>`).join('')}</div>
-      ${R.merch.some(m=>m.q)?`<h3 style="margin-top:10px">グッズ</h3><table class="pl">${R.merch.filter(m=>m.q).map(m=>`<tr><td><span class="mi">${merchArt(m.id,a,26)}</span>${m.name}</td><td class="v">${fmtN(m.sold)}/${fmtN(m.q)}個 ${m.lost?'<span class="bad">品切れ</span>':m.unsold?'<span class="muted">残'+fmtN(m.unsold)+'</span>':'<span class="good">完売</span>'}</td></tr>`).join('')}</table>`:''}
+      ${R.merch.some(m=>m.q)?`<h3 style="margin-top:10px">グッズ</h3><table class="pl">${R.merch.filter(m=>m.q).map(m=>`<tr><td><span class="mi">${merchArt(m.id,a,26)}</span>${m.name}</td><td class="v">${fmtN(m.sold)}/${fmtN(m.q)}個${m.mail?`<small class="muted">（通販${fmtN(m.mail)}）</small>`:''} ${m.lost?'<span class="bad">品切れ</span>':m.unsold?'<span class="muted">残'+fmtN(m.unsold)+'</span>':'<span class="good">完売</span>'}</td></tr>`).join('')}</table>`:''}
     </div></div>`;
 }
 function afterResult(){
@@ -2273,7 +2274,8 @@ function addBuzz(x){S.buzz=clamp((S.buzz||0)+x,0,100);}
 function staffXP(){const up=[];STAFF.forEach(s=>{if(!has(s.id))return;const b=lv(s.id);S.sxp[s.id]=(S.sxp[s.id]||0)+1;if(lv(s.id)>b)up.push(s);});
   up.forEach(s=>{S.news.unshift({t:`${s.name}がレベル${lv(s.id)}に成長！「${s.lv[lv(s.id)-1]}」`,c:'gd'});setTimeout(()=>toast(`${ic('star','fill')}<span><b>${s.name}がLv${lv(s.id)}に成長！</b><small>${s.lv[lv(s.id)-1]}（人件費も少し上がる）</small></span>`,'fire'),3200);});}
 function apMax(){return 3+(has('planner')?1:0);}
-function loanRate(){return has('account')?0.02:0.05;}function insRate(){return lv('account')>=2?0.015:has('account')?0.02:0.03;}
+function loanRate(){return has('account')?0.02:0.05;}
+function planRate(loan){const lim=loanLimit();if(!loan||!lim)return loanRate();const u=(loanUsed()+loan)/lim;return Math.round((loanRate()+Math.max(0,u-0.4)*0.15)*1000)/1000;}function insRate(){return lv('account')>=2?0.015:has('account')?0.02:0.03;}
 function bridgeFee(){return has('account')?1:1.01;}
 function staffAva(s,size){if(IMG&&s.img!==false)return `<span class="ava" title="${esc(s.name)}" style="width:${size}px;height:${size}px;--c1:${s.f.out};--c2:#150c1b"><img alt="" src="${AST}staff-${s.id}.webp"></span>`;return `<span class="ava" title="${esc(s.name)}" style="width:${size}px;height:${size}px;--c1:${s.f.out};--c2:#150c1b"><svg viewBox="25 14 50 50" aria-hidden="true"><rect width="100" height="130" fill="${s.f.out2}" opacity=".35"/>${fig({x:50,y:121,s:1,...s.f})}</svg></span>`;}
 function companyHTML(){
