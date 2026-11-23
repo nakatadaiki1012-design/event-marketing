@@ -752,6 +752,11 @@ h3,.modal h3{font-family:var(--f-body)!important;font-weight:700!important;lette
 .mlist{display:grid;grid-template-columns:1fr 1fr;column-gap:22px}
 @media (max-width:860px){.mlist{column-gap:12px}.mlist .mrow{gap:6px}.mlist .mrow>img,.mlist .mrow>svg{width:34px;height:34px}.mlist .mitem small{font-size:10px}.mlist .mitem b{font-size:12px}.mlist .mrow .ic{display:none}}
 @media (max-width:420px){.hub .detail .panel{padding:7px 9px}.hub .detail .stack{gap:6px}}
+.cards.many{gap:5px}.cards.many .pc-top{padding:3px 8px 3px 5px}.cards.many .pc-top .ava{width:24px!important;height:24px!important}.cards.many .pc-name{font-size:13px}.cards.many .pc-cd{font-size:12px}
+.cards.many .pc-body{padding:4px 8px 5px;gap:8px}.cards.many .ring{width:40px;height:40px}.cards.many .ring b{font-size:11px}.cards.many .pc-icons .chip:not(.due){display:none}.cards.many .pc-icons:not(:has(.due)){display:none}.cards.many .ring{width:36px;height:36px}.cards.many .pc-info .sold{font-size:12px}
+.cards.many .pcard.empty{padding:6px 10px;min-height:0}.cards.many .pcard.empty small{display:none}
+@media (max-width:860px){.cards.many{grid-template-columns:repeat(auto-fill,minmax(165px,1fr))}}
+@media (min-width:861px){.cards.many4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.cards.many4 .pcard{min-width:0}.cards.many4 .pc-info{min-width:0;flex:1}.cards.many4 .pc-name{font-size:12px}.cards.many4 .pc-cd{font-size:11px;padding:0 6px}.cards.many4 .pc-top .ava{display:none}.cards.many4 .pc-body{gap:6px}}
 </style>
 </head><body>
 
@@ -1145,7 +1150,8 @@ const Vn=id=>VENUES.find(v=>v.id===id);
 const boost=id=>(S.boost&&S.boost[id])||1;
 const baseOf=a=>Math.round(a.base*boost(a.id));
 const proj=id=>S.projects.find(p=>p.id===id);
-const slotsMax=()=>S.rep>=40?3:2;
+const slotsMax=()=>2+(S.rep>=40?1:0)+(S.rep>=65?1:0)+(has('pm')?1:0);
+function slotHint(){const m=slotsMax();if(S.rep<40)return'信頼度40で 3本目の企画枠が解放';if(S.rep<65)return`信頼度65で ${m+1}本目の企画枠が解放`;if(!has('pm'))return'スタッフ「制作進行」を雇うと もう1枠増える';return'';}
 const LEAD={box:4,horizon:6,civic:8,park:10,arena:12,dome:16};
 const COPY_RATE=g=>g==='classical'?0.01:0.05;
 const MERCH_FEE=0.2,MERCH_ROY=0.25,VAT=1/11;
@@ -1377,7 +1383,7 @@ function hubHTML(){
   const due=S.projects.filter(q=>!q.merchDone&&q.K-q.k<=3).length;
   return gateBarHTML()+todoHTML()+timelineHTML()+`<div class="mtabs" role="tablist">${[['cards','公演'],['detail','宣伝'],['news','ニュース']].map(([k,l])=>`<button role="tab" class="${tab===k?'on':''}" onclick="setTab('${k}')">${l}${k==='cards'&&due?` <span class="dotn">${due}</span>`:''}</button>`).join('')}</div>
   <div class="hub" data-tab="${tab}">
-    <aside class="plist"><div class="sech">${ic('ticket')}進行中の公演<small>押すと詳細</small></div><div class="cards">${cards}</div>${companyHTML()}
+    <aside class="plist"><div class="sech">${ic('ticket')}進行中の公演<small>押すと詳細</small></div><div class="cards ${S.projects.length>=3?'many':''} ${S.projects.length>=4?'many4':''}">${cards}</div>${companyHTML()}
       <div class="panel newsp" style="flex:1;display:flex;flex-direction:column;min-height:120px"><b style="font-size:13px">業界ニュース</b><div class="trendbar">${trendBar()}</div><ul class="news" style="margin-top:6px">${S.news.slice(0,30).map(l=>`<li class="${l.c||''}">${newsIcon(l.c)}<span>${l.t}</span></li>`).join('')}</ul></div>
     </aside>
     <section class="detail">${p?detailHTML(p):welcomeHTML()}</section>
@@ -1637,7 +1643,7 @@ function confirmPlan(force){
   if(p.grant&&grantOk(p)&&p.price<=a.ref){if(Math.random()<grantChance()){pr.grant=grantAmt(p);S.cash+=pr.grant;setTimeout(()=>toast(`${ic('book')} 助成金が採択された！ +${fmtY(pr.grant)}`,'fire'),700);S.news.unshift({t:`${esc(a.name)}：文化芸術の助成金が採択（+${fmtY(pr.grant)}）`,c:'gd'});}else{setTimeout(()=>toast(`${ic('book')} 助成金は今回は不採択…`),700);S.news.unshift({t:`${esc(a.name)}：助成金は不採択`,c:'ev'});}}
   if(p.crowd){const raised=Math.round(baseOf(a)*rnd(250,400)*(0.8+S.rep/100)*(1+Math.min(0.3,(S.fans||0)/20000))/1000)*1000;pr.crowd=raised;S.cash+=raised;pr.aw=Math.min(1.6,pr.aw+0.06);
     setTimeout(()=>toast(`${ic('coin')} クラファン成功！ ${fmtY(raised)} 集まった`,'fire'),400);}
-  S.projects.push(pr);S.sel=id;S.plan=null;S.phase='hub';
+  S.projects.push(pr);S.sel=id;S.plan=null;S.phase='hub';S.maxProj=Math.max(S.maxProj||0,S.projects.length);
   if(S.tut)S.tut.done.booked=true;
   if(S.projects.length>=2)award('multi');
   if([p.loan>0,p.sponsor,p.investor,p.crowd].filter(Boolean).length>=3)award('funding');
@@ -1946,7 +1952,7 @@ function computeShow(p,bonus){
   const presoldRev=p.preRev!=null?p.preRev:(presold-comps)*p.price,walkRev=walk*p.price;
   const vipN=p.vip?Math.round(Math.min(v.cap*0.05,(sold-comps)*0.05*clamp(fill/0.8,0.3,1))):0,vipRev=Math.round(vipN*p.price*1.5),vipCost=vipN*3000;
   const ticketRev=presoldRev+walkRev+vipRev;
-  const playguide=Math.round(presoldRev*pgRate()),staff=v.cap*150+sold*400;
+  const playguide=Math.round(presoldRev*pgRate()),staff=Math.round((v.cap*150+sold*400)*[1,1,0.9,0.85][lv('pm')]);
   const fee=p.fee||feeOf(a);
   const sharePay=Math.max(Math.round(fee*0.3),Math.round(Math.max(0,ticketRev-p.rentPaid-p.prodPaid-staff-playguide)*0.5));
   const artistPay=p.deal==='fixed'?fee:sharePay,altPay=p.deal==='fixed'?sharePay:fee;
@@ -2249,6 +2255,7 @@ const STAFF=[
  {id:'account',name:'経理担当',role:'借入の利息5%→2%、保険料3%→2%、つなぎ融資の手数料なし',lv:['利息2%・保険料2%・つなぎ手数料なし','保険料1.5%','銀行の借入枠+20%'],sal:40000,rep:0,f:{hair:'slick',hc:'#555',skin:SKIN[0],out:'#3a3a50',out2:'#cfe0ff',glasses:true}},
  {id:'booker',name:'ブッキング担当',role:'ライバルに日程を取られにくく、取り合いも起きにくい',lv:['日程を取られにくい・取り合い減','会場費5%引き（顔が利く）','会場費8%引き・取り合いほぼなし'],sal:60000,rep:20,f:{hair:'long',hc:'#3a2028',skin:SKIN[3],out:'#5a189a',out2:'#ff8fab'}},
  {id:'pr',name:'広報（PR）',role:'取材の売り込み成功率+20%。炎上やうわさの悪影響が半分',lv:['売り込み成功率+20%・炎上の影響半分','売り込み成功率+30%','話題度が冷めにくい'],sal:40000,rep:10,f:{hair:'twin',hc:'#4a2a18',skin:SKIN[0],out:'#2a7a5a',out2:'#fff'}},
+ {id:'pm',name:'制作進行',role:'同時に進められる公演が1本増える',lv:['同時進行の枠+1','本番の運営費（人件費・警備など）−10%','運営費−15%'],sal:90000,rep:30,img:false,f:{hair:'slick',hc:'#222',skin:SKIN[1],out:'#2f4f4f',out2:'#9fe8c8',glasses:true}},
  {id:'sns',name:'SNS運用担当',role:'SNS広告・動画広告・インフルエンサーの効果+20%',lv:['ネット宣伝の効果+20%','ネット宣伝の効果+30%','ネット宣伝の効果+40%'],sal:50000,rep:5,img:false,f:{hair:'bob',hc:'#2a6aff',skin:SKIN[1],out:'#1a1a2e',out2:'#4dd8ff'}},
  {id:'ticket',name:'チケット担当',role:'値上げ・値下げをしても満足度が下がらない',lv:['価格変更で満足度が下がらない','プレイガイド手数料8%→7%','価格変更に行動力がいらない'],sal:50000,rep:12,img:false,f:{hair:'short',hc:'#5a3a1a',skin:SKIN[2],out:'#7a4a10',out2:'#ffd23f'}},
 ];
@@ -2275,7 +2282,7 @@ function companyHTML(){
    <div class="org"><span>${playerAva(26)}<b>社長</b>あなた</span><span>${coachAva(26)}<b>${COACH.role}</b>${COACH.name}</span></div>
    <div class="meters"><span title="業界からの信頼。演者・会場・借入枠が広がる">${ic('crown')}<small>信頼度</small><b>${Math.round(S.rep)}</b></span><span title="自社の先行会員。公演の初動の熱量とクラファンが伸びる">${ic('users')}<small>先行会員</small><b>${fmtN(S.fans||0)}</b></span><span title="世間の注目。宣伝と取材が効きやすくなる。毎週少しずつ冷める">${ic('flame','fill')}<small>話題度</small><b>${Math.round(S.buzz||0)}</b></span></div>
    <div class="staffrow">${st.map(s=>staffAva(s,24)).join('')}<span class="muted" style="font-size:11px">固定費 −${fmtY(sal+office())}/週（事務所${fmtY(office())}${sal?'＋人件費'+fmtY(sal):''}）</span></div>
-   ${slotsMax()<3?'<p class="muted" style="font-size:11px;margin-top:4px">信頼度40で 3本目の企画枠が解放</p>':''}<b style="font-size:13px;display:block;margin-top:6px">依頼（ミッション）</b><ul class="missions">${ms}</ul></div>`;
+   ${slotHint()?`<p class="muted" style="font-size:11px;margin-top:4px">${ic('spark')} 同時進行 ${slotsMax()}本まで。${slotHint()}</p>`:`<p class="muted" style="font-size:11px;margin-top:4px">同時進行 ${slotsMax()}本まで（最大）</p>`}<b style="font-size:13px;display:block;margin-top:6px">依頼（ミッション）</b><ul class="missions">${ms}</ul></div>`;
 }
 function openStaff(){
   showModal(`<div class="eyebrow">会社の体制</div><h3>スタッフを雇う</h3><p class="lead">人件費（毎週の固定費）がかかる代わりに、効果がずっと続く。公演を重ねるとスタッフが育ち（Lv3まで）、効果が増える。雇うときは契約金（人件費2週分）。</p>
