@@ -813,7 +813,7 @@ const ICONS={video:'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M1
 };
 function ic(n,cls=''){return `<svg class="ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;}
 /* ========== イラスト（アーティスト・グッズ）をSVGで描く ========== */
-let artSeq=0;let IMG=false;const MERCH_ART=new Set(['mizuiro','blaze','chamber','hoshino','neon','kaito']);const MERCH_IMG=new Set([...['mizuiro','blaze','chamber','hoshino','neon','kaito','jazz','signal','origin'].flatMap(x=>['tee','towel','pamph','light','cd','acsta'].map(m=>x+'-'+m))].filter(k=>k!=='neon-acsta'));const NO_CUT=new Set(['signal']);const BASE_ART=new Set(['jazz','signal','origin','mizuiro','blaze','chamber','hoshino','neon','kaito','box','horizon','civic','arena','dome']);const hasArt=id=>IMG&&BASE_ART.has(id);const AST='assets/';
+let artSeq=0;let IMG=false;const MERCH_ART=new Set(['mizuiro','blaze','chamber','hoshino','neon','kaito']);const MERCH_IMG=new Set([...['mizuiro','blaze','chamber','hoshino','neon','kaito','jazz','signal','origin'].flatMap(x=>['tee','towel','pamph','light','cd','acsta'].map(m=>x+'-'+m))].filter(k=>k!=='neon-acsta'));const NO_CUT=new Set([]);const BASE_ART=new Set(['jazz','signal','origin','mizuiro','blaze','chamber','hoshino','neon','kaito','box','horizon','civic','arena','dome','park']);const hasArt=id=>IMG&&BASE_ART.has(id);const AST='assets/';
 const SKIN=['#f2c9a5','#e8b48f','#d9a07a','#f5d5b8'];
 function fig(o){
   const s=o.s||1,sk=o.skin||SKIN[0],hc=o.hc||'#222';
@@ -2257,9 +2257,9 @@ const STAFF=[
  {id:'account',name:'経理担当',role:'借入の利息5%→2%、保険料3%→2%、つなぎ融資の手数料なし',lv:['利息2%・保険料2%・つなぎ手数料なし','保険料1.5%','銀行の借入枠+20%'],sal:40000,rep:0,f:{hair:'slick',hc:'#555',skin:SKIN[0],out:'#3a3a50',out2:'#cfe0ff',glasses:true}},
  {id:'booker',name:'ブッキング担当',role:'ライバルに日程を取られにくく、取り合いも起きにくい',lv:['日程を取られにくい・取り合い減','会場費5%引き（顔が利く）','会場費8%引き・取り合いほぼなし'],sal:60000,rep:20,f:{hair:'long',hc:'#3a2028',skin:SKIN[3],out:'#5a189a',out2:'#ff8fab'}},
  {id:'pr',name:'広報（PR）',role:'取材の売り込み成功率+20%。炎上やうわさの悪影響が半分',lv:['売り込み成功率+20%・炎上の影響半分','売り込み成功率+30%','話題度が冷めにくい'],sal:40000,rep:10,f:{hair:'twin',hc:'#4a2a18',skin:SKIN[0],out:'#2a7a5a',out2:'#fff'}},
- {id:'pm',name:'制作進行',role:'同時に進められる公演が1本増える',lv:['同時進行の枠+1','本番の運営費（人件費・警備など）−10%','運営費−15%'],sal:90000,rep:30,img:false,f:{hair:'slick',hc:'#222',skin:SKIN[1],out:'#2f4f4f',out2:'#9fe8c8',glasses:true}},
- {id:'sns',name:'SNS運用担当',role:'SNS広告・動画広告・インフルエンサーの効果+20%',lv:['ネット宣伝の効果+20%','ネット宣伝の効果+30%','ネット宣伝の効果+40%'],sal:50000,rep:5,img:false,f:{hair:'bob',hc:'#2a6aff',skin:SKIN[1],out:'#1a1a2e',out2:'#4dd8ff'}},
- {id:'ticket',name:'チケット担当',role:'値上げ・値下げをしても満足度が下がらない',lv:['価格変更で満足度が下がらない','プレイガイド手数料8%→7%','価格変更に行動力がいらない'],sal:50000,rep:12,img:false,f:{hair:'short',hc:'#5a3a1a',skin:SKIN[2],out:'#7a4a10',out2:'#ffd23f'}},
+ {id:'pm',name:'制作進行',role:'同時に進められる公演が1本増える',lv:['同時進行の枠+1','本番の運営費（人件費・警備など）−10%','運営費−15%'],sal:90000,rep:30,f:{hair:'slick',hc:'#222',skin:SKIN[1],out:'#2f4f4f',out2:'#9fe8c8',glasses:true}},
+ {id:'sns',name:'SNS運用担当',role:'SNS広告・動画広告・インフルエンサーの効果+20%',lv:['ネット宣伝の効果+20%','ネット宣伝の効果+30%','ネット宣伝の効果+40%'],sal:50000,rep:5,f:{hair:'bob',hc:'#2a6aff',skin:SKIN[1],out:'#1a1a2e',out2:'#4dd8ff'}},
+ {id:'ticket',name:'チケット担当',role:'値上げ・値下げをしても満足度が下がらない',lv:['価格変更で満足度が下がらない','プレイガイド手数料8%→7%','価格変更に行動力がいらない'],sal:50000,rep:12,f:{hair:'short',hc:'#5a3a1a',skin:SKIN[2],out:'#7a4a10',out2:'#ffd23f'}},
 ];
 const has=id=>!!(S&&S.staff&&S.staff[id]);
 function lv(id){if(!has(id))return 0;const x=(S.sxp&&S.sxp[id])||0;return x>=6?3:x>=3?2:1;}
@@ -2626,7 +2626,7 @@ function renderCoach(){
 function skipTut(){if(S&&S.tut)S.tut.on=false;renderCoach();save();}
 
 /* ========== 起動 ========== */
-const HAVE={};const OPT=['bg-title','stage-box','stage-horizon','stage-civic','stage-arena','stage-dome','scene-soldout','scene-legend','scene-bankrupt','scene-bought','scene-win','scene-end'];
+const HAVE={};const OPT=['bg-title','stage-box','stage-horizon','stage-civic','stage-arena','stage-dome','stage-park','scene-soldout','scene-legend','scene-bankrupt','scene-bought','scene-win','scene-end'];
 function probeOpt(){OPT.forEach(n=>{const t=new Image();t.onload=()=>{HAVE[n]=true;if(!S||S.phase==='end')render();};t.src=AST+n+'.webp';});}
 function sceneBg(n,dark){return HAVE[n]?`background-image:linear-gradient(rgba(16,8,18,${dark}),rgba(16,8,18,${Math.min(.95,dark+.25)})),url(${AST}${n}.webp);background-size:cover;background-position:center`:'';}
 function stageBg(v,R){
