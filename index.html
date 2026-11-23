@@ -714,6 +714,7 @@ h3,.modal h3{font-family:var(--f-body)!important;font-weight:700!important;lette
  #toasts .toast:nth-last-child(n+3){display:none}
  .toast{font-size:12px;padding:6px 10px}
 }
+.slot small.disc{color:#1a0d05;background:var(--good);border-radius:3px;padding:0 3px;font-family:var(--f-body);font-weight:700}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head><body>
@@ -1062,6 +1063,8 @@ const GLOSSARY=[
  ['著作権使用料','コンサートで曲を演奏すると、作詞・作曲者の権利を管理する団体（日本ではJASRACなど）に使用料を払う。主催者の大事な手続き。ゲームではチケット売上の5%（著作権が切れた古いクラシック曲が中心なら1%）を目安にしている。'],
  ['消費税','チケット代やグッズ代には消費税（10%）が含まれていて、受け取った税から、経費で払った税を引いた分を国に納める。'],
  ['会場の予約時期','大きい会場ほど早く予約が埋まる。実際には1年以上前に押さえることも多い（ゲームでは時間を縮めて、ライブハウス4週前〜ドーム16週前にしている）。'],
+ ['直前の空き枠','他社のキャンセルなどで、直前に会場が空くことがある。会場側は空けておくより安くても埋めたいので、値引きされることも多い。ただし宣伝できる期間は短い。'],
+ ['借入と利息','足りない分を借りれば公演の数を増やせるが、利息がかかり、失敗したときも返さなければならない。必要以上に借りると利息の分だけ損になる。'],
  ['キャンセル料','予約を取り消すと、会場費や出演料の一部が戻らない。直前になるほど戻るお金が減る。'],
  ['ツアー','同じ演者が複数の会場を回る公演。舞台セットや機材を使い回せるので、1公演あたりの費用が下がる。'],
  ['フェス（ライブイベント）','複数の演者が出演する大型イベント。客層が広がり、まとめて契約すると出演料も抑えられるが、準備と資金の規模も大きい。'],
@@ -1144,9 +1147,14 @@ function leadFactor(L){return Math.min(1.15,0.85+0.025*L);}
 function repFactor(){return 0.9+S.rep/400;}
 function demand(p,aw,extra=1){const a=A(p.artist);return (p.lineup?festBase(p):baseOf(a))*aw*priceFactor(p.lineup?{ref:pRef(p),el:a.el}:a,p.price)*dayFactor(a,p.d)*leadFactor(p.L)*repFactor()*trendFactor(a.genre)*rivalFactor(p)*streakFactor()*extra;}
 function curve(k,K){return k>=K?0.85:0.28+0.57*Math.pow(k/K,1.6);}
+function isDisc(vid,k){return !!(S.disc&&S.disc[vid]&&S.disc[vid][k]);}
+function cancelTick(){S.disc=S.disc||{};let n=0;
+  VENUES.forEach(v=>{const sv=S.sched.v[v.id];for(let off=LEAD[v.id];off<=LEAD[v.id]+3;off++){const w=S.week+off;if(w>SEASON)continue;for(const d of['wd','we']){const k=w+'-'+d;if(sv[k]!=='f'&&sv[k]!=='y'&&Math.random()<0.12){sv[k]='f';(S.disc[v.id]=S.disc[v.id]||{})[k]=true;n++;}}}});
+  ARTISTS.forEach(a=>{const sa=S.sched.a[a.id];for(let off=4;off<=10;off++){const w=S.week+off;if(w>SEASON)continue;for(const d of['wd','we']){const k=w+'-'+d;if(sa[k]==='r'&&Math.random()<0.06)sa[k]='f';}}});
+  if(n&&Math.random()<0.5)S.news.unshift({t:'他社のキャンセルで、直前の会場枠が空いた（直前割：会場費30%引き）',c:'rv'});}
 function loanLimit(){return Math.round((1000000+S.rep*S.rep*8000)/100000)*100000;}
 function loanUsed(){return S.projects.reduce((s,p)=>s+p.loan,0);}
-function upfront(p){if(p.host==='agency')return{rent:0,prod:0,art:0,total:0};const a=A(p.artist),v=Vn(p.venue),g=GRADES[p.grade];const rent=v.rent[p.d==='we'?1:0];const prod=Math.round(v.prod*g.mult*(p.tour?0.7:1));const fee=pFee(p),art=p.deal==='fixed'?fee:Math.round(fee*0.3);return{rent,prod,art,total:rent+prod+art};}
+function upfront(p){if(p.host==='agency')return{rent:0,prod:0,art:0,total:0};const a=A(p.artist),v=Vn(p.venue),g=GRADES[p.grade];const rent=Math.round(v.rent[p.d==='we'?1:0]*(p.slot&&isDisc(v.id,p.slot)?0.7:1));const prod=Math.round(v.prod*g.mult*(p.tour?0.7:1));const fee=pFee(p),art=p.deal==='fixed'?fee:Math.round(fee*0.3);return{rent,prod,art,total:rent+prod+art};}
 function insCost(p){return Math.round(upfront(p).total*(has('account')?0.02:0.03)/1000)*1000;}
 function sponsorAmt(p){const a=A(p.artist),v=Vn(p.venue);return Math.round(Math.min(v.cap,p.lineup?festBase(p):baseOf(a))*(p.lineup?450:350)/10000)*10000;}
 function investAmt(p){return Math.round(upfront(p).total*0.4/10000)*10000;}
@@ -1398,12 +1406,12 @@ function planHTML(){
       const sa=S.sched.a[a.id],sv=S.sched.v[p.venue];
       const taken=new Set(S.projects.filter(q=>q.artist===a.id).map(q=>q.wk));
       const row=d=>weeks.map(w=>{const k=w+'-'+d,as=sa[k],vs=sv[k],dt=fmtDate(slotDate(w,d));
-        if(as==='f'&&vs==='f'&&!taken.has(w))return `<td><button class="slot ok ${p.slot===k?'sel':''}" onclick="pickSlot('${k}')">${p.slot===k?'決定':'押さえる'}<small>${dt}</small>${rivalAt(w,a.genre).length?'<small class="vs">⚔ライバル対決</small>':''}</button></td>`;
+        if(as==='f'&&vs==='f'&&!taken.has(w))return `<td><button class="slot ok ${p.slot===k?'sel':''}" onclick="pickSlot('${k}')">${p.slot===k?'決定':'押さえる'}<small>${dt}</small>${isDisc(p.venue,k)?'<small class="disc">直前割</small>':''}${rivalAt(w,a.genre).length?'<small class="vs">⚔ライバル対決</small>':''}</button></td>`;
         const rv=as==='r'||vs==='r';const why=taken.has(w)?ic('music'):rv?ic('alert'):(as!=='f'?ic('userx'):'')+(vs!=='f'?ic('homex'):'');const tipw=taken.has(w)?'自社公演あり':rv?'ライバルが押さえた':as!=='f'&&vs!=='f'?'演者も会場も空いていない':as!=='f'?'演者の予定が埋まっている':'会場が埋まっている';
         return `<td><div class="slot na ${rv?'rival':''}" title="${tipw}">${why}<small>${dt}</small></div></td>`;}).join('');
       cal=`<div class="cal-wrap"><table class="cal"><thead><tr><th class="rowh">公演日</th>${weeks.map(w=>`<th>${w-S.week}週後</th>`).join('')}</tr></thead>
       <tbody><tr><th class="rowh">平日（水）</th>${row('wd')}</tr><tr><th class="rowh">週末（土）</th>${row('we')}</tr></tbody></table></div>
-      <div class="calleg"><span>${ic('userx')}演者NG</span><span>${ic('homex')}会場NG</span><span class="rv">${ic('alert')}ライバルが確保</span><span class="bad">⚔ 同じ週に同ジャンルのライバル公演</span><span class="muted">先の日程ほど宣伝期間が長い／土曜は人が多いが会場費が高い</span></div>`;
+      <div class="calleg"><span>${ic('userx')}演者NG</span><span>${ic('homex')}会場NG</span><span class="rv">${ic('alert')}ライバルが確保</span><span class="good">直前割＝キャンセルで空いた枠（会場費30%引き・宣伝期間は短い）</span><span class="bad">⚔ 同じ週に同ジャンルのライバル公演</span><span class="muted">先の日程ほど宣伝期間が長い／土曜は人が多いが会場費が高い</span></div>`;
     } else cal=`<div class="tip"><b>会場を選ぶと空き日程が出ます。</b>満員の小さな会場は、ガラガラの大会場より評判が上がります。</div>`;
     return planHead(2,p.fest?'フェスの会場を選ぶ':'どの会場で、いつやる？',`${p.fest?'出演者全体':esc(a.name)} の動員力は <b class="num" style="color:var(--ink)">約${fmtN(b)}人</b>。会場の<button class="term" onclick="term('キャパ（キャパシティ）')">キャパ</button>とのバランスを見よう。`,
       `<button class="btn" onclick="planStep(1)">戻る</button><button class="btn primary" ${p.venue&&p.slot?'':'disabled'} onclick="planStep(3)">次へ</button>`)+`${p.fest?'':subTabs('p2',[['v','① 会場を選ぶ'],['d','② 日程を選ぶ']])}<div class="subwrap" data-cur="${p.fest?'v':(UI.p2||'v')}"><div data-pane="v"><div class="vgrid">${venues}</div></div><div data-pane="d" style="display:flex;flex-direction:column;gap:8px">${cal}</div></div>`;
@@ -1491,6 +1499,7 @@ function updateFunding(){
   const p=S.plan,t=fundingTotals(),ok=t.after>=0;
   $('#funding').innerHTML=`<div class="eyebrow">資金計画</div>${fundBars(t,p)}
    <div class="fresult ${ok?'good':'bad'}"><span>契約後に残るお金</span><b class="num">${fmtY(t.after)}</b></div>
+   ${p.loan?`<p style="font-size:12px;margin-top:4px" class="${t.after>t.u.total*0.6+300000?'bad':'muted'}">${ic('coin')} 借入${fmtY(p.loan)}の利息 <b>${fmtY(p.loan*loanRate())}</b>（公演後に返済）${t.after>t.u.total*0.6+300000?'。必要以上に借りると、利息の分だけ損になる':''}</p>`:''}
    <p class="muted" style="font-size:12px;margin-top:2px">${ok?(t.after<t.u.total*0.15?'残りが少なめ。宣伝費やグッズ代が足りなくなるかも。':'宣伝費とグッズ代はこの残りから払う。'):'足りない！ 借入やスポンサーで「用意」のバーを伸ばそう。'}</p>
    <p class="muted" style="font-size:12px;margin-top:6px">${ok?'準備OK。右下の「契約！」で公演が決まる。':''}</p>`;
   const go=$('#planGo');if(go)go.disabled=!ok;
@@ -1519,7 +1528,7 @@ function confirmPlan(force){
     noise:rnd(0.88,1.12),merch:null,merchCost:0,merchDone:p.host==='agency'||(p.merchDeal||'consign')!=='own',crowd:0,soldOutWeek:0,seen:{},cancel:null,comps:0,crown:0};
   pr.sunk=t.u.total+t.ins+t.pre+prem;
   S.cash=t.after-prem;S.ap--;
-  (p.lineup||[p.artist]).forEach(id=>S.sched.a[id][p.wk+'-'+p.d]='y');if(p.lineup&&S.fest)S.fest.planned=true;S.sched.v[p.venue][p.wk+'-'+p.d]='y';
+  (p.lineup||[p.artist]).forEach(id=>S.sched.a[id][p.wk+'-'+p.d]='y');if(p.lineup&&S.fest)S.fest.planned=true;S.sched.v[p.venue][p.wk+'-'+p.d]='y';if(S.disc&&S.disc[p.venue])delete S.disc[p.venue][p.wk+'-'+p.d];
   if(p.crowd){const raised=Math.round(baseOf(a)*rnd(250,400)*(0.8+S.rep/100)/1000)*1000;pr.crowd=raised;S.cash+=raised;pr.aw=Math.min(1.6,pr.aw+0.06);
     setTimeout(()=>toast(`${ic('coin')} クラファン成功！ ${fmtY(raised)} 集まった`,'fire'),400);}
   S.projects.push(pr);S.sel=id;S.plan=null;S.phase='hub';
@@ -1583,6 +1592,7 @@ function advanceWeek(){
   missionTick();
   if(S.fest&&!S.fest.planned&&!S.fest.lost&&S.week>FEST_DL){S.fest.lost=true;S.news.unshift({t:'年末フェスの企画が間に合わず、主催権が無駄になった…',c:'ev'});}
   rivalShowTick();
+  cancelTick();
   const trendMsg=trendTick();if(trendMsg)setTimeout(()=>{toast(trendMsg,'fire');SND.fanfare();},1700);
   const sal=salary()+office();if(sal){S.cash-=sal;S.payroll=(S.payroll||0)+sal;if(S.cash<0){takeBridge();}}
   const chMsg=chanceRoll();
