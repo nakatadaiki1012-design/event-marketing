@@ -1440,7 +1440,7 @@ function detailHTML(p){
 function footHTML(){
   const wrap=(l,r)=>`<footer class="actionbar"><div class="in">${l}<span class="spacer"></span>${r}</div></footer>`;
   if(S.phase==='plan'){const p=S.plan,st=p.step;
-    const hint=['','演者のカードを1つ選ぶ','会場を選んで、緑の日程から公演日を選ぶ','契約・演出・価格・公約を決める','足りないお金を集めて、契約する'][st];
+    const hint=['','演者のカードを1つ選ぶ',p.fest?'フェスの会場を選ぶ（日程は第'+FEST_WK+'週の土曜で決まり）':'会場を選んで、緑の日程から公演日を選ぶ','契約・演出・価格・公約を決める','足りないお金を集めて、契約する'][st];
     const next=st===1&&p.fest?`<button id="planNext" class="btn primary big" ${p.lineup.length?'':'disabled'} onclick="festNext()">次へ ▶</button>`:st===2?`<button id="planNext" class="btn primary big" ${p.venue&&p.slot?'':'disabled'} onclick="planStep(3)">次へ ▶</button>`:st===3?`<button id="planNext" class="btn primary big" onclick="planStep(4)">次へ ▶</button>`:st===4?`<button id="planGo" class="btn fire big" onclick="confirmPlan()">${ic('bolt')} 契約！ チケット発売へ</button>`:'';
     return wrap(`<span class="fstep">手順 ${st}/4</span><span class="hint">${hint}</span>`,`<button class="btn" onclick="cancelPlan()">やめる</button>${st>1?`<button class="btn" onclick="planStep(${st-1})">◀ 戻る</button>`:''}${next}`);}
   if(S.phase==='show'){
@@ -1578,7 +1578,7 @@ function openFest(){festReserve();if(!S.fest||S.fest.planned||S.week>FEST_DL||S.
 function festToggle(id){const p=S.plan,i=p.lineup.indexOf(id);if(i>=0)p.lineup.splice(i,1);else if(p.lineup.length<3)p.lineup.push(id);else{toast('出演者は3組までです');return;}SND.click();render();}
 function festNext(){const p=S.plan;if(!p.lineup.length)return;const a=A(p.lineup[0]);Object.assign(p,{artist:a.id,price:Math.round(a.ref*1.1/100)*100,wk:FEST_WK,d:'we',L:FEST_WK-S.week,slot:FEST_WK+'-we',venue:null,step:2});render();}
 function pickArtist(id){SND.click();S.plan.tour=isTour(id);S.plan.artist=id;S.plan.venue=null;S.plan.slot=null;S.plan.price=A(id).ref;S.plan.step=2;render();}
-function pickVenue(id){SND.click();S.plan.venue=id;S.plan.slot=null;if(!S.plan.fest)UI.p2='d';render();}
+function pickVenue(id){SND.click();S.plan.venue=id;S.plan.slot=null;if(S.plan.fest){S.plan.slot=FEST_WK+'-we';S.plan.wk=FEST_WK;S.plan.d='we';S.plan.L=FEST_WK-S.week;}else UI.p2='d';render();}
 function pickSlot(k){SND.click();S.plan.slot=k;const s=parseSlot(k);S.plan.wk=s.w;S.plan.d=s.d;S.plan.L=s.w-S.week;render();}
 function planStep(n){S.plan.step=n;render();}
 function setPlan(k,v){S.plan[k]=v;render();}
